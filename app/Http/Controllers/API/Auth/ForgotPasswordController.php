@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\API\Auth\ForgetPassword;
+use App\Http\Requests\API\Auth\ResetPassword;
+use App\Http\Requests\API\Auth\VerifyOTP;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
@@ -13,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class ForgotPasswordController extends Controller
 {
-    public function forgot(Request $request)
+    public function forgot(ForgetPassword $request)
     {
         try {
             DB::beginTransaction();
@@ -42,7 +45,7 @@ class ForgotPasswordController extends Controller
         }
     }
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(VerifyOTP $request)
     {
         try {
             $user = User::where([
@@ -68,7 +71,7 @@ class ForgotPasswordController extends Controller
         }
     }
 
-    public function reset(Request $request)
+    public function reset(ResetPassword $request)
     {
         try {
             $user = User::where('phone', $request->phone)->first();
