@@ -51,4 +51,6 @@ return
     'wallet'                                    => 'المحفظة',
     'Geos'                                      => 'الموقع الجغرافي',
     'password_changed_successfully'             =>  'تم تغيير كلمة المرور بنجاح',
+    'otp_verified_successfully'                 => 'تم التحقق من OTP بنجاح',
+    'password_reset_successfully'               => 'تم إعادة تعيين كلمة المرور بنجاح',
 ];

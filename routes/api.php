@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Auth\ForgotPasswordController;
 use App\Http\Controllers\API\Auth\InfoController;
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\RegisterController;
@@ -35,6 +36,15 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('verify', [RegisterController::class, 'verify']);
         Route::post('send-otp', [RegisterController::class, 'sendOtp']);
         Route::post('resend-otp', [RegisterController::class, 'resendOtp']);
+    });
+});
+
+//reset password
+Route::group(['prefix' => 'auth'], function () {
+    Route::group(['prefix' => 'password'], function () {
+        Route::post('forgot', [ForgotPasswordController::class, 'forgot']);
+        Route::post('verify-otp', [ForgotPasswordController::class, 'verifyOtp']);
+        Route::post('reset', [ForgotPasswordController::class, 'reset']);
     });
 });
 

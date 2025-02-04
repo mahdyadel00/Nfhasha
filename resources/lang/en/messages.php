@@ -52,4 +52,6 @@ return
     'Geos' => 'Geographical Locations',
     'pending_approval' => 'Your account is still pending approval. You will be contacted soon',
     'password_changed_successfully'                 =>  'Password changed successfully',
+    'otp_verified_successfully'                     =>  'OTP verified successfully',
+    'password_reset_successfully'                   =>  'Password reset successfully',
 ];
