@@ -6,24 +6,44 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateProfileRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
+use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\NotificationsResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     public function changePassword(ChangePasswordRequest $request)
     {
-        $user = auth('sanctum')->user();
+       try{
+           DB::beginTransaction();
 
-        if (!Hash::check($request->old_password, $user->password)) {
-            return apiResponse(400, __('messages.old_password_is_incorrect'));
-        }
+              $user = auth()->user();
+                if (!Hash::check($request->old_password, $user->password)) {
+                    return new ErrorResource([
+                        'message' => __('messages.old_password_is_incorrect')
+                    ]);
+                }
 
-        $user->update(['password' => $request->new_password]);
+                $user->password = Hash::make($request->new_password);
+                $user->save();
 
-        return apiResponse(200 , __('messages.data_updated_successfully' , ['attr' => __('messages.Password')]));
+                DB::commit();
+
+                return new SuccessResource([
+                    'message' => __('messages.password_changed_successfully')
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                dd($e->getMessage());
+                Log::channel('error')->error('Error in change password', ['error' => $e]);
+                return new ErrorResource(['message' => __('messages.error_occurred')]);
+            }
     }
 
     public function logout()

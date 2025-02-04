@@ -51,4 +51,5 @@ return
     'wallet' => 'Wallet',
     'Geos' => 'Geographical Locations',
     'pending_approval' => 'Your account is still pending approval. You will be contacted soon',
+    'password_changed_successfully'                 =>  'Password changed successfully',
 ];

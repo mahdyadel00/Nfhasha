@@ -8,12 +8,21 @@ use App\Http\Requests\API\Auth\ProviderRegisterRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
     public function user(RegisterRequest $request)
     {
-        $user = User::create($request->except('invitation_code'));
+        $user = User::create([
+            'name'          => $request->name,
+            'phone'         => $request->phone,
+            'password'      => Hash::make($request->password),
+            'longitude'     => $request->longitude,
+            'latitude'      => $request->latitude,
+            'address'       => $request->address,
+        ]);
+
 
         if ($request->has('invitation_code')) {
             $inviter = User::where('invitation_code', $request->invitation_code)->first();
@@ -26,9 +35,9 @@ class RegisterController extends Controller
         return apiResponse(201,
         __('messages.registered_successfully'),
         [
-            'otp' => str($user->otp),
-            'token' => $token,
-            'user' => $user,
+            'otp'       => str($user->otp),
+            'token'     => $token,
+            'user'      => $user,
         ]);
     }
 
