@@ -6,10 +6,12 @@ use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PickUpTruck extends Model implements \Astrotomic\Translatable\Contracts\Translatable
+class ExpressService extends Model implements \Astrotomic\Translatable\Contracts\Translatable
 {
-    use HasFactory, Translatable;
+    use HasFactory , Translatable;
 
     public $translatedAttributes = ['name'];
-    protected $guarded = [];
+
+    protected $fillable = ['is_active' , 'type'];
+
 }

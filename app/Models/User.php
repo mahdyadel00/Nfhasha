@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,6 +46,16 @@ class User extends Authenticatable implements FilamentUser
     ];
 
 
+    public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 10)
+    {
+        $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
+        * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
+
+        return $query->select('*')
+            ->selectRaw("{$haversine} AS distance", [$latitude, $longitude, $latitude])
+            ->having('distance', '<', $distance)  // بدلاً من whereRaw استخدم having
+            ->orderBy('distance');
+    }
 
     //Generate Invitation Code Start
     public static function generateInvitationCode()

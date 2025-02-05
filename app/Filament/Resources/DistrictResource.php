@@ -98,7 +98,7 @@ class DistrictResource extends Resource
                 TextColumn::make('city.name')
                     ->label(app()->getLocale() === 'en' ? 'City' : 'المدينة')
                     ->searchable(),
-                    
+
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('is_active')

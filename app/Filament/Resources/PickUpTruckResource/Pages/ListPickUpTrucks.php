@@ -17,5 +17,12 @@ class ListPickUpTrucks extends ListRecords
         ];
     }
 
+    protected function getTableActions(): array
+    {
+        return [
+            Actions\EditAction::make(),
+            Actions\DeleteAction::make(),
+        ];
+    }
 
 }

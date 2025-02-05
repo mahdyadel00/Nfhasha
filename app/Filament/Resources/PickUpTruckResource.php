@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PickUpTruckResource extends Resource
+class   PickUpTruckResource extends Resource
 {
     protected static ?string $model = PickUpTruck::class;
 
@@ -45,27 +45,26 @@ class PickUpTruckResource extends Resource
         return $form
             ->schema([
                 Forms\Components\FileUpload::make('image')
-                ->label(app()->getLocale() === 'en' ? 'Image' : 'صورة السطحة')
-                ->directory('pickup_trucks')
-                ->required()
-                ->image(),
+                    ->label(app()->getLocale() === 'en' ? 'Image' : 'صورة السطحة')
+                    ->directory('pickup_trucks')
+                    ->required()
+                    ->image(),
 
                 Forms\Components\TextInput::make('price')
-                ->label(app()->getLocale() === 'en' ? 'Price' : 'سعر السطحة')
-                ->required()
-                ->numeric()
-                ->prefix(app()->getLocale() === 'en' ? 'SAR' : 'ريال'),
-
+                    ->label(app()->getLocale() === 'en' ? 'Price' : 'سعر السطحة')
+                    ->required()
+                    ->numeric()
+                    ->prefix(app()->getLocale() === 'en' ? 'SAR' : 'ريال'),
 
                 Forms\Components\Section::make(app()->getLocale() === 'en' ? 'Translations' : 'الترجمات')
                     ->schema([
                         Forms\Components\TextInput::make('name:ar')
-                            ->label(app()->getLocale() === 'en' ? 'Name in Arabic' : 'الاسم بالعربية')
+                            ->label('الاسم بالعربية')
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('name:en')
-                            ->label(app()->getLocale() === 'en' ? 'Name in English' : 'الاسم بالإنجليزية')
+                            ->label('الاسم بالإنجليزية')
                             ->required()
                             ->maxLength(255),
                     ]),
@@ -147,9 +146,9 @@ class PickUpTruckResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPickUpTrucks::route('/'),
-            'create' => Pages\CreatePickUpTruck::route('/create'),
-            'edit' => Pages\EditPickUpTruck::route('/{record}/edit'),
+            'index'         => Pages\ListPickUpTrucks::route('/'),
+            'create'        => Pages\CreatePickUpTruck::route('/create'),
+            'edit'          => Pages\EditPickUpTruck::route('/{record}/edit'),
         ];
     }
 }

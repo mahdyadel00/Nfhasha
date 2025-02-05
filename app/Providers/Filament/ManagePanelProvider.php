@@ -31,13 +31,13 @@ class ManagePanelProvider extends PanelProvider
             ->path('manage22')
             ->login()
             ->colors([
-                'primary' => '#3f83f8',
-                'secondary' => '#f8f9fa',
-                'background' => '#f8f9fa',
-                'surface' => '#ffffff',
-                'error' => '#b00020',
-                'on-primary' => '#ffffff',
-                'on-secondary' => '#000000',
+                'primary'           => '#3f83f8',
+                'secondary'         => '#f8f9fa',
+                'background'        => '#f8f9fa',
+                'surface'           => '#ffffff',
+                'error'             => '#b00020',
+                'on-primary'        => '#ffffff',
+                'on-secondary'      => '#000000',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

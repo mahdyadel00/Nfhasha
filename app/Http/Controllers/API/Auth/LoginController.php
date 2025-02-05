@@ -48,8 +48,8 @@ class LoginController extends Controller
             $user = auth()->user();
 
             $user->update([
-                'longitude' => $request->longitude,
-                'latitude' => $request->latitude
+                'longitude'     => $request->longitude,
+                'latitude'      => $request->latitude
             ]);
 
             if ($user->role === 'provider') {

@@ -7,34 +7,39 @@ use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ProviderResources;
 use App\Models\Provider;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProviderController extends Controller
 {
     public function nearbyProviders(Request $request)
     {
-        try{
+        try {
             DB::beginTransaction();
-            $providers = Provider::where('is_active' , 1)->nearby($request->latitude, $request->longitude , 10)->map(function($provider){
-                return new ProviderResources($provider);
-            });
+
+            $users = User::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->nearby($request->latitude, $request->longitude, 10)
+                ->where('role', 'provider')
+                ->orderBy('distance')
+                ->get();
+
 
             DB::commit();
 
-
             return new SuccessResource([
-                    'success'       => true,
-                    'data'          => ProviderResources::collection($providers),
-                    'message'       => 'Nearby providers retrieved successfully.',
+                'success'       => true,
+                'data'          => ProviderResources::collection($users),
+                'message'       => 'Nearby providers retrieved successfully.',
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage());
-            return new ErrorResource([
-                'success'       => false,
-                'message'       => $e->getMessage(),
-            ]);
+            Log::channel('error')->error('Error in nearbyProviders: '.$e->getMessage());
+            return new ErrorResource(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
 }

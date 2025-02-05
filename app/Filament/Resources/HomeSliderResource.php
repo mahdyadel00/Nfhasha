@@ -84,9 +84,9 @@ class HomeSliderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListHomeSliders::route('/'),
-            'create' => Pages\CreateHomeSlider::route('/create'),
-            'edit' => Pages\EditHomeSlider::route('/{record}/edit'),
+            'index'     => Pages\ListHomeSliders::route('/'),
+            'create'    => Pages\CreateHomeSlider::route('/create'),
+            'edit'      => Pages\EditHomeSlider::route('/{record}/edit'),
         ];
     }
 }

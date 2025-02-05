@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pick_up_trucks', function (Blueprint $table) {
+        Schema::create('express_services', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
-            $table->double('price',8,2);
-            $table->softDeletes();
+            $table->boolean('is_active')->default(true);
+            $table->enum('type', ['open_locks', 'battery', 'fuel', 'puncture', 'tow_truck']);
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pick_up_trucks');
+        Schema::dropIfExists('express_services');
     }
 };

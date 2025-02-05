@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             DistrictSeeder::class,
             PickUpTruckSeeder::class,
             ProviderSeeder::class,
+            ExpressServicesSeeder::class,
         ]);
 
         User::factory()->count(50)->create();
