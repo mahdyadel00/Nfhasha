@@ -53,4 +53,5 @@ return
     'password_changed_successfully'             =>  'تم تغيير كلمة المرور بنجاح',
     'otp_verified_successfully'                 => 'تم التحقق من OTP بنجاح',
     'password_reset_successfully'               => 'تم إعادة تعيين كلمة المرور بنجاح',
+    'express_service_created'                   => 'تم إنشاء الخدمة السريعة بنجاح',
 ];

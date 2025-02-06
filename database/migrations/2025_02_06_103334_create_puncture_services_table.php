@@ -1,0 +1,39 @@
+<?php
+
+use App\Models\ExpressService;
+use App\Models\User;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('puncture_services', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->string('from_latitude');
+            $table->string('from_longitude');
+            $table->string('to_latitude')->nullable();
+            $table->string('to_longitude')->nullable();
+            $table->enum('type_battery', ['original', 'commercial'])->nullable();
+            $table->string('battery_image')->nullable();
+            $table->string('car_image')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('puncture_services');
+    }
+};

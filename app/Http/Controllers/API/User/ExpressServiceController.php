@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers\API\User;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\API\User\ExpressService\StoreExpressServiceRequest;
+use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\SuccessResource;
+use App\Http\Resources\API\User\ExpressServiceResource;
+use App\Models\ExpressService;
+use App\Models\PunctureService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class ExpressServiceController extends Controller
+{
+    public function index(Request $request)
+    {
+        $express_services = ExpressService::where('type' , $request->type)->paginate(config("app.pagination"));
+
+        return Count($express_services) > 0
+            ? ExpressServiceResource::collection($express_services)
+            : new ErrorResource('No express services found');
+    }
+
+    public function store(StoreExpressServiceRequest $request)
+    {
+        try{
+            DB::beginTransaction();
+
+            $express_service = PunctureService::create([
+                'express_service_id'    => $request->express_service_id,
+                'user_id'               => auth()->id(),
+                'from_latitude'         => $request->from_latitude,
+                'from_longitude'        => $request->from_longitude,
+                'to_latitude'           => $request->to_latitude ?? null,
+                'to_longitude'          => $request->to_longitude ?? null,
+                'type_battery'          => $request->type_battery ?? null,
+                'battery_image'         => $request->battery_image ? $request->battery_image->store('express_services') : null,
+                'car_image'             => $request->car_image ? $request->car_image->store('express_services') : null,
+                'notes'                 => $request->notes ?? null,
+            ]);
+
+            DB::commit();
+
+            return new SuccessResource([
+                'message' => __('messages.express_service_created'),
+            ]);
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            Log::channel('error')->error($e->getMessage());
+            return new ErrorResource($e->getMessage());
+        }
+    }
+}

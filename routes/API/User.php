@@ -1,14 +1,13 @@
 <?php
 
-use App\Http\Controllers\API\User\{
-    AppController,
+use App\Http\Controllers\API\User\{AppController,
     ContactUsController,
+    ExpressServiceController,
     UserController,
     VehiclesController,
     VehiclesInfoController,
     WalletController,
-    ProviderController
-};
+    ProviderController};
 use App\Http\Controllers\API\User\OrderController;
 use App\Http\Resources\API\CyPeriodicResource;
 use App\Models\CyPeriodic;
@@ -91,3 +90,6 @@ Route::prefix('orders')->controller(OrderController::class)->group(function () {
 
 //get nearby providers
 Route::get('nearby-providers' , [ProviderController::class , 'nearbyProviders']);
+//route express service
+Route::get('express-services' , [ExpressServiceController::class , 'index']);
+Route::post('express-services' , [ExpressServiceController::class , 'store']);

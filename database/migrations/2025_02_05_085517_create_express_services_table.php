@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->boolean('is_active')->default(true);
             $table->enum('type', ['open_locks', 'battery', 'fuel', 'puncture', 'tow_truck']);
+            $table->decimal('price', 8, 2)->default(0);
             $table->timestamps();
         });
     }

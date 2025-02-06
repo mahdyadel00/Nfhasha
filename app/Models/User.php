@@ -149,4 +149,10 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Order::class);
     }
+
+    //Puncture Services
+    public function punctureServices()
+    {
+        return $this->hasMany(PunctureService::class);
+    }
 }
