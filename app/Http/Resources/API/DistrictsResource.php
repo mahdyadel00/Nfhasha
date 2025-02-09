@@ -16,11 +16,11 @@ class DistrictsResource extends JsonResource
     {
         return
         [
-            'id' => $this->id,
-            'name' => $this->name,
-            'city_id' => $this->city->name,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly' => $this->created_at->diffForHumans(),
+            'id'                            => $this->id,
+            'name'                          => $this->name,
+            'city_id'                       => $this->city->name,
+            'created_at'                    => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at_humanly'            => $this->created_at->diffForHumans(),
         ];
     }
 }

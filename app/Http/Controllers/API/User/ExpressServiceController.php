@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\User;
 
+use App\Events\ProviderNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ExpressService\StoreExpressServiceRequest;
 use App\Http\Resources\API\ErrorResource;
@@ -9,6 +10,7 @@ use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Models\ExpressService;
 use App\Models\PunctureService;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +31,15 @@ class ExpressServiceController extends Controller
         try{
             DB::beginTransaction();
 
+            $users = User::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->nearby($request->from_latitude, $request->from_longitude, 50)
+                ->where('role', 'provider')
+                ->orderBy('distance')
+                ->get();
+
+
+
             $express_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
@@ -40,8 +51,12 @@ class ExpressServiceController extends Controller
                 'battery_image'         => $request->battery_image ? $request->battery_image->store('express_services') : null,
                 'car_image'             => $request->car_image ? $request->car_image->store('express_services') : null,
                 'notes'                 => $request->notes ?? null,
+                'amount'                => $request->amount,
+                'status'                => 'pending',
             ]);
 
+            //send notification to provider
+            Broadcast(new ProviderNotification('New express service request', $users->pluck('id')->toArray() , $express_service));
             DB::commit();
 
             return new SuccessResource([

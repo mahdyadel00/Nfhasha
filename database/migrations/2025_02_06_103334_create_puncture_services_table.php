@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('battery_image')->nullable();
             $table->string('car_image')->nullable();
             $table->text('notes')->nullable();
+            $table->decimal('amount', 8, 2)->default(0);
+            $table->enum('status', ['pending', 'accepted', 'rejected', 'completed'])->default('pending');
             $table->timestamps();
         });
     }

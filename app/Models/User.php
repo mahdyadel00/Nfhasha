@@ -46,7 +46,7 @@ class User extends Authenticatable implements FilamentUser
     ];
 
 
-    public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 10)
+    public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)
     {
         $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
         * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
@@ -154,5 +154,10 @@ class User extends Authenticatable implements FilamentUser
     public function punctureServices()
     {
         return $this->hasMany(PunctureService::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(ProviderNotification::class);
     }
 }

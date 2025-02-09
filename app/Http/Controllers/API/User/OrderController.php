@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\User;
 use App\Events\ServiceRequestEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\StoreperiodicExaminationRequest;
+use App\Http\Resources\API\OrderResource;
+use App\Http\Resources\API\SuccessResource;
 use App\Models\CyPeriodic;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
@@ -51,5 +53,17 @@ class OrderController extends Controller
         broadcast(new ServiceRequestEvent($order , $order->type));
 
         return apiResponse(200 , __('messages.order_paid') , $order);
+    }
+
+    public function index(Request $request)
+    {
+
+
+        $orders = auth('sanctum')->user()->orders()->latest()->paginate($request->limit ?? 10);
+
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'orders'    => OrderResource::collection($orders)
+        ]);
     }
 }

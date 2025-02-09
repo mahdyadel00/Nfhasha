@@ -31,6 +31,7 @@ class StoreExpressServiceRequest extends FormRequest
             'battery_image'             => ['nullable', 'image'],
             'car_image'                 => ['nullable', 'image'],
             'notes'                     => ['nullable', 'string'],
+            'amount'                    => ['required', 'numeric'],
         ];
     }
 
@@ -56,6 +57,8 @@ class StoreExpressServiceRequest extends FormRequest
             'battery_image.image'               => __('validation.image', ['attribute' => 'battery image']),
             'car_image.image'                   => __('validation.image', ['attribute' => 'car image']),
             'notes.string'                      => __('validation.string', ['attribute' => 'notes']),
+            'amount.required'                   => __('validation.required', ['attribute' => 'amount']),
+            'amount.numeric'                    => __('validation.numeric', ['attribute' => 'amount']),
         ];
     }
 }

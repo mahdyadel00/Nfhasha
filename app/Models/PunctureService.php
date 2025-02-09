@@ -20,6 +20,8 @@ class PunctureService extends Model
         'battery_image',
         'car_image',
         'notes',
+        'amount',
+        'status',
     ];
 
 

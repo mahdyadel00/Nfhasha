@@ -16,10 +16,10 @@ class CyPeriodicResource extends JsonResource
     {
         return
         [
-            'id' => $this->id,
-            'title' => $this->title,
-            'price' => number_format($this->price, 2),
-            'city' => $this->city->name,
+            'id'                            => $this->id,
+            'title'                         => $this->title,
+            'price'                         => number_format($this->price, 2),
+            'city'                          => $this->city->name,
         ];
     }
 }

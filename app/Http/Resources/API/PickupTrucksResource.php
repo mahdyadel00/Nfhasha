@@ -16,10 +16,10 @@ class PickupTrucksResource extends JsonResource
     {
         return
         [
-            'id' => $this->id,
-            'name' => $this->name,
-            'price' => number_format($this->price, 2),
-            'image' => asset('storage/' . $this->image),
+            'id'                        => $this->id,
+            'name'                      => $this->name,
+            'price'                     => number_format($this->price, 2),
+            'image'                     => asset('storage/' . $this->image),
         ];
     }
 }

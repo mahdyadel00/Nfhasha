@@ -28,4 +28,10 @@ class Provider extends Model
         return $this->hasMany(CyPeriodicProvider::class);
     }
 
+    public function provider_notifications()
+    {
+        return $this->hasMany(ProviderNotification::class);
+    }
+
+
 }

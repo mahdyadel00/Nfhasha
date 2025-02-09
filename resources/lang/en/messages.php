@@ -54,4 +54,5 @@ return
     'otp_verified_successfully'                     =>  'OTP verified successfully',
     'password_reset_successfully'                   =>  'Password reset successfully',
     'express_service_created'                       =>  'Express service created successfully',
+    'orders'                                        =>  'Orders',
 ];

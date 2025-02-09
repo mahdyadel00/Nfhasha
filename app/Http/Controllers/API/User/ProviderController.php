@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\User;
 
+use App\Events\ProviderNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
@@ -22,11 +23,10 @@ class ProviderController extends Controller
 
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->nearby($request->latitude, $request->longitude, 10)
+                ->nearby($request->latitude, $request->longitude, 50)
                 ->where('role', 'provider')
                 ->orderBy('distance')
-                ->get();
-
+                ->take(10)->get();
 
             DB::commit();
 
@@ -35,6 +35,7 @@ class ProviderController extends Controller
                 'data'          => ProviderResources::collection($users),
                 'message'       => 'Nearby providers retrieved successfully.',
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error('Error in nearbyProviders: '.$e->getMessage());

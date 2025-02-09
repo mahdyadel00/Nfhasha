@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\Provider\AccountController;
+use App\Http\Controllers\API\Provider\OfferController;
 use App\Http\Controllers\API\User\{AppController, ContactUsController};
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,10 @@ Route::post('update-profile', [AccountController::class, 'updateProfile']);
 Route::post('update-geos' , [AccountController::class , 'updateGeos']);
 
 
+//get all express services
+Route::get('express-services' , [AppController::class , 'expressServices']);
+
+
 
 // Route::group(['prefix' => 'wallet' , 'controller' => WalletController::class] , function () {
 //     Route::get('', 'index');
@@ -39,4 +44,10 @@ Route::post('update-geos' , [AccountController::class , 'updateGeos']);
 
 Route::post('contact-us' , ContactUsController::class)->name('contact-us');
 
-// Route::get('')
+// get all offers
+Route::get('offers' , [OfferController::class , 'offers']);
+Route::get('offer/{id}' , [OfferController::class , 'offer']);
+Route::post('accept-offer/{id}' , [OfferController::class , 'acceptOffer']);
+Route::post('reject-offer/{id}' , [OfferController::class , 'rejectOffer']);
+Route::post('send-offer' , [OfferController::class , 'sendOffer']);
+Route::post('complete-offer/{id}' , [OfferController::class , 'completeOffer']);

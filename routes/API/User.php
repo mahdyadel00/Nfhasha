@@ -86,6 +86,9 @@ Route::get('periodic-examination/{city}' , function($city)
 Route::prefix('orders')->controller(OrderController::class)->group(function () {
     Route::post('periodic-examination', 'periodicExamination');
     Route::post('payment/{order}' , 'payment');
+
+    //get orders
+    Route::get('' , 'index');
 });
 
 //get nearby providers

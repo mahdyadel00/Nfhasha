@@ -16,12 +16,12 @@ class TransactionsRequest extends JsonResource
     {
         return
         [
-            'id' => $this->id,
-            'amount' => $this->amount,
-            'type' => $this->type,
-            'notes' => $this->notes,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly' => $this->created_at->diffForHumans()
+            'id'                            => $this->id,
+            'amount'                        => $this->amount,
+            'type'                          => $this->type,
+            'notes'                         => $this->notes,
+            'created_at'                    => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at_humanly'            => $this->created_at->diffForHumans()
         ];
     }
 }

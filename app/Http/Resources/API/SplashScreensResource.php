@@ -20,10 +20,10 @@ class SplashScreensResource extends JsonResource
 
         return
         [
-            'id' => $this->id,
-            'image' => asset('storage/' . $this->image),
-            'title' => $this->translate($locale)->title ?? '',
-            'description' => $this->translate($locale)->description ?? '',
+            'id'                        => $this->id,
+            'image'                     => asset('storage/' . $this->image),
+            'title'                     => $this->translate($locale)->title ?? '',
+            'description'               => $this->translate($locale)->description ?? '',
         ];
     }
 }
