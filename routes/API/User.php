@@ -100,5 +100,6 @@ Route::post('express-services' , [ExpressServiceController::class , 'store']);
 
 //get all notifications
 Route::get('notifications' , [NotificationController::class , 'index']);
-//get single notification
 Route::get('notification/{id}' , [NotificationController::class , 'show']);
+Route::post('accept-offer/{id}' , [NotificationController::class , 'acceptOffer']);
+Route::post('reject-offer/{id}' , [NotificationController::class , 'rejectOffer']);

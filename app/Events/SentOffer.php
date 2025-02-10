@@ -26,22 +26,22 @@ class SentOffer implements ShouldBroadcastNow
         $this->amout            = $amout;
 
         //store notification in database
-        foreach ($providers as $provider) {
-            \App\Models\ProviderNotification::create([
-                'provider_id' => $provider,
-                'message'     => $message,
-                'user_id'     => $express_service['user']['id'],
-            ]);
-        }
+
+        \App\Models\ProviderNotification::create([
+            'provider_id' => $providers,
+            'message'     => $message,
+            'user_id'     => $express_service['user']['id'],
+        ]);
     }
 
     public function broadcastOn()
     {
         return array_map(
             fn($id) => new PrivateChannel('notifications.providers.' . $id),
-            $this->providers,
-            $this->express_service->toArray()
+            is_array($this->providers) ? $this->providers : [],
+            is_array($this->express_service->toArray()) ? $this->express_service->toArray() : []
         );
+
     }
 
     public function broadcastAs()

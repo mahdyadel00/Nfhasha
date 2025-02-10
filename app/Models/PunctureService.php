@@ -22,6 +22,7 @@ class PunctureService extends Model
         'notes',
         'amount',
         'status',
+        'reason',
     ];
 
 

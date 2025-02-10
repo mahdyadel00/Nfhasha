@@ -105,6 +105,9 @@ class OfferController extends Controller
                 ]);
             }
 
+            $express_service->status = 'sent';
+            $express_service->save();
+
             //send notification to user
             Broadcast(new \App\Events\SentOffer('Offer sent', [auth()->id()], $express_service, $request->amount));
 
