@@ -45,8 +45,9 @@ class NotificationController extends Controller
 
     public function rejectOffer(Request $request, $id)
     {
-
-        $notification = ProviderNotification::where('user_id', auth()->id())->find($id);
+    
+        $notification = ProviderNotification::where('user_id', auth()->id())->first();
+        dd($notification);
 
         $express_service = PunctureService::where('user_id', auth()->id())
             ->where('status', 'sent')
@@ -57,6 +58,7 @@ class NotificationController extends Controller
                 'status'    => 'rejected',
                 'reason'    => $request->reason
             ]);
+            dd($express_service->amount , $notification->provider_id , $express_service);
 
             //send notification to provider
             Broadcast(new SentOffer('Offer rejected', $notification->provider_id, $express_service , $express_service->amount));
@@ -88,5 +90,5 @@ class NotificationController extends Controller
 
         return new ErrorResource('No notification found');
     }
-    
+
 }
