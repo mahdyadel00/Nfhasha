@@ -88,5 +88,5 @@ class NotificationController extends Controller
 
         return new ErrorResource('No notification found');
     }
-    
+
 }

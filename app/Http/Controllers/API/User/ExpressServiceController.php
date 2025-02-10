@@ -38,8 +38,6 @@ class ExpressServiceController extends Controller
                 ->orderBy('distance')
                 ->get();
 
-
-
             $express_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
