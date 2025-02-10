@@ -26,7 +26,6 @@ class SentOffer implements ShouldBroadcastNow
         $this->amout            = $amout;
 
         //store notification in database
-
         \App\Models\ProviderNotification::create([
             'provider_id' => $providers,
             'message'     => $message,
