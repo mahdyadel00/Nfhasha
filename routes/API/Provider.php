@@ -49,5 +49,5 @@ Route::get('offers' , [OfferController::class , 'offers']);
 Route::get('offer/{id}' , [OfferController::class , 'offer']);
 Route::post('accept-offer/{id}' , [OfferController::class , 'acceptOffer']);
 Route::post('reject-offer/{id}' , [OfferController::class , 'rejectOffer']);
-Route::post('send-offer' , [OfferController::class , 'sendOffer']);
+Route::post('send-offer/{id}' , [OfferController::class , 'sendOffer']);
 Route::post('complete-offer/{id}' , [OfferController::class , 'completeOffer']);

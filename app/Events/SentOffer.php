@@ -9,20 +9,21 @@ use Illuminate\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
-class ProviderNotification implements ShouldBroadcastNow
+class SentOffer implements ShouldBroadcastNow
 {
     use InteractsWithSockets, SerializesModels;
 
     public $message;
     public $providers;
     public $express_service;
+    public $amout;
 
-    public function __construct($message, $providers, $express_service)
+    public function __construct($message, $providers, $express_service , $amout)
     {
-
         $this->message          = $message;
         $this->providers        = $providers;
         $this->express_service  = $express_service;
+        $this->amout            = $amout;
 
         //store notification in database
         foreach ($providers as $provider) {
@@ -39,7 +40,6 @@ class ProviderNotification implements ShouldBroadcastNow
         return array_map(
             fn($id) => new PrivateChannel('notifications.providers.' . $id),
             $this->providers,
-//            $this->express_service->user->name,
             $this->express_service->toArray()
         );
     }

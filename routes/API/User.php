@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\User\{AppController,
     ContactUsController,
     ExpressServiceController,
+    NotificationController,
     UserController,
     VehiclesController,
     VehiclesInfoController,
@@ -96,3 +97,8 @@ Route::get('nearby-providers' , [ProviderController::class , 'nearbyProviders'])
 //route express service
 Route::get('express-services' , [ExpressServiceController::class , 'index']);
 Route::post('express-services' , [ExpressServiceController::class , 'store']);
+
+//get all notifications
+Route::get('notifications' , [NotificationController::class , 'index']);
+//get single notification
+Route::get('notification/{id}' , [NotificationController::class , 'show']);

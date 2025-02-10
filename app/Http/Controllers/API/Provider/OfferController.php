@@ -11,6 +11,7 @@ use App\Models\ExpressService;
 use App\Models\ProviderNotification;
 use App\Models\PunctureService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -86,32 +87,26 @@ class OfferController extends Controller
 
         }catch (\Exception $e){
             DB::rollBack();
-            dd($e->getMessage());
             Log::channel('error')->error('Error in OfferController@acceptOffer: ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage(),]);
         }
     }
 
-    public function sendOffer(Request $request)
+    public function sendOffer(Request $request , $id)
     {
         try{
             DB::beginTransaction();
 
-            $express_service = ExpressService::where('id', $request->express_service_id)->first();
-            if(!$express_service){
+            $express_service = PunctureService::where(['id' => $id, 'status' => 'pending'])->first();
+
+            if(!$express_service || $express_service->status != 'pending'){
                 return new ErrorResource([
-                    'message' => 'Express service not found',
+                    'message' => 'Offer not found or already sent',
                 ]);
             }
 
-            $provider_notifications = ProviderNotification::where('user_id', $express_service->user_id)->get();
-            if($provider_notifications->contains('provider_id', auth()->id())){
-                return new ErrorResource([
-                    'message' => 'Offer already sent',
-                ]);
-            }
-
-            $provider_notification = new ProviderNotification('Offer sent', [$express_service->user_id], $express_service);
+            //send notification to user
+            Broadcast(new \App\Events\SentOffer('Offer sent', [auth()->id()], $express_service, $request->amount));
 
             DB::commit();
 

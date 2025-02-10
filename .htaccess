@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # إعادة توجيه جميع الطلبات إلى مجلد public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+    # السماح بجميع طرق الطلب (GET, POST, PUT, DELETE, etc.)
+    RewriteCond %{REQUEST_METHOD} ^(POST|GET|HEAD|OPTIONS|PUT|DELETE) [NC]
+    RewriteRule .* - [L]
+</IfModule>
