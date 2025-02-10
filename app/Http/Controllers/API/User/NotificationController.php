@@ -46,7 +46,7 @@ class NotificationController extends Controller
     public function rejectOffer(Request $request, $id)
     {
 
-        $notification = ProviderNotification::where('user_id', auth()->id())->find($id);
+        $notification = ProviderNotification::where('user_id', auth()->id())->first();
 
         $express_service = PunctureService::where('user_id', auth()->id())
             ->where('status', 'sent')
