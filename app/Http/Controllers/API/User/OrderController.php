@@ -57,8 +57,6 @@ class OrderController extends Controller
 
     public function index(Request $request)
     {
-
-
         $orders = auth('sanctum')->user()->orders()->latest()->paginate($request->limit ?? 10);
 
         return new SuccessResource([
@@ -66,4 +64,5 @@ class OrderController extends Controller
             'orders'    => OrderResource::collection($orders)
         ]);
     }
+
 }

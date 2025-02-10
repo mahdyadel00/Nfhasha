@@ -14,16 +14,16 @@ class ExpressServiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
+         return parent::toArray($request);
 
-        return
-        [
-            'id'                        => $this->id,
-            'type'                      => $this->type,
-            'price'                     => $this->price,
-            'name'                      => $this->name,
-            'created_at'                => $this->created_at,
-            'updated_at'                => $this->updated_at,
-        ];
+//        return
+//        [
+//            'id'                        => $this->id,
+//            'type'                      => $this->type,
+//            'price'                     => $this->price,
+//            'name'                      => $this->name,
+//            'created_at'                => $this->created_at,
+//            'updated_at'                => $this->updated_at,
+//        ];
     }
 }
