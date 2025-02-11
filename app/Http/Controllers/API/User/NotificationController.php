@@ -57,7 +57,6 @@ class NotificationController extends Controller
                 'status'    => 'rejected',
                 'reason'    => $request->reason
             ]);
-            dd($express_service->amount , $notification->provider_id , $express_service);
 
             //send notification to provider
             Broadcast(new SentOffer('Offer rejected', $notification->provider_id, $express_service , $express_service->amount));
