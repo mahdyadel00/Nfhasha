@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\User;
 
+use App\Events\AccepteOffer;
 use App\Events\SentOffer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
@@ -97,7 +98,7 @@ class NotificationController extends Controller
             ]);
 
             //send notification to provider
-            Broadcast(new SentOffer('Offer accepted', $notification->provider_id, $express_service , $express_service->amount));
+            Broadcast(new AccepteOffer('Offer accepted', $notification->provider_id, $express_service , $express_service->amount));
 
             return new SuccessResource('Offer accepted successfully');
         }

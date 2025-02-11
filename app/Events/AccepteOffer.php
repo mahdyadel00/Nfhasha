@@ -9,7 +9,7 @@ use Illuminate\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
-class SentOffer implements ShouldBroadcastNow
+class AccepteOffer implements ShouldBroadcastNow
 {
     use InteractsWithSockets, SerializesModels;
 

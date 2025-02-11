@@ -8,6 +8,7 @@ use App\Http\Requests\API\User\StoreperiodicExaminationRequest;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\CyPeriodic;
+use App\Models\Order;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
 use Illuminate\Http\Request;
@@ -58,6 +59,45 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $orders = auth('sanctum')->user()->orders()->latest()->paginate($request->limit ?? 10);
+
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'orders'    => OrderResource::collection($orders)
+        ]);
+    }
+
+    public function myOrders(Request $request)
+    {
+        $orders = Order::where('user_id' , auth('sanctum')->id())->paginate(config("app.pagination"));
+
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'orders'    => OrderResource::collection($orders)
+        ]);
+    }
+
+
+    public function show($id)
+    {
+        $order = Order::where('user_id' , auth('sanctum')->id())->find($id);
+
+        if(!$order)
+        {
+            return new SuccessResource([
+                'message'   => __('messages.order_not_found')
+            ]);
+        }
+
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order')]) ,
+            'order'     => new OrderResource($order)
+        ]);
+    }
+
+
+    public function ordersByStatus(Request $request)
+    {
+        $orders = Order::where('user_id' , auth('sanctum')->id())->where('status' , $request->status)->paginate(config('app.pagination'));
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
