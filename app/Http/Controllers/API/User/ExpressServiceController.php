@@ -6,6 +6,7 @@ use App\Events\ProviderNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ExpressService\StoreExpressServiceRequest;
 use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Models\ExpressService;
@@ -66,5 +67,17 @@ class ExpressServiceController extends Controller
             Log::channel('error')->error($e->getMessage());
             return new ErrorResource($e->getMessage());
         }
+    }
+
+    public function myExpressServices(Request $request)
+    {
+        $puncture_services = PunctureService::where('user_id', auth()->id())
+            ->where('status', $request->status ?? 'pending')
+            ->orderBy('created_at', 'desc')
+            ->paginate(config("app.pagination"));
+
+        return Count($puncture_services) > 0
+            ? PunctureServiceResource::collection($puncture_services)
+            : new ErrorResource('No express services found');
     }
 }
