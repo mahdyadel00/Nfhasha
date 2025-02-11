@@ -28,7 +28,7 @@ class SentOffer implements ShouldBroadcastNow
 
         //store notification in database
         \App\Models\ProviderNotification::create([
-            'provider_id' => $providers[0],
+            'provider_id' => $providers,
             'message'     => $message,
             'user_id'     => $express_service['user']['id'],
         ]);
