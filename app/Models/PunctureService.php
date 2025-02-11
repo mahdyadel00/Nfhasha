@@ -12,13 +12,13 @@ class PunctureService extends Model
     protected $fillable = [
         'express_service_id',
         'user_id',
+        'user_vehicle_id',
         'from_latitude',
         'from_longitude',
         'to_latitude',
         'to_longitude',
         'type_battery',
         'battery_image',
-        'car_image',
         'notes',
         'amount',
         'status',
@@ -34,5 +34,10 @@ class PunctureService extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function userVehicle()
+    {
+        return $this->belongsTo(UserVehicle::class);
     }
 }

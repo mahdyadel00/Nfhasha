@@ -40,4 +40,9 @@ class UserVehicle extends Model
     {
         return $this->hasMany(UserVehicleImage::class);
     }
+
+    public function punctureServices()
+    {
+        return $this->hasMany(PunctureService::class);
+    }
 }

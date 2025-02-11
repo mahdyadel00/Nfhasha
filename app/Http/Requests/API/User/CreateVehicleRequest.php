@@ -24,17 +24,17 @@ class CreateVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'letters_ar' => ['required', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
-            'letters_en' => ['required', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
-            'numbers_ar' => ['required', 'string', 'size:3', 'regex:/^[٠-٩]{3}$/u'],
-            'numbers_en' => ['required', 'string', 'size:3', 'regex:/^[0-9]{3}$/'],
-            'vehicle_type_id' => ['required', 'string', 'exists:vehicle_types,id'],
-            'vehicle_model_id' => ['required', 'string', 'exists:vehicle_models,id'],
-            'vehicle_manufacture_year_id' => ['required', 'string', 'exists:vehicle_manufacture_years,id'],
-            'vehicle_brand_id' => ['required', 'string', 'exists:vehicle_brands,id'],
-            'checkup_date' => ['required', 'date', 'after_or_equal:today'],
-            'images' => ['required', 'array' , 'min:1', 'max:5'],
-            'images.*' => ['file', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'letters_ar'                        => ['required', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
+            'letters_en'                        => ['required', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
+            'numbers_ar'                        => ['required', 'string', 'size:3', 'regex:/^[٠-٩]{3}$/u'],
+            'numbers_en'                        => ['required', 'string', 'size:3', 'regex:/^[0-9]{3}$/'],
+            'vehicle_type_id'                   => ['required', 'string', 'exists:vehicle_types,id'],
+            'vehicle_model_id'                  => ['required', 'string', 'exists:vehicle_models,id'],
+            'vehicle_manufacture_year_id'       => ['required', 'string', 'exists:vehicle_manufacture_years,id'],
+            'vehicle_brand_id'                  => ['required', 'string', 'exists:vehicle_brands,id'],
+            'checkup_date'                      => ['required', 'date', 'after_or_equal:today'],
+            'images'                            => ['required', 'array' , 'min:1', 'max:5'],
+            'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
         ];
     }
 
@@ -49,9 +49,7 @@ class CreateVehicleRequest extends FormRequest
             }
         }
 
-        throw new HttpResponseException(apiResponse(
-            422,
-            __('validation.errors'),
+        throw new HttpResponseException(apiResponse(422,__('validation.errors'),
             $translatedErrors
         ));
     }

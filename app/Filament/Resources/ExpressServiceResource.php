@@ -108,9 +108,14 @@ class ExpressServiceResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                DeleteAction::make()
-                ->confirmText('Are you sure you want to delete this record?')
+                Tables\Actions\DeleteAction::make()
+                    ->modalHeading(__('Delete Confirmation'))
+                    ->modalDescription(app()->getLocale() === 'en'
+                        ? 'Are you sure you want to delete this record?'
+                        : 'هل أنت متأكد أنك تريد حذف هذا السجل؟'
+                    )
             ])
+
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

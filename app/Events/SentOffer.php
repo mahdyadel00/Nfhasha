@@ -18,13 +18,13 @@ class SentOffer implements ShouldBroadcastNow
     public $express_service;
     public $amout;
 
-    public function __construct($message, $providers, $express_service , $amout)
+    public function __construct($message, $providers, $express_service , $amount)
     {
-//        dd($message, $providers, $express_service, $amout);
+        dd($message, $providers, $express_service, $amount);
         $this->message          = $message;
         $this->providers        = $providers;
         $this->express_service  = $express_service;
-        $this->amout            = $amout;
+        $this->amout            = $amount;
 
         //store notification in database
         \App\Models\ProviderNotification::create([

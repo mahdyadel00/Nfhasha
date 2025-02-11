@@ -23,13 +23,13 @@ class StoreExpressServiceRequest extends FormRequest
     {
         return [
             'express_service_id'        => ['required', 'integer', 'exists:express_services,id'],
+            'user_vehicle_id'           => ['required', 'integer', 'exists:user_vehicles,id'],
             'from_latitude'             => ['required', 'numeric'],
             'from_longitude'            => ['required', 'numeric'],
             'to_latitude'               => ['nullable', 'numeric'],
             'to_longitude'              => ['nullable', 'numeric'],
             'type_battery'              => ['nullable', 'string'],
             'battery_image'             => ['nullable', 'image'],
-            'car_image'                 => ['nullable', 'image'],
             'notes'                     => ['nullable', 'string'],
             'amount'                    => ['required', 'numeric'],
         ];
@@ -47,6 +47,9 @@ class StoreExpressServiceRequest extends FormRequest
             'express_service_id.required'       => __('validation.required', ['attribute' => 'express service']),
             'express_service_id.integer'        => __('validation.integer', ['attribute' => 'express service']),
             'express_service_id.exists'         => __('validation.exists', ['attribute' => 'express service']),
+            'user_vehicle_id.required'          => __('validation.required', ['attribute' => 'user vehicle']),
+            'user_vehicle_id.integer'           => __('validation.integer', ['attribute' => 'user vehicle']),
+            'user_vehicle_id.exists'            => __('validation.exists', ['attribute' => 'user vehicle']),
             'from_latitude.required'            => __('validation.required', ['attribute' => 'from latitude']),
             'from_latitude.numeric'             => __('validation.numeric', ['attribute' => 'from latitude']),
             'from_longitude.required'           => __('validation.required', ['attribute' => 'from longitude']),
@@ -55,7 +58,6 @@ class StoreExpressServiceRequest extends FormRequest
             'to_longitude.numeric'              => __('validation.numeric', ['attribute' => 'to longitude']),
             'type_battery.string'               => __('validation.string', ['attribute' => 'type battery']),
             'battery_image.image'               => __('validation.image', ['attribute' => 'battery image']),
-            'car_image.image'                   => __('validation.image', ['attribute' => 'car image']),
             'notes.string'                      => __('validation.string', ['attribute' => 'notes']),
             'amount.required'                   => __('validation.required', ['attribute' => 'amount']),
             'amount.numeric'                    => __('validation.numeric', ['attribute' => 'amount']),

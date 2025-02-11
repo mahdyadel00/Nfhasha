@@ -8,6 +8,7 @@ use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Models\ExpressService;
+use App\Models\Order;
 use App\Models\ProviderNotification;
 use App\Models\PunctureService;
 use Illuminate\Http\Request;
@@ -76,6 +77,20 @@ class OfferController extends Controller
             $express_service->status = 'accepted';
             $express_service->save();
 
+            //create order for user
+            $order = Order::create([
+                'user_id'                   => $express_service->user_id,
+                'provider_id'               => auth()->id(),
+                'express_service_id'        => $express_service->express_service_id,
+                'type'                      => $express_service->expressService?->type,
+                'status'                    => $express_service->status,
+                'payment_method'            => 'Cash',
+                'from_lat'                  => $express_service->from_latitude,
+                'from_long'                 => $express_service->from_longitude,
+                'to_lat'                    => $express_service->to_latitude,
+                'to_long'                   => $express_service->to_longitude,
+                'details'                   => $express_service->notes,
+            ]);
             DB::commit();
 
             //send notification to user

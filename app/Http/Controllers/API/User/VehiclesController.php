@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\CreateVehicleRequest;
 use App\Http\Requests\API\User\UpdateVehicleRequest;
+use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\VehiclesResource;
 use App\Models\UserVehicle;
 use Illuminate\Http\Request;
@@ -35,10 +36,12 @@ class VehiclesController extends Controller
             ]);
         }
 
-        return apiResponse( 201 ,
-        __('messages.data_created_successfully', ['attr' => __('messages.vehicle')]) ,
-        new VehiclesResource($vehicle)
-        );
+        return new SuccessResource(__('messages.data_created_successfully', ['attr' => __('messages.vehicle')]));
+
+//        return apiResponse( 201 ,
+//        __('messages.data_created_successfully', ['attr' => __('messages.vehicle')]) ,
+//        new VehiclesResource($vehicle)
+//        );
 
     }
 
@@ -72,10 +75,12 @@ class VehiclesController extends Controller
             }
         }
 
-        return apiResponse( 200 ,
-        __('messages.data_updated_successfully', ['attr' => __('messages.vehicle')]) ,
-        new VehiclesResource($vehicle)
-        );
+        return new SuccessResource(__('messages.data_updated_successfully', ['attr' => __('messages.vehicle')]));
+
+//        return apiResponse( 200 ,
+//        __('messages.data_updated_successfully', ['attr' => __('messages.vehicle')]) ,
+//        new VehiclesResource($vehicle)
+//        );
     }
 
     public function destroy(UserVehicle $vehicle)
@@ -89,9 +94,11 @@ class VehiclesController extends Controller
         $vehicle->images()->delete();
         $vehicle->delete();
 
-        return apiResponse( 200 ,
-        __('messages.data_deleted_successfully', ['attr' => __('messages.vehicle')]) ,
-        null
-        );
+        return new SuccessResource(__('messages.data_deleted_successfully', ['attr' => __('messages.vehicle')]));
+
+//        return apiResponse( 200 ,
+//        __('messages.data_deleted_successfully', ['attr' => __('messages.vehicle')]) ,
+//        null
+//        );
     }
 }
