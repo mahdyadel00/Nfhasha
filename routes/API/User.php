@@ -97,6 +97,7 @@ Route::get('nearby-providers' , [ProviderController::class , 'nearbyProviders'])
 //route express service
 Route::get('express-services' , [ExpressServiceController::class , 'index']);
 Route::post('express-services' , [ExpressServiceController::class , 'store']);
+Route::get('my-express-services' , [ExpressServiceController::class , 'myExpressServices']);
 
 //get all notifications
 Route::get('notifications' , [NotificationController::class , 'index']);
