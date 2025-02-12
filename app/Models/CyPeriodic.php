@@ -12,7 +12,7 @@ class CyPeriodic extends Model implements \Astrotomic\Translatable\Contracts\Tra
 
     protected $guarded = [];
 
-    public $translatedAttributes = ['title'];
+    public $translatedAttributes = ['title' , 'terms_conditions'];
 
     public function city()
     {

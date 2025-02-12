@@ -42,7 +42,7 @@ class ExpressServiceController extends Controller
             $express_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
-                'user_vehicle_id'       => $request->user_vehicle_id,
+                'user_vehicle_id'       => $request->user_vehicle_id ?? null,
                 'from_latitude'         => $request->from_latitude,
                 'from_longitude'        => $request->from_longitude,
                 'to_latitude'           => $request->to_latitude ?? null,

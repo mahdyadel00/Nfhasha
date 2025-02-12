@@ -78,12 +78,36 @@ class CyPeriodicResource extends Resource
                         ->maxLength(150)
                         ->extraAttributes(['class' => 'p-3 bg-white border border-gray-300 rounded-md shadow-sm']),
                 ]),
+            Forms\Components\Section::make()
+                ->label(app()->getLocale() === 'en' ? 'Terms and Conditions' : 'الشروط والأحكا��')
+                ->schema([
+                    Forms\Components\Textarea::make('terms_conditions:ar')
+                        ->label(app()->getLocale() === 'en' ? 'Terms and Conditions (Arabic)' : 'الشروط والأحكام (العربية)')
+                        ->required()
+                        ->extraAttributes(['class' => 'p-3 bg-white border border-gray-300 rounded-md shadow-sm']),
+
+                    Forms\Components\Textarea::make('terms_conditions:en')
+                        ->label(app()->getLocale() === 'en' ? 'Terms and Conditions (English)' : 'الشروط والأحكام (الإنجليزية)')
+                        ->required()
+                        ->extraAttributes(['class' => 'p-3 bg-white border border-gray-300 rounded-md shadow-sm']),
+                ]),
 
             Forms\Components\Section::make()
                 ->label(app()->getLocale() === 'en' ? 'Price Details' : 'تفاصيل السعر')
                 ->schema([
                     Forms\Components\TextInput::make('price')
                         ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                        ->required()
+                        ->numeric()
+                        ->prefix(app()->getLocale() === 'en' ? 'SAR' : 'ريال')
+                        ->step(0.01)
+                        ->extraAttributes(['class' => 'p-3 bg-white border border-gray-300 rounded-md shadow-sm']),
+                ]),
+            Forms\Components\Section::make()
+                ->label(app()->getLocale() === 'en' ? 'VAT' : 'ضريبة القيمة المضافة')
+                ->schema([
+                    Forms\Components\TextInput::make('vat')
+                        ->label(app()->getLocale() === 'en' ? 'VAT' : 'ضريبة القيمة المضافة')
                         ->required()
                         ->numeric()
                         ->prefix(app()->getLocale() === 'en' ? 'SAR' : 'ريال')
@@ -115,6 +139,10 @@ class CyPeriodicResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                    ->suffix(app()->getLocale() === 'en' ? ' SAR' : ' ريال')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('vat')
+                    ->label(app()->getLocale() === 'en' ? 'VAT' : 'ضريبة القيمة المضافة')
                     ->suffix(app()->getLocale() === 'en' ? ' SAR' : ' ريال')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('status')
@@ -151,9 +179,9 @@ class CyPeriodicResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCyPeriodics::route('/'),
-            'create' => Pages\CreateCyPeriodic::route('/create'),
-            'edit' => Pages\EditCyPeriodic::route('/{record}/edit'),
+            'index'     => Pages\ListCyPeriodics::route('/'),
+            'create'    => Pages\CreateCyPeriodic::route('/create'),
+            'edit'      => Pages\EditCyPeriodic::route('/{record}/edit'),
         ];
     }
 }

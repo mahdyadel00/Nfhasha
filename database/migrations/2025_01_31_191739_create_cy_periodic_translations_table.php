@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('locale',5)->index();
             $table->foreignId('cy_periodic_id')->constrained()->onDelete('cascade');
             $table->string('title',150);
+            $table->text('terms_conditions')->nullable();
         });
     }
 

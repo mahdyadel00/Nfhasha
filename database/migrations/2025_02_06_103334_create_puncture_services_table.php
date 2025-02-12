@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(UserVehicle::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('from_latitude');
             $table->string('from_longitude');
             $table->string('to_latitude')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->enum('type_battery', ['original', 'commercial'])->nullable();
             $table->string('battery_image')->nullable();
             $table->text('notes')->nullable();
-            $table->decimal('amount', 8, 2)->default(0);
+            $table->decimal('amount', 8, 2)->nullable();
             $table->enum('status', ['pending', 'accepted', 'rejected', 'completed' , 'sent'])->default('pending');
             $table->text('reason')->nullable();
             $table->timestamps();
