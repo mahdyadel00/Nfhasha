@@ -55,4 +55,5 @@ return
     'password_reset_successfully'               => 'تم إعادة تعيين كلمة المرور بنجاح',
     'express_service_created'                   => 'تم إنشاء الخدمة السريعة بنجاح',
     'orders'                                    => 'الطلبات',
+    'order_not_found'                           => 'لم يتم العثور على الطلب',
 ];

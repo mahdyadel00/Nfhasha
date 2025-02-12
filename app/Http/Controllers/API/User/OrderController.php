@@ -97,7 +97,14 @@ class OrderController extends Controller
 
     public function ordersByStatus(Request $request)
     {
-        $orders = Order::where('user_id' , auth('sanctum')->id())->where('status' , $request->status)->paginate(config('app.pagination'));
+        $orders = Order::where('user_id' , auth('sanctum')->id())
+            ->when($request->status , function ($query) use ($request) {
+                return $query->whereIn('status' , $request->status);
+            })
+            ->when($request->type , function ($query) use ($request) {
+                return $query->where('type' , $request->type);
+            })
+            ->paginate(config('app.pagination'));
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,

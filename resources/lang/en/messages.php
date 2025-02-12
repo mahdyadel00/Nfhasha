@@ -55,4 +55,5 @@ return
     'password_reset_successfully'                   =>  'Password reset successfully',
     'express_service_created'                       =>  'Express service created successfully',
     'orders'                                        =>  'Orders',
+    'order_not_found'                               =>  'Order not found',
 ];

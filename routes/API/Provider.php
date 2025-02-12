@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\Provider\AccountController;
 use App\Http\Controllers\API\Provider\OfferController;
+use App\Http\Controllers\API\Provider\OrderController;
 use App\Http\Controllers\API\User\{AppController, ContactUsController};
 use Illuminate\Support\Facades\Route;
 
@@ -51,3 +52,8 @@ Route::post('accept-offer/{id}' , [OfferController::class , 'acceptOffer']);
 Route::post('reject-offer/{id}' , [OfferController::class , 'rejectOffer']);
 Route::post('send-offer/{id}' , [OfferController::class , 'sendOffer']);
 Route::post('complete-offer/{id}' , [OfferController::class , 'completeOffer']);
+
+//get my orders
+Route::get('my-orders' , [OrderController::class , 'myOrders']);
+Route::get('order/{id}' , [OrderController::class , 'show']);
+Route::get('orders' , [OrderController::class , 'ordersByStatus']);
