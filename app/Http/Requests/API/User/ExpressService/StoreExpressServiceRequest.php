@@ -31,7 +31,7 @@ class StoreExpressServiceRequest extends FormRequest
             'type_battery'              => ['nullable', 'string'],
             'battery_image'             => ['nullable', 'image'],
             'notes'                     => ['nullable', 'string'],
-            'amount'                    => ['required', 'numeric'],
+            'amount'                    => ['nullable', 'numeric'],
         ];
     }
 
