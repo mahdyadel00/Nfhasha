@@ -82,4 +82,13 @@ class ExpressServiceController extends Controller
             ? PunctureServiceResource::collection($puncture_services)
             : new ErrorResource('No express services found');
     }
+
+    public function show($id)
+    {
+        $puncture_service = PunctureService::where('user_id', auth()->id())->find($id);
+
+        return $puncture_service
+            ? new PunctureServiceResource($puncture_service)
+            : new ErrorResource('No express service found');
+    }
 }
