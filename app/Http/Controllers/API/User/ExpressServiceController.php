@@ -72,7 +72,9 @@ class ExpressServiceController extends Controller
     public function myExpressServices(Request $request)
     {
         $puncture_services = PunctureService::where('user_id', auth()->id())
-            ->where('status', $request->status ?? 'pending')
+            ->when($request->status, function ($query) use ($request) {
+                return $query->whereIn('status', $request->status);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(config("app.pagination"));
 
