@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('cy_periodics', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(City::class)->constrained();
+            $table->foreignIdFor(City::class)->constrained()->cascadeOnDelete();
             $table->decimal('price');
             $table->boolean('status')->default(true);
             $table->decimal('vat')->default(0);

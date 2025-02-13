@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\User\{AppController,
     ContactUsController,
     ExpressServiceController,
+    MainServicesController,
     NotificationController,
     UserController,
     VehiclesController,
@@ -111,3 +112,6 @@ Route::post('reject-offer/{id}' , [NotificationController::class , 'rejectOffer'
 Route::get('my-orders' , [OrderController::class , 'myOrders']);
 Route::get('order/{id}' , [OrderController::class , 'show']);
 Route::get('orders' , [OrderController::class , 'ordersByStatus']);
+
+//cy_periodics
+Route::post('cy_periodics' , [MainServicesController::class , 'store']);
