@@ -17,21 +17,22 @@ class OrderController extends Controller
 {
     public function periodicExamination(StoreperiodicExaminationRequest $request)
     {
-        $cyPeriodicPrice = CyPeriodic::find($request->cy_periodic_id)->price;
-        $periodic_inspection_service_tax = settings()->get('periodic_inspection_service_tax');
-        $pickUpTruckPrice = PickUpTruck::find($request->pick_up_truck_id)->price;
+        $cyPeriodic             = CyPeriodic::find($request->cy_periodic_id);
+        $pickUpTruckPrice       = PickUpTruck::find($request->pick_up_truck_id)->price;
 
+        $total_cost = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100 + $cyPeriodic->price + $pickUpTruckPrice;
 
-        $request['$total_cost'] = ($cyPeriodicPrice + $pickUpTruckPrice) * $periodic_inspection_service_tax / 100 + $cyPeriodicPrice + $pickUpTruckPrice;
-
-        $request['company_profit'] = ($cyPeriodicPrice + $pickUpTruckPrice) * $periodic_inspection_service_tax / 100;
+        $company_profit = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100;
 
         $order = auth('sanctum')->user()->orders()->create($request->validated() + ['type' => 'periodic_examination' , 'status' => 'pending']);
 
 
+
         broadcast(new ServiceRequestEvent($order , $order->type));
 
-        return apiResponse(201 , __('messages.order_placed') , $order);
+        return new SuccessResource([
+            'message'   => __('messages.order_created_successfully') ,
+        ]);
     }
 
     public function payment($order)

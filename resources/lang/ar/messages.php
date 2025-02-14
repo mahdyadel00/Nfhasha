@@ -56,4 +56,5 @@ return
     'express_service_created'                   => 'تم إنشاء الخدمة السريعة بنجاح',
     'orders'                                    => 'الطلبات',
     'order_not_found'                           => 'لم يتم العثور على الطلب',
+    'order_created_successfully'                => 'تم إنشاء الطلب بنجاح',
 ];

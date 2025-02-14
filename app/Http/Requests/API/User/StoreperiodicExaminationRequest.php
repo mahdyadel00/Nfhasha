@@ -23,31 +23,32 @@ class StoreperiodicExaminationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vehicle_id' => 'required|exists:user_vehicles,id',
-            'city_id' => 'required|exists:cities,id',
-            'cy_periodic_id' => 'required|exists:cy_periodics,id',
-            'long' => 'required|numeric',
-            'lat' => 'required|numeric',
-            'position' => 'required|string',
-            'pick_up_truck_id' => 'required|exists:pick_up_trucks,id',
+            'vehicle_id'            => ['required', 'exists:user_vehicles,id'],
+            'city_id'               => ['required', 'exists:cities,id'],
+            'cy_periodic_id'        => ['required', 'exists:cy_periodics,id'],
+            'pick_up_truck_id'      => ['required', 'exists:pick_up_trucks,id'],
+            'from_lat'              => ['required', 'numeric'],
+            'from_long'             => ['required', 'numeric'],
+            'position'              => ['required', 'string'],
         ];
     }
 
     public function failedValidation(Validator $validator)
     {
-        $errors = $validator->errors()->toArray();
+        $translatedErrors = collect($validator->errors()->toArray())
+            ->mapWithKeys(function ($messages, $field) {
+                return [
+                    $field => collect($messages)
+                        ->map(function ($message) {
+                            return str_replace('today', 'اليوم', __($message));
+                        })
+                        ->toArray()
+                ];
+            })
+            ->toArray();
 
-        $translatedErrors = [];
-        foreach ($errors as $field => $messages) {
-            foreach ($messages as $message) {
-                $translatedErrors[$field][] = str_replace('today', 'اليوم', __($message));
-            }
-        }
-
-        throw new HttpResponseException(apiResponse(
-            422,
-            __('validation.errors'),
-            $translatedErrors
-        ));
+        throw new HttpResponseException(
+            apiResponse(422, __('validation.errors'), $translatedErrors)
+        );
     }
 }

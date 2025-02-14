@@ -6,6 +6,7 @@ use App\Events\AccepteOffer;
 use App\Events\SentOffer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Http\Resources\API\User\NotificationsResource;
@@ -23,10 +24,17 @@ class NotificationController extends Controller
 
         $express_services = PunctureService::where('user_id', auth()->id())
             ->where('status', 'sent')
-            ->latest()->paginate(config('app.pagination'));
+            ->latest()
+            ->paginate(config('app.pagination'));
+
+        $transformedServices = $express_services->getCollection()->map(function ($service) {
+            return new PunctureServiceResource($service);
+        });
+
+        $express_services->setCollection($transformedServices);
 
         return count($express_services) > 0
-            ? new ExpressServiceResource($express_services)
+            ? $express_services
             : new ErrorResource('No notifications found');
     }
 
@@ -41,7 +49,7 @@ class NotificationController extends Controller
 
 
         return $express_service
-            ? new ExpressServiceResource($express_service)
+            ? new PunctureServiceResource($express_service)
             : new ErrorResource('No notification found');
     }
 

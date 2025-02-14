@@ -56,4 +56,5 @@ return
     'express_service_created'                       =>  'Express service created successfully',
     'orders'                                        =>  'Orders',
     'order_not_found'                               =>  'Order not found',
+    'order_created_successfully'                    =>  'Order created successfully',
 ];

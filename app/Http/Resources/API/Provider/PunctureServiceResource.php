@@ -18,7 +18,7 @@ class PunctureServiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if($this->status == 'accepted'){
+        if($this->status == 'accepted' || $this->status == 'completed' || $this->status == 'sent'){
             $order = Order::where('user_id', $this->user_id)->latest()->first();
 //            dd($order , $order->user->where('role' , 'provider'));
             $acceptedProvider = $order ? $order->user->where('role' , 'provider')->first() : null;

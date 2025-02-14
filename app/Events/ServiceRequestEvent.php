@@ -24,8 +24,17 @@ class ServiceRequestEvent implements ShouldBroadcast
      */
     public function __construct($order, $serviceType)
     {
-        $this->order = $order->toArray();
-        $this->serviceType = $serviceType;
+        $this->order        = $order->toArray();
+        $this->serviceType  = $serviceType;
+        $providers = Provider::where('periodic_examination', true)->get();
+
+        foreach ($providers as $provider) {
+            \App\Models\ProviderNotification::create([
+                'provider_id' => $provider->user_id,
+                'user_id'     => $order->user_id,
+                'message'     => 'New periodic examination request',
+            ]);
+        }
     }
 
 
