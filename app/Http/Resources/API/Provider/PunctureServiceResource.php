@@ -5,6 +5,7 @@ namespace App\Http\Resources\API\Provider;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Http\Resources\API\User\UserResource;
 use App\Http\Resources\API\User\VehiclesResource;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,6 +18,14 @@ class PunctureServiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        if($this->status == 'accepted'){
+            $order = Order::where('user_id', $this->user_id)->latest()->first();
+//            dd($order , $order->user->where('role' , 'provider'));
+            $acceptedProvider = $order ? $order->user->where('role' , 'provider')->first() : null;
+        }else{
+            $acceptedProvider = null;
+        }
+
         return
         [
             'id'                            => $this->id,
@@ -35,7 +44,8 @@ class PunctureServiceResource extends JsonResource
             'express_service'               => new ExpressServiceResource($this->expressService),
             'user'                          => new UserResource($this->user),
             'user_vehicle'                  => new VehiclesResource($this->userVehicle),
-            'provider'                      => new UserResource($this->user->where('role', 'provider')->first()),
+            'provider'                      => $acceptedProvider ? new UserResource($acceptedProvider) : null,
+
         ];
     }
 }

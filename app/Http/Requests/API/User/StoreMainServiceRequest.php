@@ -11,7 +11,7 @@ class StoreMainServiceRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class StoreMainServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'city_id'               => ['required', 'exists:cities,id'],
+            'price'                 => ['required', 'numeric'],
+            'title'                 => ['required', 'string', 'max:150'],
         ];
     }
 }

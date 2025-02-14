@@ -114,14 +114,17 @@ class OfferController extends Controller
 
             $express_service = PunctureService::where(['id' => $id, 'status' => 'pending'])->first();
 
+
             if(!$express_service || $express_service->status != 'pending'){
                 return new ErrorResource([
                     'message' => 'Offer not found or already sent',
                 ]);
             }
 
-            $express_service->status = 'sent';
-            $express_service->save();
+            $express_service->update([
+                'status'    => 'sent',
+                'amount'    => $request->amount,
+            ]);
 
 
             //send notification to user
