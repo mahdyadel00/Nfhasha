@@ -46,17 +46,17 @@ class OrderController extends Controller
             $car_reservation = CarReservations::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
-                'vehicle_id'            => $request->vehicle_id,
+                'user_vehicle_id'       => $request->vehicle_id,
                 'city_id'               => $request->city_id,
                 'inspection_side'       => $request->inspection_side,
                 'date'                  => $request->date,
                 'time'                  => $request->time,
             ]);
 
-            $ordes = Order::create([
+            $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
-                'vehicle_id'            => $request->vehicle_id,
+                'user_vehicle_id'       => $request->vehicle_id,
                 'city_id'               => $request->city_id,
                 'status'                => 'pending',
                 'type'                  => ExpressService::find($request->service_id)->type,

@@ -13,7 +13,7 @@ class Order extends Model
         'provider_id',
         'user_id',
         'express_service_id',
-        'vehicle_id',
+        'user_vehicle_id',
         'city_id',
         'cy_periodic_id',
         'pick_up_truck_id',
@@ -32,6 +32,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function userVehicle()
+    {
+        return $this->belongsTo(UserVehicle::class , 'user_vehicle_id');
     }
 
 

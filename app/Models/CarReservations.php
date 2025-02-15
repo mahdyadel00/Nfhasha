@@ -13,7 +13,7 @@ class CarReservations extends Model
         'city_id',
         'user_id',
         'express_service_id',
-        'vehicle_id',
+        'user_vehicle_id',
         'inspection_side',
         'date',
         'time',
@@ -28,7 +28,7 @@ class CarReservations extends Model
 
     public function userVehicle()
     {
-        return $this->belongsTo(UserVehicle::class);
+        return $this->belongsTo(UserVehicle::class , 'user_vehicle_id');
     }
 
     public function user()
