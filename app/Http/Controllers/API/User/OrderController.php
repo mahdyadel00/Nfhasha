@@ -11,6 +11,7 @@ use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\CarReservations;
 use App\Models\CyPeriodic;
+use App\Models\ExpressService;
 use App\Models\Order;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
@@ -66,6 +67,7 @@ class OrderController extends Controller
                 'vehicle_id'            => $request->vehicle_id,
                 'city_id'               => $request->city_id,
                 'status'                => 'pending',
+                'type'                  => ExpressService::find($request->service_id)->type,
             ]);
 
             DB::commit();
