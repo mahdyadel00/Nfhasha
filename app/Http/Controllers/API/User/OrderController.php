@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\User;
 use App\Events\ServiceRequestEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\StoreperiodicExaminationRequest;
+use App\Http\Resources\API\CyPeriodicResource;
+use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\CyPeriodic;
@@ -15,6 +17,14 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    public function cyPeriodics()
+    {
+        $cyPeriodics = CyPeriodic::paginate(config('app.pagination'));
+
+        return count($cyPeriodics) > 0
+            ? CyPeriodicResource::collection($cyPeriodics)
+            : new ErrorResource('No cy periodics found');
+    }
     public function periodicExamination(StoreperiodicExaminationRequest $request)
     {
         $cyPeriodic             = CyPeriodic::find($request->cy_periodic_id);
@@ -94,7 +104,6 @@ class OrderController extends Controller
             'order'     => new OrderResource($order)
         ]);
     }
-
 
     public function ordersByStatus(Request $request)
     {

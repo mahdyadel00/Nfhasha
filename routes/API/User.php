@@ -76,19 +76,11 @@ Route::post('contact-us' , ContactUsController::class);
 
 
 //Order Requirments
-Route::get('periodic-examination/{city}' , function($city)
-{
-    $periodicExaminations = CyPeriodic::with('city')->where('city_id' , $city)->active()->get();
-    return apiResponse(200, __('messages.data_returned_successfully' , ['attr' => __('messages.periodicExaminations')]) ,
-    CyPeriodicResource::collection($periodicExaminations));
-});
-
-
+Route::get('periodic-examination/{city}'  , [OrderController::class , 'cyPeriodics']);
 
 Route::prefix('orders')->controller(OrderController::class)->group(function () {
     Route::post('periodic-examination', 'periodicExamination');
     Route::post('payment/{order}' , 'payment');
-
     //get orders
     Route::get('' , 'index');
 });

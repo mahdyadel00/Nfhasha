@@ -24,4 +24,8 @@ class City extends Model implements \Astrotomic\Translatable\Contracts\Translata
         return $this->hasMany(District::class);
     }
 
+    public function cyPeriodics()
+    {
+        return $this->hasMany(CyPeriodic::class);
+    }
 }
