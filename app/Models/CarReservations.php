@@ -13,7 +13,7 @@ class CarReservations extends Model
         'city_id',
         'user_id',
         'express_service_id',
-        'user_vehicle_id',
+        'vehicle_id',
         'inspection_side',
         'date',
         'time',
