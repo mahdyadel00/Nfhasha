@@ -79,7 +79,7 @@ Route::post('contact-us' , ContactUsController::class);
 Route::get('periodic-examination/{city}'  , [OrderController::class , 'cyPeriodics']);
 
 Route::prefix('orders')->controller(OrderController::class)->group(function () {
-    Route::post('periodic-examination', 'periodicExamination');
+    Route::post('periodic-examination', 'createOrder');
     Route::post('payment/{order}' , 'payment');
     //get orders
     Route::get('' , 'index');

@@ -29,26 +29,18 @@ class OrderController extends Controller
             ? CyPeriodicResource::collection($cyPeriodics)
             : new ErrorResource('No cy periodics found');
     }
-    public function periodicExamination(StoreperiodicExaminationRequest $request)
+    public function createOrder(StoreperiodicExaminationRequest $request)
     {
-//        $cyPeriodic             = CyPeriodic::find($request->cy_periodic_id);
-//        $pickUpTruckPrice       = PickUpTruck::find($request->pick_up_truck_id)->price;
-//
-//        $total_cost = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100 + $cyPeriodic->price + $pickUpTruckPrice;
-//
-//        $company_profit = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100;
-//
-//        $order = auth('sanctum')->user()->orders()->create($request->validated() + ['type' => 'periodic_examination' , 'status' => 'pending']);
-
-
-
-//        broadcast(new ServiceRequestEvent($order , $order->type));
-
-//        return new SuccessResource([
-//            'message'   => __('messages.order_created_successfully') ,
-//        ]);
         try{
             DB::beginTransaction();
+
+            $pendingOrder = Order::where('user_id', auth()->id())
+                ->where('status', 'pending')
+                ->first();
+            
+            if ($pendingOrder) {
+                return new ErrorResource(__('messages.pending_order_exists'));
+            }
 
             //create car reservation
             $car_reservation = CarReservations::create([
