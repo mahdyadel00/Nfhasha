@@ -37,7 +37,7 @@ class OrderController extends Controller
             $pendingOrder = Order::where('user_id', auth()->id())
                 ->where('status', 'pending')
                 ->first();
-            
+
             if ($pendingOrder) {
                 return new ErrorResource(__('messages.pending_order_exists'));
             }
