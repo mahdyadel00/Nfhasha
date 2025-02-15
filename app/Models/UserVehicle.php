@@ -45,4 +45,9 @@ class UserVehicle extends Model
     {
         return $this->hasMany(PunctureService::class);
     }
+
+    public function carReservations()
+    {
+        return $this->hasMany(CarReservations::class);
+    }
 }

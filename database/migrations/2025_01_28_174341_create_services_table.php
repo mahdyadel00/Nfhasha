@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->string('cover');
+            $table->decimal('price');
+            $table->boolean('status')->default(true);
+            $table->decimal('vat')->default(0);
             $table->timestamps();
         });
     }

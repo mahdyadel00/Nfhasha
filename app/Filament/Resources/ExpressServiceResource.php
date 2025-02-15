@@ -7,6 +7,7 @@ use App\Filament\Resources\ExpressServiceResource\RelationManagers;
 use App\Models\ExpressService;
 use Filament\Actions\DeleteAction;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -16,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\Card;
 
 class ExpressServiceResource extends Resource
 {
@@ -56,21 +58,43 @@ class ExpressServiceResource extends Resource
                             ->required()
                             ->columnSpan(2),
                     ])->columnSpan(2),
-                 Forms\Components\Select::make('type')
-                        ->label(app()->getLocale() === 'en' ? 'Type' : 'النوع')
-                        ->options([
-                            'open_locks'    => app()->getLocale() === 'en' ? 'Open Locks' : 'فتح الأقفال',
-                            'battery'       => app()->getLocale() === 'en' ? 'Battery' : 'بطارية',
-                            'fuel'          => app()->getLocale() === 'en' ? 'Fuel' : 'وقود',
-                            'puncture'      => app()->getLocale() === 'en' ? 'Puncture' : 'تعشيق',
-                            'tow_truck'     => app()->getLocale() === 'en' ? 'Tow Truck' : 'سحب السيارة',
-                        ])
-                        ->required()
-                        ->columnSpan(2),
+
+                Forms\Components\Select::make('type')
+                    ->label(app()->getLocale() === 'en' ? 'Type' : 'النوع')
+                    ->options([
+                        'open_locks'                => app()->getLocale() === 'en' ? 'Open Locks' : 'فتح الأقفال',
+                        'battery'                   => app()->getLocale() === 'en' ? 'Battery' : 'بطارية',
+                        'fuel'                      => app()->getLocale() === 'en' ? 'Fuel' : 'وقود',
+                        'puncture'                  => app()->getLocale() === 'en' ? 'Puncture' : 'تعشيق',
+                        'tow_truck'                 => app()->getLocale() === 'en' ? 'Tow Truck' : 'سحب السيارة',
+                        'periodic_inspections'      => app()->getLocale() === 'en' ? 'Periodic Inspections' : 'الفحص الدوري',
+                        'comprehensive_inspections' => app()->getLocale() === 'en' ? 'Comprehensive Inspections' : 'الفحص الشامل',
+                        'maintenance'               => app()->getLocale() === 'en' ? 'Maintenance' : 'الصيانة',
+                        'car_reservations'          => app()->getLocale() === 'en' ? 'Car Reservations' : 'حواجز السيارات',
+                    ])
+                    ->required()
+                    ->columnSpan(2),
+
+                Forms\Components\TextInput::make('price')
+                    ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                    ->required()
+                    ->numeric()
+                    ->columnSpan(2),
+
+                Forms\Components\TextInput::make('tax')
+                    ->label(app()->getLocale() === 'en' ? 'Tax (%)' : 'الضريبة (%)')
+                    ->required()
+                    ->numeric()
+                    ->columnSpan(2),
+
+                Forms\Components\Toggle::make('is_active')
+                    ->label(app()->getLocale() === 'en' ? 'Active' : 'مفعّلة')
+                    ->default(true)
+                    ->columnSpan(2),
             ])
             ->columns(1);
-
     }
+
 
     public static function table(Table $table): Table
     {
@@ -86,19 +110,35 @@ class ExpressServiceResource extends Resource
                 Tables\Columns\TextColumn::make('name:en')
                     ->label(app()->getLocale() === 'en' ? 'Name in English' : 'الاسم بالإنجليزية')
                     ->searchable(),
+
                 TextColumn::make('type')
                     ->label(app()->getLocale() === 'en' ? 'Type' : 'النوع'),
+
+                TextColumn::make('price')
+                    ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                    ->sortable(),
+
+                TextColumn::make('vat')
+                    ->label(app()->getLocale() === 'en' ? 'VAT (%)' : 'الضريبة (%)')
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => number_format($state, 2) . ' %')
+
             ])
             ->filters([
                 SelectFilter::make('type')
                     ->label(app()->getLocale() === 'en' ? 'Type' : 'النوع')
                     ->options([
-                        'open_locks'    => app()->getLocale() === 'en' ? 'Open Locks' : 'فتح الأقفال',
-                        'battery'       => app()->getLocale() === 'en' ? 'Battery' : 'بطارية',
-                        'fuel'          => app()->getLocale() === 'en' ? 'Fuel' : 'وقود',
-                        'puncture'      => app()->getLocale() === 'en' ? 'Puncture' : 'تعشيق',
-                        'tow_truck'     => app()->getLocale() === 'en' ? 'Tow Truck' : 'سحب السيارة',
+                        'open_locks'                => app()->getLocale() === 'en' ? 'Open Locks' : 'فتح الأقفال',
+                        'battery'                   => app()->getLocale() === 'en' ? 'Battery' : 'بطارية',
+                        'fuel'                      => app()->getLocale() === 'en' ? 'Fuel' : 'وقود',
+                        'puncture'                  => app()->getLocale() === 'en' ? 'Puncture' : 'تعشيق',
+                        'tow_truck'                 => app()->getLocale() === 'en' ? 'Tow Truck' : 'سحب السيارة',
+                        'periodic_inspections'      => app()->getLocale() === 'en' ? 'Periodic Inspections' : 'الفحص الدوري',
+                        'comprehensive_inspections' => app()->getLocale() === 'en' ? 'Comprehensive Inspections' : 'الفحص الشامل',
+                        'maintenance'               => app()->getLocale() === 'en' ? 'Maintenance' : 'الصيانة',
+                        'car_reservations'          => app()->getLocale() === 'en' ? 'Car Reservations' : 'حواجز السيارات',
                     ]),
+
                 SelectFilter::make('is_active')
                     ->label('الحالة')
                     ->options([
@@ -113,9 +153,8 @@ class ExpressServiceResource extends Resource
                     ->modalDescription(app()->getLocale() === 'en'
                         ? 'Are you sure you want to delete this record?'
                         : 'هل أنت متأكد أنك تريد حذف هذا السجل؟'
-                    )
+                    ),
             ])
-
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

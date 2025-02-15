@@ -31,7 +31,7 @@ class ServiceResource extends Resource
     {
         return app()->getLocale() === 'en' ? 'Services' : 'الخدمات';
     }
-    
+
 
     public static function getNavigationLabel(): string
     {
@@ -58,68 +58,60 @@ class ServiceResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
+              //name
+                Card::make('Name')
                     ->schema([
-                        FileUpload::make('cover')
-                            ->label(app()->getLocale() === 'en' ? 'Cover Image' : 'صورة الغلاف')
-                            ->image()
-                            ->required()
-                            ->directory('service_covers')
-                            ->maxSize(2048)
-                            ->helperText(app()->getLocale() === 'en' ? 'Upload the cover image of the service.' : 'قم برفع صورة الغلاف الخاصة بالخدمة.'),
+                        TextInput::make('name:ar')
+                            ->label(app()->getLocale() === 'en' ? 'Name (Arabic)' : 'الاسم (بالعربية)')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the name in Arabic' : 'أدخل الاسم بالعربية')
+                            ->required(),
 
-                        Tabs::make('Translations')
-                            ->tabs([
-                                Tab::make(app()->getLocale() === 'en' ? 'Arabic' : 'عربي')
-                                    ->schema([
-                                        TextInput::make('name:ar')
-                                            ->label(app()->getLocale() === 'en' ? 'Name (Arabic)' : 'الاسم (بالعربية)')
-                                            ->required()
-                                            ->maxLength(255)
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter name in Arabic' : 'أدخل الاسم بالعربية'),
+                        TextInput::make('name:en')
+                            ->label(app()->getLocale() === 'en' ? 'Name (English)' : 'الاسم (بالإنجليزية)')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the name in English' : 'أدخل الاسم بالإنجليزية')
+                            ->required(),
+                    ]),
+             //description
+                Card::make('Description')
+                    ->schema([
+                        Textarea::make('description:ar')
+                            ->label(app()->getLocale() === 'en' ? 'Description (Arabic)' : 'الوصف (بالعربية)')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the description in Arabic' : 'أدخل الوصف بالعربية')
+                            ->required(),
 
-                                        Textarea::make('description:ar')
-                                            ->label(app()->getLocale() === 'en' ? 'Description (Arabic)' : 'الوصف (بالعربية)')
-                                            ->required()
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter description in Arabic' : 'أدخل الوصف بالعربية'),
-
-                                        Textarea::make('instructions:ar')
-                                            ->label(app()->getLocale() === 'en' ? 'Instructions (Arabic)' : 'التعليمات (بالعربية)')
-                                            ->required()
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter instructions in Arabic' : 'أدخل نص التعليمات بالعربية'),
-                                    ]),
-
-                                Tab::make(app()->getLocale() === 'en' ? 'English' : 'إنجليزي')
-                                    ->schema([
-                                        TextInput::make('name:en')
-                                            ->label(app()->getLocale() === 'en' ? 'Name (English)' : 'الاسم (بالإنجليزية)')
-                                            ->required()
-                                            ->maxLength(255)
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter name in English' : 'أدخل الاسم بالإنجليزية'),
-
-                                        Textarea::make('description:en')
-                                            ->label(app()->getLocale() === 'en' ? 'Description (English)' : 'الوصف (بالإنجليزية)')
-                                            ->required()
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter description in English' : 'أدخل الوصف بالإنجليزية'),
-
-                                        Textarea::make('instructions:en')
-                                            ->label(app()->getLocale() === 'en' ? 'Instructions (English)' : 'التعليمات (بالإنجليزية)')
-                                            ->required()
-                                            ->placeholder(app()->getLocale() === 'en' ? 'Enter instructions in English' : 'أدخل نص التعليمات بالإنجليزية'),
-                                    ]),
-                            ]),
-                    ])
-                    ->columns(2),
+                        Textarea::make('description:en')
+                            ->label(app()->getLocale() === 'en' ? 'Description (English)' : 'الوصف (بالإنجليزية)')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the description in English' : 'أدخل الوصف بالإنجليزية')
+                            ->required(),
+                    ]),
+                Card::make('Price')
+                    ->schema([
+                        TextInput::make('price')
+                            ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the price' : 'أدخل السعر')
+                            ->required(),
+                    ]),
+                //vat
+                Card::make('VAT')
+                    ->schema([
+                        TextInput::make('vat')
+                            ->label(app()->getLocale() === 'en' ? 'VAT' : 'الضريبة')
+                            ->placeholder(app()->getLocale() === 'en' ? 'Enter the VAT' : 'أدخل الضريبة')
+                            ->required(),
+                    ]),
+                //status
+                Card::make('Status')
+                    ->schema([
+                        Toggle::make('status')
+                            ->label(app()->getLocale() === 'en' ? 'Status' : 'الحالة')
+                            ->default(true),
+                    ]),
             ]);
     }
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover')
-                    ->label(app()->getLocale() === 'en' ? 'Cover Image' : 'صورة الغلاف')
-                    ->circular(),
-
                 Tables\Columns\ToggleColumn::make('status')
                     ->label(app()->getLocale() === 'en' ? 'Status' : 'الحالة'),
 
@@ -130,6 +122,18 @@ class ServiceResource extends Resource
 
                 Tables\Columns\TextColumn::make('name:en')
                     ->label(app()->getLocale() === 'en' ? 'Name (English)' : 'الاسم (بالإنجليزية)')
+                    ->sortable()
+                    ->searchable(),
+
+                //price
+                Tables\Columns\TextColumn::make('price')
+                    ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
+                    ->sortable()
+                    ->searchable(),
+
+                //vat
+                Tables\Columns\TextColumn::make('vat')
+                    ->label(app()->getLocale() === 'en' ? 'VAT' : 'الضريبة')
                     ->sortable()
                     ->searchable(),
 
@@ -147,6 +151,7 @@ class ServiceResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+//                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -163,9 +168,9 @@ class ServiceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListServices::route('/'),
-            'create' => Pages\CreateService::route('/create'),
-            'edit' => Pages\EditService::route('/{record}/edit'),
+            'index'     => Pages\ListServices::route('/'),
+            'create'    => Pages\CreateService::route('/create'),
+            'edit'      => Pages\EditService::route('/{record}/edit'),
         ];
     }
 }

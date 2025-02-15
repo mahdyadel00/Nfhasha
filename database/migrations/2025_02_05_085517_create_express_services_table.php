@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('express_services', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(true);
-            $table->enum('type', ['open_locks', 'battery', 'fuel', 'puncture', 'tow_truck']);
+            $table->enum('type', ['open_locks', 'battery', 'fuel', 'puncture', 'tow_truck', 'periodic_inspections' , 'comprehensive_inspections' , 'maintenance' , 'car_reservations']);
             $table->decimal('price', 8, 2)->default(0);
+            $table->decimal('vat', 8, 2)->default(0);
             $table->timestamps();
         });
     }

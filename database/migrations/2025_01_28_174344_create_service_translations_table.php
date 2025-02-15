@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('locale')->index();
             $table->string('name');
             $table->text('description');
-            $table->text('instructions');
+//            $table->text('instructions');
             $table->unique(['service_id', 'locale']);
             $table->timestamps();
         });

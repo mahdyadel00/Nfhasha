@@ -12,7 +12,7 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
 
     public $translatedAttributes = ['name'];
 
-    protected $fillable = ['is_active' , 'type' ,'price'];
+    protected $fillable = ['is_active' , 'type' ,'price' , 'vat'];
 
     public function punctureServices()
     {

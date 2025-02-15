@@ -13,7 +13,7 @@ class ListExpressServices extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(), // زر الإضافة
+            Actions\CreateAction::make(),
         ];
     }
 }
