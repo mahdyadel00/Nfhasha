@@ -9,12 +9,32 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'provider_id',
+        'user_id',
+        'express_service_id',
+        'vehicle_id',
+        'city_id',
+        'cy_periodic_id',
+        'pick_up_truck_id',
+        'type',
+        'status',
+        'payment_method',
+        'from_lat',
+        'from_long',
+        'to_lat',
+        'to_long',
+        'details',
+        'total_cost',
+        'position',
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+
 
 
 

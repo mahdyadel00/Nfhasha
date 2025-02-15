@@ -11,7 +11,8 @@ class CarReservations extends Model
 
     protected $fillable = [
         'city_id',
-        'service_id',
+        'user_id',
+        'express_service_id',
         'user_vehicle_id',
         'inspection_side',
         'date',
@@ -30,8 +31,14 @@ class CarReservations extends Model
         return $this->belongsTo(UserVehicle::class);
     }
 
-    public function service()
+    public function user()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(User::class);
     }
+
+    public function expressService()
+    {
+        return $this->belongsTo(ExpressService::class);
+    }
+
 }

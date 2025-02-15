@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\City;
+use App\Models\ExpressService;
 use App\Models\Service;
+use App\Models\User;
 use App\Models\UserVehicle;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,9 +18,10 @@ return new class extends Migration
     {
         Schema::create('car_reservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(City::class)->nullable()->nullable();
-            $table->foreignIdFor(UserVehicle::class)->nullable()->nullable();
-            $table->foreignIdFor(Service::class)->nullable()->nullable();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(City::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(ExpressService::class)->nullable()->constrained()->onDelete('set null');
             $table->enum('inspection_side', ['all', 'front', 'back', 'sides', 'left'])->default('all');
             $table->date('date');
             $table->time('time');

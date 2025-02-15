@@ -9,11 +9,14 @@ use App\Http\Resources\API\CyPeriodicResource;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
+use App\Models\CarReservations;
 use App\Models\CyPeriodic;
 use App\Models\Order;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -27,22 +30,54 @@ class OrderController extends Controller
     }
     public function periodicExamination(StoreperiodicExaminationRequest $request)
     {
-        $cyPeriodic             = CyPeriodic::find($request->cy_periodic_id);
-        $pickUpTruckPrice       = PickUpTruck::find($request->pick_up_truck_id)->price;
+//        $cyPeriodic             = CyPeriodic::find($request->cy_periodic_id);
+//        $pickUpTruckPrice       = PickUpTruck::find($request->pick_up_truck_id)->price;
+//
+//        $total_cost = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100 + $cyPeriodic->price + $pickUpTruckPrice;
+//
+//        $company_profit = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100;
+//
+//        $order = auth('sanctum')->user()->orders()->create($request->validated() + ['type' => 'periodic_examination' , 'status' => 'pending']);
 
-        $total_cost = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100 + $cyPeriodic->price + $pickUpTruckPrice;
-
-        $company_profit = ($cyPeriodic->price + $pickUpTruckPrice) * $cyPeriodic->vat / 100;
-
-        $order = auth('sanctum')->user()->orders()->create($request->validated() + ['type' => 'periodic_examination' , 'status' => 'pending']);
 
 
+//        broadcast(new ServiceRequestEvent($order , $order->type));
 
-        broadcast(new ServiceRequestEvent($order , $order->type));
+//        return new SuccessResource([
+//            'message'   => __('messages.order_created_successfully') ,
+//        ]);
+        try{
+            DB::beginTransaction();
 
-        return new SuccessResource([
-            'message'   => __('messages.order_created_successfully') ,
-        ]);
+            //create car reservation
+            $car_reservation = CarReservations::create([
+                'user_id'               => auth()->id(),
+                'express_service_id'    => $request->service_id,
+                'vehicle_id'            => $request->vehicle_id,
+                'city_id'               => $request->city_id,
+                'inspection_side'       => $request->inspection_side,
+                'date'                  => $request->date,
+                'time'                  => $request->time,
+            ]);
+
+            $ordes = Order::create([
+                'user_id'               => auth()->id(),
+                'express_service_id'    => $request->service_id,
+                'vehicle_id'            => $request->vehicle_id,
+                'city_id'               => $request->city_id,
+                'status'                => 'pending',
+            ]);
+
+            DB::commit();
+
+            return new SuccessResource([
+                'message' => __('messages.order_created_successfully') ,
+            ]);
+        }catch (\Exception $e){
+            DB::rollBack();
+            Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
+            return new ErrorResource($e->getMessage());
+        }
     }
 
     public function payment($order)
