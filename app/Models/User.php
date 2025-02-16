@@ -165,4 +165,11 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(CarReservations::class);
     }
+
+    public function maintenance()
+    {
+        return $this->hasMany(Maintenance::class);
+    }
+
+
 }

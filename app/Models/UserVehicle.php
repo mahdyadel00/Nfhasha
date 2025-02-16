@@ -50,4 +50,9 @@ class UserVehicle extends Model
     {
         return $this->hasMany(CarReservations::class);
     }
+
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenance::class);
+    }
 }

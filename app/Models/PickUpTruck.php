@@ -12,4 +12,9 @@ class PickUpTruck extends Model implements \Astrotomic\Translatable\Contracts\Tr
 
     public $translatedAttributes = ['name'];
     protected $guarded = [];
+
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenance::class);
+    }
 }

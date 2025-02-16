@@ -12,6 +12,7 @@ use App\Http\Resources\API\SuccessResource;
 use App\Models\CarReservations;
 use App\Models\CyPeriodic;
 use App\Models\ExpressService;
+use App\Models\Maintenance;
 use App\Models\Order;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
@@ -42,7 +43,12 @@ class OrderController extends Controller
                 return new ErrorResource(__('messages.pending_order_exists'));
             }
 
+            $expressService = ExpressService::find($request->service_id);
+
+
             //create car reservation
+            if($expressService->type == 'car_reservations')
+
             $car_reservation = CarReservations::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
@@ -53,13 +59,39 @@ class OrderController extends Controller
                 'time'                  => $request->time,
             ]);
 
+            //create maintenance
+            if($expressService->type == 'maintenance')
+
+                $maintenance = Maintenance::create([
+                    'user_id'                   => auth()->id(),
+                    'express_service_id'        => $request->service_id,
+                    'user_vehicle_id'           => $request->vehicle_id,
+                    'pick_up_truck_id'          => $request->pick_up_truck_id,
+                    'maintenance_type'          => $request->maintenance_type,
+                    'maintenance_description'   => $request->maintenance_description,
+                    'address'                   => $request->address,
+                    'latitude'                  => $request->latitude,
+                    'longitude'                 => $request->longitude,
+                    'is_working'                => $request->is_working ? 1 : 0,
+                    'image'                     => $request->image,
+                    'note'                      => $request->note,
+                ]);
+
+            //image
+            if ($request->hasFile('image')) {
+                $maintenance->image = uploadImage($request->image, 'maintences');
+            }
+
             $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
                 'user_vehicle_id'       => $request->vehicle_id,
-                'city_id'               => $request->city_id,
+                'city_id'               => $request->city_id ?? null,
                 'status'                => 'pending',
                 'type'                  => ExpressService::find($request->service_id)->type,
+                'payment_method'        => $request->payment_method ?? 'cash',
+                'total_cost'            => $expressService->price,
+
             ]);
 
             DB::commit();
