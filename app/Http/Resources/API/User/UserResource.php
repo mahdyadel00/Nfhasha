@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API\User;
 
+use App\Http\Resources\API\Provider\ProviderResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +15,21 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-         return parent::toArray($request);
+//         return parent::toArray($request);
+
+        return [
+            'id'                    => $this->id,
+            'name'                  => $this->name,
+            'phone'                 => $this->phone,
+            'email'                 => $this->email,
+            'address'               => $this->address,
+            'longitude'             => $this->longitude,
+            'latitude'              => $this->latitude,
+            'role'                  => $this->role,
+            'profile_picture'       => $this->profile_picture,
+            'created_at'            => $this->created_at,
+            'updated_at'            => $this->updated_at,
+            'provider'              => ProviderResource::make($this->provider),
+        ];
     }
 }

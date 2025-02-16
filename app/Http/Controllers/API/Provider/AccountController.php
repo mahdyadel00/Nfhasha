@@ -7,6 +7,7 @@ use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
 use App\Http\Requests\API\Provider\UpdateProfileRequest;
 use App\Http\Resources\API\SuccessResource;
+use App\Http\Resources\API\User\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -100,7 +101,7 @@ class AccountController extends Controller
     public function profile()
     {
         return new SuccessResource([
-            'data' => auth()->user()
+            'data' => UserResource::make(auth()->user())
         ]);
     }
 
