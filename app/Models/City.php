@@ -38,4 +38,9 @@ class City extends Model implements \Astrotomic\Translatable\Contracts\Translata
     {
         return $this->hasMany(ComprehensiveInspections::class);
     }
+
+    public function periodicInspections()
+    {
+        return $this->hasMany(PeriodicInspections::class);
+    }
 }

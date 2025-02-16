@@ -15,6 +15,7 @@ use App\Models\CyPeriodic;
 use App\Models\ExpressService;
 use App\Models\Maintenance;
 use App\Models\Order;
+use App\Models\PeriodicInspections;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
 use Illuminate\Http\Request;
@@ -93,6 +94,22 @@ class OrderController extends Controller
                     'pick_up_truck_id'          => $request->pick_up_truck_id,
                     'city_id'                   => $request->city_id,
                     'date'                      => $request->date,
+                    'address'                   => $request->address,
+                    'latitude'                  => $request->latitude,
+                    'longitude'                 => $request->longitude,
+                ]);
+
+            }
+
+            if($expressService->type == 'periodic_inspections'){
+
+                $periodic_inspection            = PeriodicInspections::create([
+                    'user_id'                   => auth()->id(),
+                    'express_service_id'        => $request->service_id,
+                    'user_vehicle_id'           => $request->vehicle_id,
+                    'pick_up_truck_id'          => $request->pick_up_truck_id,
+                    'city_id'                   => $request->city_id,
+                    'inspection_type'           => $request->inspection_type,
                     'address'                   => $request->address,
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,

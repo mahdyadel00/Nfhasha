@@ -176,4 +176,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(ComprehensiveInspections::class);
     }
 
+    public function periodicInspections()
+    {
+        return $this->hasMany(PeriodicInspections::class);
+    }
+
 }
