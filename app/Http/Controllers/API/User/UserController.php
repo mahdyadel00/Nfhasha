@@ -63,13 +63,21 @@ class UserController extends Controller
         return apiResponse(200 , __('messages.account_deleted_successfully'));
     }
 
+    public function profile()
+    {
+        return new SuccessResource([
+            'data' => auth()->user()
+        ]);
+
+    }
+
     public function updateProfile(UpdateProfileRequest $request)
     {
         $user = auth()->user();
 
-        if($user->phone != $request->phone) {
+        if($user->phone     != $request->phone) {
             $user->email_verified_at = null;
-            $user->otp = rand(100000, 999999);
+            $user->otp      = rand(100000, 999999);
         }
 
         if($request->hasFile('profile_picture')) {
@@ -78,7 +86,9 @@ class UserController extends Controller
 
         $user->update($request->except('profile_picture'));
 
-        return apiResponse(200 , __('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]) , $user);
+        return new SuccessResource([
+            'message' => __('messages.profile_updated_successfully')
+        ]);
     }
 
     public function notifications()

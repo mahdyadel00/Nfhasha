@@ -58,4 +58,5 @@ return
     'order_not_found'                               =>  'Order not found',
     'order_created_successfully'                    =>  'Order created successfully',
     'pending_order_exists'                         =>  'You have pending order',
+    'profile_updated_successfully'                  =>  'Profile updated successfully',
 ];

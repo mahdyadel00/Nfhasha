@@ -54,6 +54,7 @@ Route::get('notifications/{notification}', [UserController::class, 'notification
 Route::get('logout', [UserController::class, 'logout']);
 Route::delete('delete-account', [UserController::class, 'deleteAccount']);
 Route::post('update-profile', [UserController::class, 'updateProfile']);
+Route::get('profile', [UserController::class, 'profile']);
 Route::post('update-geos' , [UserController::class , 'updateGeos']);
 
 Route::group(['prefix' => 'app' , 'controller' =>AppController::class], function () {

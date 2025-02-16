@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\ProviderRegisterRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
+use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -84,13 +85,11 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token' , ['role' => 'provider'])->plainTextToken;
 
-        return apiResponse(201,
-        __('messages.registered_successfully'),
-        [
-            'otp' => str($user->otp),
-            'token' => $token,
-            'user' => $user,
-        ]);
+       return new SuccessResource([
+           'message'     => __('messages.registered_successfully'),
+           'otp'         => str($user->otp),
+           'token'       => $token,
+       ]);
     }
 
 

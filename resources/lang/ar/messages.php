@@ -58,4 +58,5 @@ return
     'order_not_found'                           => 'لم يتم العثور على الطلب',
     'order_created_successfully'                => 'تم إنشاء الطلب بنجاح',
     'pending_order_exists'                      => 'يوجد طلب قيد الانتظار',
+    'profile_updated_successfully'              => 'تم تحديث الملف الشخصي بنجاح',
 ];

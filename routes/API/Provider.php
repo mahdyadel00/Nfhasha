@@ -28,6 +28,7 @@ Route::post('change-password', [AccountController::class, 'changePassword']);
 Route::get('logout', [AccountController::class, 'logout']);
 Route::delete('delete-account', [AccountController::class, 'deleteAccount']);
 Route::post('update-profile', [AccountController::class, 'updateProfile']);
+Route::get('profile', [AccountController::class, 'profile']);
 Route::post('update-geos' , [AccountController::class , 'updateGeos']);
 
 

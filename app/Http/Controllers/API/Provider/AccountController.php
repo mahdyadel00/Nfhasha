@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
 use App\Http\Requests\API\Provider\UpdateProfileRequest;
+use App\Http\Resources\API\SuccessResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -96,5 +97,9 @@ class AccountController extends Controller
         return apiResponse(200, __('messages.data_updated_successfully', ['attr' => __('messages.Profile')]), $user);
     }
 
+    public function profile()
+    {
+        return new SuccessResource(auth()->user());
+    }
 
 }
