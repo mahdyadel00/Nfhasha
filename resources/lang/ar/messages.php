@@ -59,4 +59,5 @@ return
     'order_created_successfully'                => 'تم إنشاء الطلب بنجاح',
     'pending_order_exists'                      => 'يوجد طلب قيد الانتظار',
     'profile_updated_successfully'              => 'تم تحديث الملف الشخصي بنجاح',
+    'order_status_changed'                      => 'تم تغيير حالة الطلب',
 ];

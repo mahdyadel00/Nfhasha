@@ -56,4 +56,24 @@ class OrderController extends Controller
             'orders'    => OrderResource::collection($orders)
         ]);
     }
+
+    public function changeOrderStatus(Request $request , $id)
+    {
+        $order = Order::where('provider_id' , auth('sanctum')->id())->find($id);
+
+        if(!$order)
+        {
+            return new SuccessResource([
+                'message'   => __('messages.order_not_found')
+            ]);
+        }
+
+        $order->update([
+            'status'    => $request->status
+        ]);
+
+        return new SuccessResource([
+            'message'   => __('messages.order_status_changed')
+        ]);
+    }
 }

@@ -26,7 +26,7 @@ class OfferController extends Controller
             $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
 
             //get all express services
-            $express_services = PunctureService::where('status', 'pending')->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())->get();
+            $express_services = PunctureService::where(['status' => 'pending'] , ['status' => 'sent'])->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())->get();
 
 
             DB::commit();

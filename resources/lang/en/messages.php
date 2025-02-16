@@ -59,4 +59,5 @@ return
     'order_created_successfully'                    =>  'Order created successfully',
     'pending_order_exists'                         =>  'You have pending order',
     'profile_updated_successfully'                  =>  'Profile updated successfully',
+    'order_status_changed'                          =>  'Order status changed successfully',
 ];
