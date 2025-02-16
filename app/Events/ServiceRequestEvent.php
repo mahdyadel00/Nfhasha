@@ -24,9 +24,19 @@ class ServiceRequestEvent implements ShouldBroadcast
      */
     public function __construct($order, $serviceType)
     {
-        $this->order        = $order->toArray();
+        $this->order        = $order;
         $this->serviceType  = $serviceType;
-        $providers = Provider::where('periodic_examination', true)->get();
+        $latitude           = $this->order->from_lat;
+        $longitude          = $this->order->from_lng;
+
+        if($serviceType == 'maintenance') {
+            $providers = Provider::where('type', 'center')
+                ->whereNotNull('pick_up_truck_id')
+                ->whereHas('user', function ($query) use ($latitude, $longitude) {
+                    $query->nearby($latitude, $longitude, 50);
+                })
+                ->get();
+        }
 
         foreach ($providers as $provider) {
             \App\Models\ProviderNotification::create([

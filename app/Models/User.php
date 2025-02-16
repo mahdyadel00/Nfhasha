@@ -50,11 +50,11 @@ class User extends Authenticatable implements FilamentUser
     {
         $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
         * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
-
         return $query->select('*')
             ->selectRaw("{$haversine} AS distance", [$latitude, $longitude, $latitude])
-            ->having('distance', '<', $distance)  // بدلاً من whereRaw استخدم having
+            ->having('distance', '<', $distance) // 50 KM
             ->orderBy('distance');
+
     }
 
     //Generate Invitation Code Start
@@ -171,5 +171,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Maintenance::class);
     }
 
+    public function ComprehensiveInspections()
+    {
+        return $this->hasMany(ComprehensiveInspections::class);
+    }
 
 }

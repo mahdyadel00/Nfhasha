@@ -10,6 +10,7 @@ use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\CarReservations;
+use App\Models\ComprehensiveInspections;
 use App\Models\CyPeriodic;
 use App\Models\ExpressService;
 use App\Models\Maintenance;
@@ -47,20 +48,21 @@ class OrderController extends Controller
 
 
             //create car reservation
-            if($expressService->type == 'car_reservations')
+            if($expressService->type == 'car_reservations'){
 
-            $car_reservation = CarReservations::create([
-                'user_id'               => auth()->id(),
-                'express_service_id'    => $request->service_id,
-                'user_vehicle_id'       => $request->vehicle_id,
-                'city_id'               => $request->city_id,
-                'inspection_side'       => $request->inspection_side,
-                'date'                  => $request->date,
-                'time'                  => $request->time,
-            ]);
+                $car_reservation = CarReservations::create([
+                    'user_id'               => auth()->id(),
+                    'express_service_id'    => $request->service_id,
+                    'user_vehicle_id'       => $request->vehicle_id,
+                    'city_id'               => $request->city_id,
+                    'inspection_side'       => $request->inspection_side,
+                    'date'                  => $request->date,
+                    'time'                  => $request->time,
+                ]);
+            }
 
             //create maintenance
-            if($expressService->type == 'maintenance')
+            if($expressService->type == 'maintenance'){
 
                 $maintenance = Maintenance::create([
                     'user_id'                   => auth()->id(),
@@ -76,11 +78,28 @@ class OrderController extends Controller
                     'image'                     => $request->image,
                     'note'                      => $request->note,
                 ]);
-
-            //image
-            if ($request->hasFile('image')) {
-                $maintenance->image = uploadImage($request->image, 'maintences');
+                //image
+                if ($request->hasFile('image')) {
+                    $maintenance->image = uploadImage($request->image, 'maintences');
+                }
             }
+
+            if($expressService->type == 'comprehensive_inspections'){
+
+                $comprehensive_inspection       = ComprehensiveInspections::create([
+                    'user_id'                   => auth()->id(),
+                    'express_service_id'        => $request->service_id,
+                    'user_vehicle_id'           => $request->vehicle_id,
+                    'pick_up_truck_id'          => $request->pick_up_truck_id,
+                    'city_id'                   => $request->city_id,
+                    'date'                      => $request->date,
+                    'address'                   => $request->address,
+                    'latitude'                  => $request->latitude,
+                    'longitude'                 => $request->longitude,
+                ]);
+
+            }
+
 
             $order = Order::create([
                 'user_id'               => auth()->id(),
@@ -88,13 +107,18 @@ class OrderController extends Controller
                 'user_vehicle_id'       => $request->vehicle_id,
                 'city_id'               => $request->city_id ?? null,
                 'status'                => 'pending',
+                'from_lat'              => $request->from_lat ?? $request->latitude,
+                'from_long'             => $request->from_long ?? $request->longitude,
                 'type'                  => ExpressService::find($request->service_id)->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $expressService->price,
-
             ]);
 
             DB::commit();
+
+            //send notification to provider
+//            broadcast(new ServiceRequestEvent($order , $order->type));
+
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully') ,

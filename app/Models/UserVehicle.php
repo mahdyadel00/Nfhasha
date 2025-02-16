@@ -55,4 +55,9 @@ class UserVehicle extends Model
     {
         return $this->hasMany(Maintenance::class);
     }
+
+    public function comprehensiveInspections()
+    {
+        return $this->hasMany(ComprehensiveInspections::class);
+    }
 }

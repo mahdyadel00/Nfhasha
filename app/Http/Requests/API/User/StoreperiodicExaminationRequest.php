@@ -40,7 +40,6 @@ class StoreperiodicExaminationRequest extends FormRequest
             'address'                       => ['nullable', 'string'],
             'latitude'                      => ['nullable', 'string'],
             'longitude'                     => ['nullable', 'string'],
-//            'is_working'                    => ['nullable', 'boolean'],
             'note'                          => ['nullable', 'string'],
             'image'
         ];

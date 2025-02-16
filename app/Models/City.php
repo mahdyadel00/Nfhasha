@@ -33,4 +33,9 @@ class City extends Model implements \Astrotomic\Translatable\Contracts\Translata
     {
         return $this->hasMany(CarReservations::class);
     }
+
+    public function comprehensiveInspections()
+    {
+        return $this->hasMany(ComprehensiveInspections::class);
+    }
 }
