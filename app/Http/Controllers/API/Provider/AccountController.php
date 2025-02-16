@@ -99,7 +99,9 @@ class AccountController extends Controller
 
     public function profile()
     {
-        return new SuccessResource(auth()->user());
+        return new SuccessResource([
+            'data' => auth()->user()
+        ]);
     }
 
 }
