@@ -77,6 +77,7 @@ class AccountController extends Controller
         $user->provider()->update([
             'city_id'                   => $request->city_id,
             'district_id'               => $request->district_id,
+            'pick_up_truck_id'          => $request->pick_up_truck_id,
             'type'                      => $request->type,
             'mechanical'                => $request->mechanical,
             'plumber'                   => $request->plumber,
@@ -88,7 +89,6 @@ class AccountController extends Controller
             'full_examination'          => $request->full_examination,
             'periodic_examination'      => $request->periodic_examination,
             'truck_barriers'            => $request->truck_barriers,
-            'pick_up_truck_id'          => $request->pick_up_truck_id,
             'available_from'            => $request->available_from,
             'available_to'              => $request->available_to,
             'home_service'              => $request->home_service,
