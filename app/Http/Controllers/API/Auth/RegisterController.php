@@ -33,12 +33,12 @@ class RegisterController extends Controller
         $token = $user->createToken('auth_token' , ['role' => 'user'])->plainTextToken;
 
 
-        return apiResponse(201,
-        __('messages.registered_successfully'),
-        [
-            'otp'       => str($user->otp),
-            'token'     => $token,
-            'user'      => $user,
+        return new SuccessResource([
+            'message'     => __('messages.registered_successfully'),
+            'data'        => [
+                'otp'       => str($user->otp),
+                'token'     => $token,
+            ]
         ]);
     }
 
@@ -87,8 +87,10 @@ class RegisterController extends Controller
 
        return new SuccessResource([
            'message'     => __('messages.registered_successfully'),
-           'otp'         => str($user->otp),
-           'token'       => $token,
+           'data'        => [
+               'otp'       => str($user->otp),
+               'token'     => $token,
+           ]
        ]);
     }
 
