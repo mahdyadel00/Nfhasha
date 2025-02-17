@@ -50,13 +50,15 @@ class OrderController extends Controller
 
             //create car reservation
             if($expressService->type == 'car_reservations'){
+                $inspection_side_array  = explode(',', $request->inspection_side);
+                $inspection_side_string = implode(',', $inspection_side_array);
 
-                $car_reservation = CarReservations::create([
+                  CarReservations::create([
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
                     'city_id'               => $request->city_id,
-                    'inspection_side'       => $request->inspection_side,
+                    'inspection_side'       => $inspection_side_string,
                     'date'                  => $request->date,
                     'time'                  => $request->time,
                 ]);
@@ -64,6 +66,14 @@ class OrderController extends Controller
 
             //create maintenance
             if($expressService->type == 'maintenance'){
+
+                //creat array for image
+                $image = [];
+                if ($request->hasFile('image')) {
+                    foreach ($request->file('image') as $file) {
+                        $image[] = uploadImage($file, 'maintences');
+                    }
+                }
 
                 $maintenance = Maintenance::create([
                     'user_id'                   => auth()->id(),
@@ -76,13 +86,13 @@ class OrderController extends Controller
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,
                     'is_working'                => $request->is_working ? 1 : 0,
-                    'image'                     => $request->image,
+                    'image'                     => json_encode($image),
                     'note'                      => $request->note,
                 ]);
-                //image
-                if ($request->hasFile('image')) {
-                    $maintenance->image = uploadImage($request->image, 'maintences');
-                }
+//                //image
+//                if ($request->hasFile('image')) {
+//                    $maintenance->image = uploadImage($request->image, 'maintences');
+//                }
             }
 
             if($expressService->type == 'comprehensive_inspections'){

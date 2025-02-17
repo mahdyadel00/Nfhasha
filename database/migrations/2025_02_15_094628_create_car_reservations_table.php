@@ -22,7 +22,7 @@ return new class extends Migration
             $table->foreignIdFor(City::class)->nullable()->constrained()->onDelete('set null');
             $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->onDelete('set null');
             $table->foreignIdFor(ExpressService::class)->nullable()->constrained()->onDelete('set null');
-            $table->enum('inspection_side', ['all', 'front', 'back', 'sides', 'left'])->default('all');
+            $table->set('inspection_side', ['all', 'front', 'back', 'sides', 'left'])->default('all');
             $table->date('date');
             $table->time('time');
             $table->timestamps();

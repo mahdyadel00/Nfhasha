@@ -27,6 +27,10 @@ class ExpressServiceResource extends Resource
     protected static ?string $activeNavigationIcon  = 'heroicon-o-chevron-double-right';
     protected static ?string $recordTitleAttribute  = 'name:en';
 
+    public static function getnavigationGroup(): string
+    {
+        return app()->getLocale() === 'en' ? 'Services' : 'الخدمات';
+    }
     public static function getNavigationLabel(): string
     {
         return app()->getLocale() === 'en' ? 'Express Services' : 'الخدمات السريعة';

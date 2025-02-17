@@ -31,7 +31,7 @@ class StoreperiodicExaminationRequest extends FormRequest
             'from_lat'                      => ['nullable', 'numeric'],
             'from_long'                     => ['nullable', 'numeric'],
             'position'                      => ['nullable', 'string'],
-            'inspection_side'               => ['nullable', 'in:all,front,back,sides,left'],
+            'inspection_side'               => ['nullable', 'regex:/^(all|front|back|sides|left)(,(all|front|back|sides|left))*$/'],
             'date'                          => ['nullable', 'date'],
             'time'                          => ['nullable', 'string'],
             //maintenance

@@ -26,7 +26,6 @@ class ServiceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
-
     public static function getnavigationGroup(): string
     {
         return app()->getLocale() === 'en' ? 'Services' : 'الخدمات';

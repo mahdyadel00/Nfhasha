@@ -21,14 +21,19 @@ class CarReservationsResource extends Resource
     protected static ?string $activeNavigationIcon = 'heroicon-o-chevron-double-right';
     protected static ?string $recordTitleAttribute = 'name:en';
 
+    public static function getnavigationGroup(): string
+    {
+        return app()->getLocale() === 'en' ? 'Services' : 'الخدمات';
+    }
+
     public static function getNavigationLabel(): string
     {
-        return app()->getLocale() === 'en' ? 'Car Reservations' : 'حجوزات السيارات';
+        return app()->getLocale() === 'en' ? 'Car Reservations' : 'حواجز السيارات';
     }
 
     public static function getPluralLabel(): string
     {
-        return app()->getLocale() === 'en' ? 'Car Reservations' : 'حجوزات السيارات';
+        return app()->getLocale() === 'en' ? 'Car Reservations' : 'حواجز السيارات';
     }
 
     public static function getModelLabel(): string

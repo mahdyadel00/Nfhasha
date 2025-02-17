@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(UserVehicle::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(City::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreignIdFor(PickUpTruck::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignIdFor(PickUpTruck::class)->nullable()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('inspection_type');
             $table->string('address');
