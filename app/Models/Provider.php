@@ -33,5 +33,15 @@ class Provider extends Model
         return $this->hasMany(ProviderNotification::class);
     }
 
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function pickUpTruck()
+    {
+        return $this->belongsTo(PickUpTruck::class);
+    }
+
 
 }

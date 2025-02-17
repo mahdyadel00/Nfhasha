@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\API\Provider;
 
-use App\Http\Resources\API\CitiesResource;
+use App\Http\Resources\API\{CityResource, DistrictsResource, PickupTrucksResource};
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,7 +29,6 @@ class   ProviderResource extends JsonResource
             'full_examination'      => $this->full_examination,
             'periodic_examination'  => $this->periodic_examination,
             'truck_barriers'        => $this->truck_barriers,
-            'pick_up_truck_id'      => $this->pick_up_truck_id,
             'available_from'        => $this->available_from,
             'available_to'          => $this->available_to,
             'home_service'          => $this->home_service,
@@ -40,8 +39,9 @@ class   ProviderResource extends JsonResource
             'is_active'             => $this->is_active,
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,
-            'city'                  => CitiesResource::make($this->city),
-            'district'              => CitiesResource::make($this->district),
+            'city'                  => CityResource::make($this->city),
+            'district'              => DistrictsResource::make($this->district),
+            'pick_up_truck'         => PickupTrucksResource::make($this->pickUpTruck),
         ];
     }
 }

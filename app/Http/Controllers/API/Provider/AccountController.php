@@ -59,43 +59,47 @@ class AccountController extends Controller
 
     public function updateProfile(UpdateProfileRequest $request)
     {
-        $user = auth()->user();
+        $user = auth('sanctum')->user();
 
-        $sensitiveFields = [
-            'mechanical', 'plumber', 'electrical', 'puncture', 'battery',
-            'pickup', 'open_locks', 'full_examination', 'periodic_examination', 'truck_barriers'
-        ];
+         $user->update([
+            'name'                              => $request->name,
+            'phone'                             => $request->phone,
+            'email'                             => $request->email,
+            'role'                              => 'provider',
+            'address'                           => $request->address,
+        ]);
 
-        $provider = $user->provider;
-        $accountSuspended = false;
-
-        foreach ($sensitiveFields as $field) {
-            if (!$provider->$field && $request->$field) {
-                $accountSuspended = true;
-                break;
-            }
-        }
-
-        if ($accountSuspended) {
-            $provider->is_active = false;
-            $provider->save();
-
-            return apiResponse(403, __('تم تعليق حسابك لحين المراجعة.'));
-        }
-
-        if ($user->phone !== $request->phone) {
-            $user->email_verified_at = null;
-            $user->otp = rand(100000, 999999);
-        }
 
         if ($request->hasFile('profile_picture')) {
             $user->profile_picture = uploadImage($request->profile_picture, 'avatars');
         }
 
-        $user->update($request->except(['profile_picture']));
-        $provider->update($request->only($sensitiveFields));
+        $user->provider()->update([
+            'city_id'                   => $request->city_id,
+            'district_id'               => $request->district_id,
+            'type'                      => $request->type,
+            'mechanical'                => $request->mechanical,
+            'plumber'                   => $request->plumber,
+            'electrical'                => $request->electrical,
+            'puncture'                  => $request->puncture,
+            'battery'                   => $request->battery,
+            'pickup'                    => $request->pickup,
+            'open_locks'                => $request->open_locks,
+            'full_examination'          => $request->full_examination,
+            'periodic_examination'      => $request->periodic_examination,
+            'truck_barriers'            => $request->truck_barriers,
+            'pick_up_truck_id'          => $request->pick_up_truck_id,
+            'available_from'            => $request->available_from,
+            'available_to'              => $request->available_to,
+            'home_service'              => $request->home_service,
+            'commercial_register'       => $request->commercial_register,
+            'owner_identity'            => $request->owner_identity,
+            'general_license'           => $request->general_license,
+            'municipal_license'         => $request->municipal_license,
+            'is_active'                 => 0,
+        ]);
 
-        return apiResponse(200, __('messages.data_updated_successfully', ['attr' => __('messages.Profile')]), $user);
+        return new SuccessResource(__('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]));
     }
 
     public function profile()

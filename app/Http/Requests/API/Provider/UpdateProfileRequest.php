@@ -44,6 +44,8 @@ class UpdateProfileRequest extends FormRequest
             'available_from'            => 'nullable|date_format:Y-m-d H:i:s',
             'available_to'              => 'nullable|date_format:Y-m-d H:i:s',
             'home_service'              => 'required|boolean',
+            'city_id'                   => 'nullable|exists:cities,id',
+            'type'                      => 'required|in:individual,center',
         ];
     }
 

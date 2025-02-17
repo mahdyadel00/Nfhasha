@@ -27,4 +27,9 @@ class PickUpTruck extends Model implements \Astrotomic\Translatable\Contracts\Tr
     {
         return $this->hasMany(PeriodicInspections::class);
     }
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class);
+    }
 }
