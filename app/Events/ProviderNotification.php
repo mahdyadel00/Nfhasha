@@ -19,7 +19,6 @@ class ProviderNotification implements ShouldBroadcastNow
 
     public function __construct($message, $providers, $express_service)
     {
-
         $this->message          = $message;
         $this->providers        = $providers;
         $this->express_service  = $express_service;
@@ -46,6 +45,6 @@ class ProviderNotification implements ShouldBroadcastNow
 
     public function broadcastAs()
     {
-        return 'provider.notification';
+        return 'sent.offer';
     }
 }

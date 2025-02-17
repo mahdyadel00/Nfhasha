@@ -75,7 +75,7 @@ class OrderController extends Controller
                     }
                 }
 
-                $maintenance = Maintenance::create([
+                 Maintenance::create([
                     'user_id'                   => auth()->id(),
                     'express_service_id'        => $request->service_id,
                     'user_vehicle_id'           => $request->vehicle_id,
@@ -89,10 +89,6 @@ class OrderController extends Controller
                     'image'                     => json_encode($image),
                     'note'                      => $request->note,
                 ]);
-//                //image
-//                if ($request->hasFile('image')) {
-//                    $maintenance->image = uploadImage($request->image, 'maintences');
-//                }
             }
 
             if($expressService->type == 'comprehensive_inspections'){
@@ -113,7 +109,7 @@ class OrderController extends Controller
 
             if($expressService->type == 'periodic_inspections'){
 
-                $periodic_inspection            = PeriodicInspections::create([
+                PeriodicInspections::create([
                     'user_id'                   => auth()->id(),
                     'express_service_id'        => $request->service_id,
                     'user_vehicle_id'           => $request->vehicle_id,

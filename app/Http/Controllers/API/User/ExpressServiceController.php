@@ -10,6 +10,7 @@ use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Models\ExpressService;
+use App\Models\Order;
 use App\Models\PunctureService;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -43,6 +44,7 @@ class ExpressServiceController extends Controller
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
                 'user_vehicle_id'       => $request->user_vehicle_id ?? null,
+                'address'               => $request->address,
                 'from_latitude'         => $request->from_latitude,
                 'from_longitude'        => $request->from_longitude,
                 'to_latitude'           => $request->to_latitude ?? null,
@@ -52,6 +54,30 @@ class ExpressServiceController extends Controller
                 'notes'                 => $request->notes ?? null,
                 'amount'                => $request->amount,
                 'status'                => 'pending',
+            ]);
+
+            //i need when this user already have pending order
+            //then he can't create another order
+            $pending_order = Order::where('user_id', auth()->id())
+                ->where('status', 'pending')
+                ->first();
+
+            if($pending_order){
+                return new ErrorResource(__('messages.pending_order_exists'));
+            }
+            //create order
+            $order = Order::create([
+                'user_id'               => auth()->id(),
+                'express_service_id'    => $request->express_service_id,
+                'amount'                => $request->amount,
+                'status'                => 'pending',
+                'from_latitude'         => $request->from_latitude,
+                'from_longitude'        => $request->from_longitude,
+                'to_latitude'           => $request->to_latitude ?? null,
+                'to_longitude'          => $request->to_longitude ?? null,
+                'type'                  => $express_service->type,
+                'payment_method'        => $request->payment_method ?? 'cash',
+                'total_cost'            => $express_service->amount,
             ]);
 
             //send notification to provider

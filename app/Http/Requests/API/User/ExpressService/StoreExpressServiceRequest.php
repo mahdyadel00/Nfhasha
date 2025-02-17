@@ -32,6 +32,7 @@ class StoreExpressServiceRequest extends FormRequest
             'battery_image'             => ['nullable', 'image'],
             'notes'                     => ['nullable', 'string'],
             'amount'                    => ['nullable', 'numeric'],
+            'address'                   => ['nullable', 'string'],
         ];
     }
 

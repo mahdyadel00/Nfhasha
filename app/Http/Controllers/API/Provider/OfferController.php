@@ -24,6 +24,7 @@ class OfferController extends Controller
             DB::beginTransaction();
 
             $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
+            dd($provider_notifications);
 
             //get all express services
             $express_services = PunctureService::where(['status' => 'pending'] , ['status' => 'sent'])->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())->get();
@@ -77,20 +78,10 @@ class OfferController extends Controller
             $express_service->status = 'accepted';
             $express_service->save();
 
-            //create order for user
-            $order = Order::create([
-                'user_id'                   => $express_service->user_id,
-                'provider_id'               => auth()->id(),
-                'express_service_id'        => $express_service->express_service_id,
-                'type'                      => $express_service->expressService?->type,
-                'status'                    => $express_service->status,
-                'payment_method'            => 'Cash',
-                'from_lat'                  => $express_service->from_latitude,
-                'from_long'                 => $express_service->from_longitude,
-                'to_lat'                    => $express_service->to_latitude,
-                'to_long'                   => $express_service->to_longitude,
-                'details'                   => $express_service->notes,
-            ]);
+            //update order status
+            $order          = Order::where('express_service_id', $express_service->id)->where('status', 'pending')->first();
+            $order->status = 'accepted';
+            $order->save();
             DB::commit();
 
             //send notification to user

@@ -19,9 +19,15 @@ class HandleSentOffer
     /**
      * Handle the event.
      */
-    public function handle(object $event): void
+        // Trigger the event
+        public function handle(object $event): void
     {
         // Trigger the event
-        event(new SentOffer($message, $providers, $express_service, $amount));
+        event(new SentOffer(
+            $event->message,
+            $event->providers,
+            $event->express_service,
+            $event->amount
+        ));
     }
 }
