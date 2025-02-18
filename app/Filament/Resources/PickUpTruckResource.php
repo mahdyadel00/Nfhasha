@@ -79,11 +79,10 @@ class   PickUpTruckResource extends Resource
                 Tables\Columns\ImageColumn::make('image')
                     ->label(app()->getLocale() === 'en' ? 'Image' : 'الصورة'),
 
-                Tables\Columns\TextColumn::make('name:ar')
-                    ->label(app()->getLocale() === 'en' ? 'Name in Arabic' : 'الاسم بالعربية'),
-
-                Tables\Columns\TextColumn::make('name:en')
-                    ->label(app()->getLocale() === 'en' ? 'Name in English' : 'الاسم بالإنجليزية'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label(app()->getLocale() === 'en' ? 'Name' : 'الاسم')
+                    ->getStateUsing(fn ($record) => $record->translate(app()->getLocale())->name ?? '-')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('price')
                     ->label(app()->getLocale() === 'en' ? 'Price' : 'السعر')
