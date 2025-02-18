@@ -56,7 +56,7 @@ class ExpressServiceController extends Controller
                 'amount'                => $request->amount,
                 'status'                => 'pending',
             ]);
-            
+
             //create order
             $order = Order::create([
                 'user_id'               => auth()->id(),

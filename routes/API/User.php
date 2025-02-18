@@ -103,6 +103,7 @@ Route::post('reject-offer/{id}' , [NotificationController::class , 'rejectOffer'
 Route::get('my-orders' , [OrderController::class , 'myOrders']);
 Route::get('order/{id}' , [OrderController::class , 'show']);
 Route::get('orders' , [OrderController::class , 'ordersByStatus']);
+Route::post('cancel-order/{id}' , [OrderController::class , 'cancelOrder']);
 
 //cy_periodics
 Route::post('cy_periodics' , [MainServicesController::class , 'store']);

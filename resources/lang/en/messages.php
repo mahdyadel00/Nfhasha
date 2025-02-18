@@ -63,4 +63,5 @@ return
     'links'                                         =>  'Links',
     'no_social_links_found'                         =>  'No social links found',
     'social_links'                                  =>  'Social Links',
+    'order_canceled_successfully'                   =>  'Order canceled successfully',
 ];

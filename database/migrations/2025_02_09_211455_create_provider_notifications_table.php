@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('provider_notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(app(Provider::class))->constrained()->onDelete('cascade');
+            $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignIdFor(app(User::class))->constrained()->onDelete('cascade');
             $table->text('message');
             $table->timestamps();

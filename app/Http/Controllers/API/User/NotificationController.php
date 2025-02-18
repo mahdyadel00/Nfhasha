@@ -64,8 +64,9 @@ class NotificationController extends Controller
 
         if ($express_service) {
             $express_service->update([
-                'status'    => 'rejected',
-                'reason'    => $request->reason
+                'status'        => 'pending',
+                'reason'        => $request->reason,
+                'provider_id'   => null
             ]);
 
             //send notification to provider

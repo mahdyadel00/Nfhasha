@@ -222,4 +222,22 @@ class OrderController extends Controller
         ]);
     }
 
+    public function cancelOrder($id)
+    {
+        $order = Order::where('user_id' , auth('sanctum')->id())->find($id);
+
+        if(!$order)
+        {
+            return new SuccessResource([
+                'message'   => __('messages.order_not_found')
+            ]);
+        }
+
+        $order->update(['status' => 'canceled']);
+
+        return new SuccessResource([
+            'message'   => __('messages.order_canceled_successfully')
+        ]);
+    }
+
 }

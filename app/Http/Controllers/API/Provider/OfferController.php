@@ -178,9 +178,10 @@ class OfferController extends Controller
                     'message' => 'Offer not found or already rejected',
                 ]);
             }
-
-            $express_service->status = 'rejected';
-            $express_service->save();
+            $express_service->update([
+                'status'        => 'pending',
+                'provider_id'   => null,
+            ]);
 
             DB::commit();
 
