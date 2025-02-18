@@ -53,7 +53,7 @@ class ExpressServiceController extends Controller
                 'type_battery'          => $request->type_battery ?? null,
                 'battery_image'         => $request->battery_image ? $request->battery_image->store('express_services') : null,
                 'notes'                 => $request->notes ?? null,
-                'amount'                => $request->amount,
+                'amount'                => $request->amount ?? $request->expressService->price,
                 'status'                => 'pending',
             ]);
 
@@ -69,7 +69,7 @@ class ExpressServiceController extends Controller
                 'to_longitude'          => $request->to_longitude ?? null,
                 'type'                  => $express_service->expressService->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
-                'total_cost'            => $express_service->amount,
+                'total_cost'            => $express_service->amount ?? $request->expressService->price,
             ]);
 
             //send notification to provider

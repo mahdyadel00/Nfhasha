@@ -66,7 +66,8 @@ class NotificationController extends Controller
             $express_service->update([
                 'status'        => 'pending',
                 'reason'        => $request->reason,
-                'provider_id'   => null
+                'provider_id'   => null,
+                'amount'        => $express_service->expressService->price,
             ]);
 
             //send notification to provider

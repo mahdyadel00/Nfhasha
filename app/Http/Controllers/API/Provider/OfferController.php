@@ -122,7 +122,6 @@ class OfferController extends Controller
         }
     }
 
-
     public function sendOffer(Request $request , $id)
     {
         try{
