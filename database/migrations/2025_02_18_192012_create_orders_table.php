@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->onDelete('set null');
             $table->foreignIdFor(City::class)->nullable()->constrained()->onDelete('set null');
             $table->foreignIdFor(CyPeriodic::class)->nullable()->constrained()->onDelete('set null');
-            $table->foreignIdFor(PickUpTruck::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('pick_up_truck_id')->nullable()->constrained('pick_up_trucks');
             $table->string('type', 100);
             $table->enum('status', ['pending', 'accepted', 'rejected', 'completed'])->nullable();
             $table->enum('payment_method', ['Online', 'Cash', 'Wallet'])->nullable();

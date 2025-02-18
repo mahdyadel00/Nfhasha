@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\PickUpTruck;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->foreignIdFor(PickUpTruck::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('pick_up_truck_id')->nullable()->constrained('pick_up_trucks');
         });
     }
 
