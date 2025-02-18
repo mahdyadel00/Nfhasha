@@ -20,26 +20,44 @@ class OfferController extends Controller
 {
     public function offers()
     {
-        try{
+        try {
             DB::beginTransaction();
 
             $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
-            dd($provider_notifications);
 
-            //get all express services
-            $express_services = PunctureService::where(['status' => 'pending'] , ['status' => 'sent'])->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())->get();
-
+            if ($provider_notifications->count() == 0) {
+                return new ErrorResource([
+                    'message' => 'No offers found',
+                ]);
+            }
+            $express_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                ->where(function ($query) {
+                    $query->where('status', 'pending') // حالة pending
+                    ->orWhere(function ($query) {
+                        $query->where('status', 'sent') // حالة sent
+                        ->where('provider_id', auth()->id()); // فقط إذا كنت أنت من غير الحالة
+                    });
+                })
+                ->whereHas('user', function ($query) {
+                    $query->where('role', 'provider'); // التحقق من أن المستخدم لديه دور provider
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             DB::commit();
 
             return new SuccessResource([
-                'express_services' => PunctureServiceResource::collection($express_services),
+                'express_services' => PunctureServiceResource::collection($express_services->map(function ($service) {
+                    $isSentByMe = $service->provider_id === auth()->id();
+                    $service->status = $isSentByMe ? 'sent' : $service->status;
+                    return $service;
+                })),
             ]);
 
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
-            return new ErrorResource(['message' => $e->getMessage(),]);
+            return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
 
@@ -113,9 +131,17 @@ class OfferController extends Controller
             }
 
             $express_service->update([
-                'status'    => 'sent',
-                'amount'    => $request->amount,
+                'status'        => 'sent',
+                'amount'        => $request->amount,
+                'provider_id'   => auth()->id(),
             ]);
+
+            $order = Order::where('user_id', $express_service->user_id)
+                ->where('status', 'pending')
+                ->first();
+
+            $order->status = 'sent';
+            $order->save();
 
 
             //send notification to user

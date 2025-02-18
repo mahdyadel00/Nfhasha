@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('address');
             $table->string('from_latitude');
             $table->string('from_longitude');

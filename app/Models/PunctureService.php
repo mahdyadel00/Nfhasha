@@ -13,6 +13,7 @@ class PunctureService extends Model
         'express_service_id',
         'user_id',
         'user_vehicle_id',
+        'provider_id',
         'from_latitude',
         'from_longitude',
         'to_latitude',
