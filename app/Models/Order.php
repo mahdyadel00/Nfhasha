@@ -39,6 +39,27 @@ class Order extends Model
         return $this->belongsTo(UserVehicle::class , 'user_vehicle_id');
     }
 
+    public function expressService()
+    {
+        return $this->belongsTo(ExpressService::class);
+    }
+
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function cyPeriodic()
+    {
+        return $this->belongsTo(CyPeriodic::class);
+    }
+
+    public function pickUpTruck()
+    {
+        return $this->belongsTo(PickUpTruck::class);
+    }
+
 
 
 
