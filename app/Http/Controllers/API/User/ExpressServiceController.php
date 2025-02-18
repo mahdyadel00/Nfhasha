@@ -75,7 +75,7 @@ class ExpressServiceController extends Controller
                 'from_longitude'        => $request->from_longitude,
                 'to_latitude'           => $request->to_latitude ?? null,
                 'to_longitude'          => $request->to_longitude ?? null,
-                'type'                  => $express_service->type,
+                'type'                  => $express_service->expressService->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $express_service->amount,
             ]);

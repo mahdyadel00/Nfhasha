@@ -83,38 +83,45 @@ class OfferController extends Controller
 
     public function acceptOffer($id)
     {
-        try{
+        try {
             DB::beginTransaction();
 
-            $express_service = PunctureService::where(['id' => $id, 'status' => 'pending'])->first();
-            if(!$express_service || $express_service->status != 'pending'){
-                return new ErrorResource([
-                    'message' => 'Offer not found or already accepted',
-                ]);
+            $express_service = PunctureService::find($id);
+
+            if (!$express_service) {
+                return new ErrorResource(['message' => 'Offer not found']);
+            }
+
+            if ($express_service->status !== 'pending') {
+                return new ErrorResource(['message' => 'Offer already accepted']);
             }
 
             $express_service->status = 'accepted';
             $express_service->save();
 
-            //update order status
-            $order          = Order::where('express_service_id', $express_service->id)->where('status', 'pending')->first();
-            $order->status = 'accepted';
-            $order->save();
+            $order = Order::where('express_service_id', $express_service->express_service_id)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($order) {
+                $order->status      = 'accepted';
+                $order->provider_id = auth()->id();
+                $order->save();
+            }
+
             DB::commit();
 
-            //send notification to user
-            Broadcast(new \App\Events\ProviderNotification('Offer accepted', [auth()->id()], $express_service));
+            event(new \App\Events\ProviderNotification('Offer accepted', [auth()->id()], $express_service));
 
-            return new SuccessResource([
-                'message' => 'Offer accepted successfully',
-            ]);
+            return new SuccessResource(['message' => 'Offer accepted successfully']);
 
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error('Error in OfferController@acceptOffer: ' . $e->getMessage());
-            return new ErrorResource(['message' => $e->getMessage(),]);
+            return new ErrorResource(['message' => 'Something went wrong, please try again later']);
         }
     }
+
 
     public function sendOffer(Request $request , $id)
     {

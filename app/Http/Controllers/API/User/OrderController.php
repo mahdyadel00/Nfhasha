@@ -187,7 +187,7 @@ class OrderController extends Controller
 
     public function myOrders(Request $request)
     {
-        $orders = Order::where('user_id' , auth('sanctum')->id())->paginate(config("app.pagination"));
+        $orders = Order::where('user_id' , auth('sanctum')->id())->latest()->paginate(config("app.pagination"));
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
@@ -222,6 +222,7 @@ class OrderController extends Controller
             ->when($request->type , function ($query) use ($request) {
                 return $query->where('type' , $request->type);
             })
+            ->latest()
             ->paginate(config('app.pagination'));
 
         return new SuccessResource([
