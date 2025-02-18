@@ -40,7 +40,9 @@ class ExpressServiceController extends Controller
                 ->orderBy('distance')
                 ->get();
 
-            $express_service = PunctureService::create([
+            $express_services = ExpressService::find($request->express_service_id);
+
+            $puncture_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
                 'user_vehicle_id'       => $request->user_vehicle_id ?? null,
@@ -53,7 +55,7 @@ class ExpressServiceController extends Controller
                 'type_battery'          => $request->type_battery ?? null,
                 'battery_image'         => $request->battery_image ? $request->battery_image->store('express_services') : null,
                 'notes'                 => $request->notes ?? null,
-                'amount'                => $request->amount ?? $request->expressService->price,
+                'amount'                => $request->amount ?? $express_services->price,
                 'status'                => 'pending',
             ]);
 
@@ -61,19 +63,18 @@ class ExpressServiceController extends Controller
             $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->express_service_id,
-                'amount'                => $request->amount,
                 'status'                => 'pending',
                 'from_latitude'         => $request->from_latitude,
                 'from_longitude'        => $request->from_longitude,
                 'to_latitude'           => $request->to_latitude ?? null,
                 'to_longitude'          => $request->to_longitude ?? null,
-                'type'                  => $express_service->expressService->type,
+                'type'                  => $express_services->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
-                'total_cost'            => $express_service->amount ?? $request->expressService->price,
+                'total_cost'            => $puncture_service->amount ?? $express_services->price,
             ]);
 
             //send notification to provider
-            Broadcast(new ProviderNotification('New express service request', $users->pluck('id')->toArray() , $express_service));
+            Broadcast(new ProviderNotification('New express service request', $users->pluck('id')->toArray() , $puncture_service));
             DB::commit();
 
             return new SuccessResource([
