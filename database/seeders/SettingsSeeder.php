@@ -18,5 +18,6 @@ class SettingsSeeder extends Seeder
         settings(['privacy_policy_en' => 'This is the privacy policy in English']);
         settings(['about_us_ar' => 'هذا هو نبذة عنا باللغة العربية']);
         settings(['about_us_en' => 'This is an about us in English']);
+
     }
 }

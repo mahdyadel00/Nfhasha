@@ -60,4 +60,7 @@ return
     'pending_order_exists'                         =>  'You have pending order',
     'profile_updated_successfully'                  =>  'Profile updated successfully',
     'order_status_changed'                          =>  'Order status changed successfully',
+    'links'                                         =>  'Links',
+    'no_social_links_found'                         =>  'No social links found',
+    'social_links'                                  =>  'Social Links',
 ];

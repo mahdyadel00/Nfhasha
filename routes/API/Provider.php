@@ -20,6 +20,7 @@ Route::group(['prefix' => 'app' , 'controller' =>AppController::class], function
     Route::get('terms-and-conditions', 'terms');
     Route::get('privacy-and-policy', 'privacy');
     Route::get('about-us', 'about');
+    Route::get('links', 'links');
 Route::get('faq' , 'faq')->name('faq');
 
 });

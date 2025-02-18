@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contact_us_providers', function (Blueprint $table) {
+        Schema::create('social_links', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['complaint', 'suggestion']);
-            $table->string('name');
-            $table->string('phone');
-            $table->text('message');
+            $table->string('facebook')->nullable();
+            $table->string('twitter')->nullable();
+            $table->string('whatsapp')->nullable();
+            $table->string('linkedin')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contact_us_providers');
+        Schema::dropIfExists('social_links');
     }
 };
