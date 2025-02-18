@@ -56,16 +56,7 @@ class ExpressServiceController extends Controller
                 'amount'                => $request->amount,
                 'status'                => 'pending',
             ]);
-
-            //i need when this user already have pending order
-            //then he can't create another order
-            $pending_order = Order::where('user_id', auth()->id())
-                ->where('status', 'pending')
-                ->first();
-
-            if($pending_order){
-                return new ErrorResource(__('messages.pending_order_exists'));
-            }
+            
             //create order
             $order = Order::create([
                 'user_id'               => auth()->id(),

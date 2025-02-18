@@ -37,16 +37,7 @@ class OrderController extends Controller
         try{
             DB::beginTransaction();
 
-            $pendingOrder = Order::where('user_id', auth()->id())
-                ->where('status', 'pending')
-                ->first();
-
-            if ($pendingOrder) {
-                return new ErrorResource(__('messages.pending_order_exists'));
-            }
-
             $expressService = ExpressService::find($request->service_id);
-
 
             //create car reservation
             if($expressService->type == 'car_reservations'){
