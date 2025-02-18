@@ -24,7 +24,8 @@ class PunctureService extends Model
         'amount',
         'status',
         'reason',
-        'address'
+        'address',
+        'distanition',
     ];
 
 

@@ -33,6 +33,7 @@ class StoreExpressServiceRequest extends FormRequest
             'notes'                     => ['nullable', 'string'],
             'amount'                    => ['nullable', 'numeric'],
             'address'                   => ['nullable', 'string'],
+            'distanition'               => ['nullable', 'string'],
         ];
     }
 
