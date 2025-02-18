@@ -181,7 +181,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'orders'    => OrderResource::collection($orders)
+            'data'    => OrderResource::collection($orders)
         ]);
     }
 
@@ -191,7 +191,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'orders'    => OrderResource::collection($orders)
+            'data'    => OrderResource::collection($orders)
         ]);
     }
 
@@ -209,7 +209,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order')]) ,
-            'order'     => new OrderResource($order)
+            'data'     => new OrderResource($order)
         ]);
     }
 
@@ -227,7 +227,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'orders'    => OrderResource::collection($orders)
+            'data'    => OrderResource::collection($orders)
         ]);
     }
 
