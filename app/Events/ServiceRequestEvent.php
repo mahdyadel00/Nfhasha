@@ -36,8 +36,13 @@ class ServiceRequestEvent implements ShouldBroadcast
                     $query->nearby($latitude, $longitude, 50);
                 })
                 ->get();
+        } else {
+            $providers = Provider::where('type', 'center')
+                ->whereHas('user', function ($query) use ($latitude, $longitude) {
+                    $query->nearby($latitude, $longitude, 50);
+                })
+                ->get();
         }
-
         foreach ($providers as $provider) {
             \App\Models\ProviderNotification::create([
                 'provider_id' => $provider->user_id,
