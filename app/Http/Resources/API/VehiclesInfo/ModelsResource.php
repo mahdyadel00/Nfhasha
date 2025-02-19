@@ -17,11 +17,11 @@ class ModelsResource extends JsonResource
 
         return
         [
-            'id' => $this->id,
-            'vehicle_brand' => $this->vehicleBrand->title,
-            'title' => $this->title,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly' => $this->created_at->diffForHumans(),
+            'id'                                => $this->id,
+            'title'                             => $this->title,
+            'created_at'                        => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at_humanly'                => $this->created_at->diffForHumans(),
+            'vehicle_brand'                     => BrandsResource::make($this->vehicleBrand),
         ];
     }
 }

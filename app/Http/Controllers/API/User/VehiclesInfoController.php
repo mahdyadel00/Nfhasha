@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\VehiclesInfo\BrandsResource;
 use App\Http\Resources\API\VehiclesInfo\ModelsResource;
@@ -36,11 +37,10 @@ class VehiclesInfoController extends Controller
 
     public function brands(Request $request)
     {
-
         $brands = VehicleBrand::active()->where('vehicle_type_id', $request->type_id)->get();
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.brands')]),
-            'data'      => $brands,
+            'data'      => BrandsResource::collection($brands),
             'status'    => 200
         ]);
 
@@ -48,16 +48,13 @@ class VehiclesInfoController extends Controller
 
     public function models(Request $request)
     {
-        $data = VehicleModel::query()->active();
 
-        if($request->has('brand_id')){
-            $data->where('vehicle_brand_id', $request->brand_id);
-        }
+        $models = VehicleModel::active()->where('vehicle_brand_id', $request->brand_id)->get();
 
-        $models = $data->get();
-
-        return apiResponse(200,
-        __('messages.data_returned_successfully', ['attr' => __('messages.models')]),
-         ModelsResource::collection($models));
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.models')]),
+            'data'      => ModelsResource::collection($models),
+            'status'    => 200
+        ]);
     }
 }

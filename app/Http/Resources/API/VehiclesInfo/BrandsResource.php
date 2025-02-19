@@ -16,12 +16,12 @@ class BrandsResource extends JsonResource
     {
         return
         [
-            'id' => $this->id,
-            'vehicle_type' => $this->vehicleType->title,
-            'image' => $this->image,
-            'title' => $this->title,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly' => $this->created_at->diffForHumans(),
+            'id'                            => $this->id,
+            'image'                         => $this->image,
+            'title'                         => $this->title,
+            'created_at'                    => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at_humanly'            => $this->created_at->diffForHumans(),
+            'vehicle_type'                  => TypesResource::make($this->vehicleType),
         ];
     }
 }
