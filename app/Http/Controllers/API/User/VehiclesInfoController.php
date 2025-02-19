@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\VehiclesInfo\BrandsResource;
 use App\Http\Resources\API\VehiclesInfo\ModelsResource;
 use App\Http\Resources\API\VehiclesInfo\TypesResource;
@@ -35,17 +36,10 @@ class VehiclesInfoController extends Controller
 
     public function brands(Request $request)
     {
-        $data = VehicleBrand::query()->active();
 
-        if($request->has('type_id')){
-            $data->where('vehicle_type_id', $request->type_id);
-        }
+        $brands = VehicleBrand::active()->where('vehicle_type_id', $request->type_id)->get();
 
-        $brands = $data->get();
-
-        return apiResponse(200,
-        __('messages.data_returned_successfully', ['attr' => __('messages.brands')]),
-         BrandsResource::collection($brands));
+        return new SuccessResource(__('messages.data_returned_successfully', ['attr' => __('messages.brands')]));
     }
 
     public function models(Request $request)

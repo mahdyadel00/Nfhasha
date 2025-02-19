@@ -37,12 +37,6 @@ class VehiclesController extends Controller
         }
 
         return new SuccessResource(__('messages.data_created_successfully', ['attr' => __('messages.vehicle')]));
-
-//        return apiResponse( 201 ,
-//        __('messages.data_created_successfully', ['attr' => __('messages.vehicle')]) ,
-//        new VehiclesResource($vehicle)
-//        );
-
     }
 
     public function show(UserVehicle $vehicle)
@@ -95,10 +89,5 @@ class VehiclesController extends Controller
         $vehicle->delete();
 
         return new SuccessResource(__('messages.data_deleted_successfully', ['attr' => __('messages.vehicle')]));
-
-//        return apiResponse( 200 ,
-//        __('messages.data_deleted_successfully', ['attr' => __('messages.vehicle')]) ,
-//        null
-//        );
     }
 }
