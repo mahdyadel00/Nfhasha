@@ -71,6 +71,7 @@ class ExpressServiceController extends Controller
                 'type'                  => $express_services->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $puncture_service->amount ?? $express_services->price,
+                'address'               => $request->address,
             ]);
 
             //send notification to provider
