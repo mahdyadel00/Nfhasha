@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Provider;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
@@ -66,12 +67,12 @@ class OfferController extends Controller
         try{
             DB::beginTransaction();
 
-            $express_service = PunctureService::where('id', $id)->first();
+            $order = Order::where('id', $id)->first();
 
             DB::commit();
 
             return new SuccessResource([
-                'express_service' => new PunctureServiceResource($express_service),
+                'data' => OrderResource::make($order),
             ]);
 
         }catch (\Exception $e){
@@ -126,31 +127,22 @@ class OfferController extends Controller
     {
         try{
             DB::beginTransaction();
+            $order = Order::where('id', $id)->where('status', 'pending')->first();
 
-            $express_service = PunctureService::where(['id' => $id, 'status' => 'pending'])->first();
-
-
-            if(!$express_service || $express_service->status != 'pending'){
+            if(!$order){
                 return new ErrorResource([
-                    'message' => 'Offer not found or already sent',
+                    'message' => 'Order not found',
                 ]);
             }
 
-            $express_service->update([
+            $order->update([
                 'status'        => 'sent',
-                'amount'        => $request->amount,
+                'provider_id'   => auth()->id(),
             ]);
-
-            $order = Order::where('user_id', $express_service->user_id)
-                ->where('status', 'pending')
-                ->first();
-
-            $order->status = 'sent';
-            $order->save();
 
 
             //send notification to user
-            Broadcast(new \App\Events\SentOffer('Offer sent',auth()->id(), $express_service, $request->amount));
+            Broadcast(new \App\Events\SentOffer('Offer sent',auth()->id(), $order, $request->amount));
 
             DB::commit();
 
@@ -169,22 +161,17 @@ class OfferController extends Controller
     {
         try{
             DB::beginTransaction();
-
-            $express_service = PunctureService::where(['id' => $id, 'status' => 'pending'])->first();
-            if(!$express_service || $express_service->status != 'pending'){
-                return new ErrorResource([
-                    'message' => 'Offer not found or already rejected',
+            $order = Order::where('id', $id)->where('status', 'sent')->first();
+            if($order){
+                $order->update([
+                    'status'        => 'pending',
+                    'provider_id'   => null,
                 ]);
             }
-            $express_service->update([
-                'status'        => 'pending',
-                'provider_id'   => null,
-            ]);
-
             DB::commit();
 
             //send notification to user
-            Broadcast(new \App\Events\ProviderNotification('Offer rejected', [auth()->id()], $express_service));
+            Broadcast(new \App\Events\ProviderNotification('Offer rejected', [auth()->id()], $order));
 
             return new SuccessResource([
                 'message' => 'Offer rejected successfully',
