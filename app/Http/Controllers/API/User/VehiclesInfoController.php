@@ -38,8 +38,12 @@ class VehiclesInfoController extends Controller
     {
 
         $brands = VehicleBrand::active()->where('vehicle_type_id', $request->type_id)->get();
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.brands')]),
+            'data'      => $brands,
+            'status'    => 200
+        ]);
 
-        return new SuccessResource(__('messages.data_returned_successfully', ['attr' => __('messages.brands')]));
     }
 
     public function models(Request $request)
