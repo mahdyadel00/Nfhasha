@@ -140,7 +140,7 @@ class OrderController extends Controller
             ]);
         }catch (\Exception $e){
             DB::rollBack();
-            dd($e->getMessage());
+            dd($e->getMessage()->getMessage()->getLine()->getFile());
             Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }
