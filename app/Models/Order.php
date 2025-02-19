@@ -27,6 +27,7 @@ class Order extends Model
         'details',
         'total_cost',
         'position',
+        'address',
     ];
 
     public function user()

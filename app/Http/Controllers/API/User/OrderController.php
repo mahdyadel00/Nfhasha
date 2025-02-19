@@ -126,12 +126,13 @@ class OrderController extends Controller
                 'type'                  => ExpressService::find($request->service_id)->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $expressService->price,
+                'address'               => $request->address,
             ]);
 
             DB::commit();
 
-            //send notification to provider
-//            broadcast(new ServiceRequestEvent($order , $order->type));
+//            send notification to provider
+            broadcast(new ServiceRequestEvent($order , $order->type));
 
 
             return new SuccessResource([

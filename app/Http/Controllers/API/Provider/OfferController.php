@@ -139,7 +139,6 @@ class OfferController extends Controller
             $express_service->update([
                 'status'        => 'sent',
                 'amount'        => $request->amount,
-                'provider_id'   => auth()->id(),
             ]);
 
             $order = Order::where('user_id', $express_service->user_id)
