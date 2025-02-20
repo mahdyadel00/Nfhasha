@@ -62,6 +62,7 @@ class NotificationController extends Controller
         if ($order) {
             $order->update([
                 'status'        => 'rejected',
+                'reason'        => $request->reason,
             ]);
 
             //send notification to provider

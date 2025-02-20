@@ -184,7 +184,6 @@ class OfferController extends Controller
 
 
             //send notification to user
-//            Broadcast(new \App\Events\SentOffer('Offer sent',auth()->id(), $order, $request->amount));
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
