@@ -29,25 +29,28 @@ class ServiceRequestEvent implements ShouldBroadcast
         $latitude           = $this->order->from_lat;
         $longitude          = $this->order->from_lng;
 
-        if($serviceType == 'maintenance') {
+//        if($serviceType == 'maintenance') {
             $providers = Provider::where('type', 'center')
                 ->whereNotNull('pick_up_truck_id')
-                ->whereHas('user', function ($query) use ($latitude, $longitude) {
-                    $query->nearby($latitude, $longitude, 50);
-                })
+//                ->whereHas('user', function ($query) use ($latitude, $longitude) {
+//                    $query->nearby($latitude, $longitude, 50);
+//                })
                 ->get();
-        } else {
-            $providers = Provider::where('type', 'center')
-                ->whereHas('user', function ($query) use ($latitude, $longitude) {
-                    $query->nearby($latitude, $longitude, 50);
-                })
-                ->get();
-        }
+//            dd($providers);
+//        }
+//        else {
+//            $providers = Provider::where('type', 'center')
+//                ->whereHas('user', function ($query) use ($latitude, $longitude) {
+//                    $query->nearby($latitude, $longitude, 50);
+//                })
+//                ->get();
+//        }
         foreach ($providers as $provider) {
             \App\Models\ProviderNotification::create([
-                'provider_id' => $provider->user_id,
-                'user_id'     => $order->user_id,
-                'message'     => 'New periodic examination request',
+                'provider_id'   => $provider->user_id,
+                'user_id'       => $order->user_id,
+                'message'       => 'New periodic examination request',
+                'service_type'  => $serviceType,
             ]);
         }
     }

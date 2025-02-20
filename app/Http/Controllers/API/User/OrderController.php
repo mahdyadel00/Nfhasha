@@ -21,6 +21,7 @@ use App\Models\Provider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Pusher\Pusher;
 
 class OrderController extends Controller
 {
@@ -132,7 +133,18 @@ class OrderController extends Controller
             DB::commit();
 
 //            send notification to provider
-            broadcast(new ServiceRequestEvent($order , $order->type));
+//            broadcast(new ServiceRequestEvent($order , $order->type));
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+                'message' => 'Offer sent',
+                'order' => $order,
+            ]);
 
 
             return new SuccessResource([

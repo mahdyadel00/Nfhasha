@@ -62,6 +62,12 @@ class Order extends Model
     }
 
 
+    public function provider()
+    {
+        return $this->belongsTo(User::class , 'provider_id');
+    }
+
+
 
 
 

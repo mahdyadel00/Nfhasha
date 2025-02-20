@@ -8,6 +8,7 @@ use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
+use App\Models\CarReservations;
 use App\Models\ExpressService;
 use App\Models\Order;
 use App\Models\ProviderNotification;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Pusher\Pusher;
 
 class OfferController extends Controller
 {
@@ -31,27 +33,60 @@ class OfferController extends Controller
                     'message' => 'No offers found',
                 ]);
             }
-            $express_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-                ->where(function ($query) {
-                    $query->where('status', 'pending') // حالة pending
-                    ->orWhere(function ($query) {
-                        $query->where('status', 'sent') // حالة sent
-                        ->where('provider_id', auth()->id()); // فقط إذا كنت أنت من غير الحالة
-                    });
-                })
-                ->whereHas('user', function ($query) {
-                    $query->where('role', 'provider'); // التحقق من أن المستخدم لديه دور provider
-                })
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
+
+            if (in_array('car_reservations', $serviceTypes)) {
+                $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                    ->where(function ($query) {
+                        $query->where('status', 'pending')
+                            ->orWhere(function ($query) {
+                                $query->where('status', 'sent')
+                                    ->where('provider_id', auth()->id());
+                            });
+                    })
+//                    ->whereHas('user', function ($query) {
+//                        $query->where('role', 'provider');
+//                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+
+//            if($provider_notifications->pluck('service_type')->toArray() == 'maintenance'){
+//                $express_services = Maintenance::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+//                    ->where(function ($query) {
+//                        $query->where('status', 'pending')
+//                        ->orWhere(function ($query) {
+//                            $query->where('status', 'sent')
+//                            ->where('provider_id', auth()->id());
+//                        });
+//                    })
+//                    ->whereHas('user', function ($query) {
+//                        $query->where('role', 'provider');
+//                    })
+//                    ->orderBy('created_at', 'desc')
+//                    ->get();
+//            }
+//            $express_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+//                ->where(function ($query) {
+//                    $query->where('status', 'pending')
+//                    ->orWhere(function ($query) {
+//                        $query->where('status', 'sent')
+//                        ->where('provider_id', auth()->id());
+//                    });
+//                })
+//                ->whereHas('user', function ($query) {
+//                    $query->where('role', 'provider');
+//                })
+//                ->orderBy('created_at', 'desc')
+//                ->get();
 
             DB::commit();
 
             return new SuccessResource([
-                'express_services' => PunctureServiceResource::collection($express_services->map(function ($service) {
-                    $isSentByMe = $service->provider_id === auth()->id();
-                    $service->status = $isSentByMe ? 'sent' : $service->status;
-                    return $service;
+                'data' => OrderResource::collection($orders->map(function ($order) {
+                    $isSentByMe = $order->provider_id == auth()->id();
+                    $order->is_sent_by_me = $isSentByMe;
+                    return $order;
                 })),
             ]);
 
@@ -87,33 +122,38 @@ class OfferController extends Controller
         try {
             DB::beginTransaction();
 
-            $express_service = PunctureService::find($id);
+           $order = Order::where('id', $id)->where('status', 'pending')->first();
 
-            if (!$express_service) {
-                return new ErrorResource(['message' => 'Offer not found']);
+            if(!$order){
+                return new ErrorResource([
+                    'message' => 'Order not found',
+                ]);
             }
 
-            if ($express_service->status !== 'pending') {
+            if ($order->status !== 'pending') {
                 return new ErrorResource(['message' => 'Offer already accepted']);
             }
 
-            $express_service->status = 'accepted';
-            $express_service->save();
-
-            $order = Order::where('express_service_id', $express_service->express_service_id)
-                ->where('status', 'pending')
-                ->first();
-
-            if ($order) {
-                $order->status      = 'accepted';
-                $order->provider_id = auth()->id();
-                $order->save();
-            }
+          $order->update([
+                'status'        => 'accepted',
+                'provider_id'   => auth()->id(),
+            ]);
 
             DB::commit();
 
-            event(new \App\Events\ProviderNotification('Offer accepted', [auth()->id()], $express_service));
+//            event(new \App\Events\OfferCreated('Offer accepted', [auth()->id()], $order));
 
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+                'message' => 'Offer accepted',
+                'order' => $order,
+            ]);
             return new SuccessResource(['message' => 'Offer accepted successfully']);
 
         } catch (\Exception $e) {
@@ -138,11 +178,23 @@ class OfferController extends Controller
             $order->update([
                 'status'        => 'sent',
                 'provider_id'   => auth()->id(),
+                'total_cost'    => $request->amount,
             ]);
 
 
             //send notification to user
-            Broadcast(new \App\Events\SentOffer('Offer sent',auth()->id(), $order, $request->amount));
+//            Broadcast(new \App\Events\SentOffer('Offer sent',auth()->id(), $order, $request->amount));
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+                'message' => 'Offer sent',
+                'order' => $order,
+            ]);
 
             DB::commit();
 
@@ -161,7 +213,8 @@ class OfferController extends Controller
     {
         try{
             DB::beginTransaction();
-            $order = Order::where('id', $id)->where('status', 'sent')->first();
+            $order = Order::where('id', $id)->where('status', 'pending')
+                ->orWhere('status' , 'sent')->first();
             if($order){
                 $order->update([
                     'status'        => 'pending',
@@ -170,8 +223,17 @@ class OfferController extends Controller
             }
             DB::commit();
 
-            //send notification to user
-            Broadcast(new \App\Events\ProviderNotification('Offer rejected', [auth()->id()], $order));
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+                'message' => 'Offer rejected',
+                'order' => $order,
+            ]);
 
             return new SuccessResource([
                 'message' => 'Offer rejected successfully',

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignIdFor(app(User::class))->constrained()->onDelete('cascade');
             $table->text('message');
+            $table->string('service_type');
             $table->timestamps();
         });
     }

@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Pusher\Pusher;
 
 class ExpressServiceController extends Controller
 {
@@ -75,7 +76,19 @@ class ExpressServiceController extends Controller
             ]);
 
             //send notification to provider
-            Broadcast(new ProviderNotification('New express service request', $users->pluck('id')->toArray() , $puncture_service));
+//            Broadcast(new ProviderNotification('New express service request', $users->pluck('id')->toArray() , $puncture_service));
+
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers', 'new.express.service', [
+                'message' => 'New express service request',
+                'puncture_service' => $puncture_service,
+            ]);
             DB::commit();
 
             return new SuccessResource([

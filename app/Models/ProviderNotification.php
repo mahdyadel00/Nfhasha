@@ -13,6 +13,7 @@ class ProviderNotification extends Model
         'provider_id',
         'user_id',
         'message',
+        'service_type',
     ];
 
 
