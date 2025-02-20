@@ -211,7 +211,7 @@ class OfferController extends Controller
         }
     }
 
-    public function rejectOffer($id)
+    public function rejectOffer(Request $request , $id)
     {
         try{
             DB::beginTransaction();
@@ -221,6 +221,7 @@ class OfferController extends Controller
                 $order->update([
                     'status'        => 'pending',
                     'provider_id'   => null,
+                    'reason'        => $request->reason,
                 ]);
             }
             DB::commit();
