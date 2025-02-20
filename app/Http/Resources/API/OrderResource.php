@@ -34,6 +34,7 @@ class OrderResource extends JsonResource
             'lat'                           => $this->lat,
             'long'                          => $this->long,
             'address_to'                    => $this->address_to,
+            'reason'                        => $this->reason,
             'lat_to'                        => $this->lat_to,
             'long_to'                       => $this->long_to,
             'details'                       => $this->details,
