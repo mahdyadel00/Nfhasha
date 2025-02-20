@@ -48,7 +48,6 @@ class ExpressServiceController extends Controller
                 'user_id'               => auth()->id(),
                 'user_vehicle_id'       => $request->user_vehicle_id ?? null,
                 'address'               => $request->address,
-                'address_to'            => $request->address_to,
                 'distanition'           => $request->distanition ?? null,
                 'from_latitude'         => $request->from_latitude,
                 'from_longitude'        => $request->from_longitude,
@@ -74,6 +73,7 @@ class ExpressServiceController extends Controller
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $puncture_service->amount ?? $express_services->price,
                 'address'               => $request->address,
+                'address_to'            => $request->address_to,
             ]);
 
             //send notification to provider
