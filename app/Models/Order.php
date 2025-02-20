@@ -28,6 +28,7 @@ class Order extends Model
         'total_cost',
         'position',
         'address',
+        'address_to',
         'reason',
     ];
 

@@ -128,6 +128,7 @@ class OrderController extends Controller
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $expressService->price,
                 'address'               => $request->address,
+                'address_to'            => $request->address_to,
             ]);
 
             DB::commit();

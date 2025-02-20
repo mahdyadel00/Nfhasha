@@ -35,6 +35,7 @@ return new class extends Migration {
             $table->decimal('total_cost', 10, 2)->default(0);
             $table->string('position')->nullable();
             $table->string('address')->nullable();
+            $table->string('address_to')->nullable();
             $table->string('reason')->nullable();
             $table->timestamps();
         });
