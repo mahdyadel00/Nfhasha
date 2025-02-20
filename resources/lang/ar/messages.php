@@ -65,4 +65,5 @@ return
     'social_links'                              => 'روابط التواصل',
     'order_canceled_successfully'               => 'تم إلغاء الطلب بنجاح',
     'new_order'                                 => 'طلب جديد',
+    'order_rated_successfully'                  => 'تم تقييم الطلب بنجاح',
 ];

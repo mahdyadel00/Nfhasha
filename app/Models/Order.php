@@ -68,6 +68,11 @@ class Order extends Model
     }
 
 
+    public function rates()
+    {
+        return $this->hasMany(OrderRate::class);
+    }
+
 
 
 

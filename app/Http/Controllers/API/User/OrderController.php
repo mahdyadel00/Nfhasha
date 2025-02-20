@@ -255,25 +255,32 @@ class OrderController extends Controller
     }
 
 
-    public function rate(Request $request)
+    public function rate(Request $request , $id)
     {
         $request->validate([
-            'order_id'  => 'required|exists:orders,id',
             'rate'      => 'required|numeric|min:1|max:5',
             'comment'   => 'nullable|string',
         ]);
 
-        $order = Order::find($request->order_id);
+        $order = Order::where('user_id' , auth('sanctum')->id())
+            ->where('status' , 'accepted')
+            ->where('status' , '!=', 'canceled')
+            ->where('status' , '!=', 'completed')
+            ->first();
 
         if(!$order)
         {
             return new ErrorResource(__('messages.order_not_found'));
         }
 
-        $order->update([
-            'rate'      => $request->rate,
-            'comment'   => $request->comment,
-        ]);
+        $order->rates()->updateOrCreate(
+            ['user_id' => auth('sanctum')->id()], // البحث عن تقييم لهذا المستخدم
+            [
+                'rate'    => $request->rate,
+                'comment' => $request->comment,
+            ]
+        );
+
 
         return new SuccessResource([
             'message'   => __('messages.order_rated_successfully')

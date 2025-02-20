@@ -65,4 +65,5 @@ return
     'social_links'                                  =>  'Social Links',
     'order_canceled_successfully'                   =>  'Order canceled successfully',
     'new_order'                                     =>  'New order',
+    'order_rated_successfully'                      =>  'Order rated successfully',
 ];
