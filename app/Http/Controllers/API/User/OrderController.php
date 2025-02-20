@@ -142,8 +142,8 @@ class OrderController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => 'Offer sent',
-                'order' => $order,
+                'message'   => __('messages.new_order') ,
+                'order'     => $order,
             ]);
 
 

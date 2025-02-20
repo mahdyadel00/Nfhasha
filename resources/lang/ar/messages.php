@@ -64,4 +64,5 @@ return
     'no_social_links_found'                     => 'لم يتم العثور على روابط التواصل',
     'social_links'                              => 'روابط التواصل',
     'order_canceled_successfully'               => 'تم إلغاء الطلب بنجاح',
+    'new_order'                                 => 'طلب جديد',
 ];

@@ -92,7 +92,8 @@ class ExpressServiceController extends Controller
             DB::commit();
 
             return new SuccessResource([
-                'message' => __('messages.express_service_created'),
+                'message'   => __('messages.express_service_created'),
+                'data'      => $order->id,
             ]);
 
         }catch(\Exception $e){
