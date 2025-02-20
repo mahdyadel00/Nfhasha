@@ -31,10 +31,7 @@ class NotificationController extends Controller
             $transformedServices = $order->map(function ($service) {
                 return new PunctureServiceResource($service);
         });
-
-//        return count($transformedServices) > 0
-//            ? $transformedServices
-//            : new ErrorResource('No notifications found');
+            
         return new SuccessResource([
             'message'   => 'Notifications found successfully',
             'data'      => $transformedServices,
