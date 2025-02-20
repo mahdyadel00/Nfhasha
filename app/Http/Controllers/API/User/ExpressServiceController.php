@@ -48,6 +48,7 @@ class ExpressServiceController extends Controller
                 'user_id'               => auth()->id(),
                 'user_vehicle_id'       => $request->user_vehicle_id ?? null,
                 'address'               => $request->address,
+                'address_to'            => $request->address_to,
                 'distanition'           => $request->distanition ?? null,
                 'from_latitude'         => $request->from_latitude,
                 'from_longitude'        => $request->from_longitude,
