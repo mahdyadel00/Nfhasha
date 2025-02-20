@@ -6,6 +6,7 @@ use App\Events\AccepteOffer;
 use App\Events\SentOffer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
@@ -15,6 +16,7 @@ use App\Models\Order;
 use App\Models\ProviderNotification;
 use App\Models\PunctureService;
 use Illuminate\Http\Request;
+use Pusher\Pusher;
 
 class NotificationController extends Controller
 {
@@ -22,56 +24,70 @@ class NotificationController extends Controller
     {
         $notifications = ProviderNotification::where('user_id', auth()->id())->latest()->paginate(config('app.pagination'));
 
-        $express_services = PunctureService::where('user_id', auth()->id())
+        $order = Order::where('user_id', auth()->id())
             ->where('status', 'sent')
-            ->latest()
-            ->paginate(config('app.pagination'));
+            ->latest()->paginate(config('app.pagination'));
 
-        $transformedServices = $express_services->getCollection()->map(function ($service) {
-            return new PunctureServiceResource($service);
+            $transformedServices = $order->map(function ($service) {
+                return new PunctureServiceResource($service);
         });
 
-        $express_services->setCollection($transformedServices);
-
-        return count($express_services) > 0
-            ? $express_services
+        return count($transformedServices) > 0
+            ? $transformedServices
             : new ErrorResource('No notifications found');
     }
 
 
     public function show($id)
     {
-        $notification = ProviderNotification::where('user_id', auth()->id())->find($id);
-
-        $express_service = PunctureService::where('user_id', auth()->id())
+       $order = Order::where('user_id', auth()->id())
             ->where('status', 'sent')
             ->find($id);
 
-
-        return $express_service
-            ? new PunctureServiceResource($express_service)
-            : new ErrorResource('No notification found');
-    }
+       return new SuccessResource([
+                'message'   => 'Order found successfully',
+                'data'      => new OrderResource($order),
+        ]);
+}
 
     public function rejectOffer(Request $request, $id)
     {
 
         $notification = ProviderNotification::where('user_id', auth()->id())->first();
-
-        $express_service = PunctureService::where('user_id', auth()->id())
+            $order = Order::where('user_id', auth()->id())
             ->where('status', 'sent')
+            ->where('user_id' , $notification->user_id)
             ->find($id);
 
-        if ($express_service) {
-            $express_service->update([
-                'status'        => 'pending',
-                'reason'        => $request->reason,
-                'provider_id'   => null,
-                'amount'        => $express_service->expressService->price,
+        if ($order) {
+            $order->update([
+                'status'        => 'rejected',
             ]);
 
             //send notification to provider
-            Broadcast(new SentOffer('Offer rejected', $notification->provider_id, $express_service , $express_service->amount));
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $pusher->trigger('notifications.providers', 'sent.offer', [
+                'message'       => 'Offer rejected',
+                'user_id'       => $notification->provider_id,
+                'order_id'      => $order->id,
+                'provider_id'   => $notification->provider_id,
+            ]);
+
+            //create notification
+            ProviderNotification::create([
+                'user_id'       => auth()->id(),
+                'provider_id'   => $notification->provider_id,
+                'service_type'  => $order->type,
+                'message'       => 'Offer rejected',
+            ]);
+
+
 
             return new SuccessResource('Offer rejected successfully');
         }
@@ -83,33 +99,38 @@ class NotificationController extends Controller
     {
         $notification = ProviderNotification::where('user_id', auth()->id())->first();
 
-        $express_service = PunctureService::where('user_id', auth()->id())
+        $order = Order::where('user_id', auth()->id())
             ->where('status', 'sent')
+            ->where('user_id' , $notification->user_id)
             ->find($id);
 
-        if ($express_service) {
-            $express_service->update([
-                'status'    => 'accepted',
-            ]);
-
-            //create order for user
-            $order = Order::create([
-                'user_id'                   => auth()->id(),
-                'provider_id'               => $notification->provider_id,
-                'express_service_id'        => $express_service->express_service_id,
-                'type'                      => $express_service->expressService?->type,
-                'status'                    => $express_service->status,
-                'payment_method'            => 'Cash',
-                'from_lat'                  => $express_service->from_latitude,
-                'from_long'                 => $express_service->from_longitude,
-                'to_lat'                    => $express_service->to_latitude,
-                'to_long'                   => $express_service->to_longitude,
-                'details'                   => $express_service->notes,
+        if ($order) {
+            $order->update([
+                'status' => 'accepted',
             ]);
 
             //send notification to provider
-            Broadcast(new AccepteOffer('Offer accepted', $notification->provider_id, $express_service , $express_service->amount));
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
 
+            $pusher->trigger('notifications.providers', 'sent.offer', [
+                'message'       => 'Offer accepted',
+                'user_id'       => $notification->provider_id,
+                'order_id'      => $order->id,
+                'provider_id'   => $notification->provider_id,
+            ]);
+
+            //create notification
+             ProviderNotification::create([
+                'user_id'       => auth()->id(),
+                'provider_id'   => $notification->provider_id,
+                'service_type'  => $order->type,
+                 'message'      => 'Offer accepted',
+            ]);
             return new SuccessResource('Offer accepted successfully');
         }
 

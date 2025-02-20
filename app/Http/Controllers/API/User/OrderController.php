@@ -254,4 +254,30 @@ class OrderController extends Controller
         ]);
     }
 
+
+    public function rate(Request $request)
+    {
+        $request->validate([
+            'order_id'  => 'required|exists:orders,id',
+            'rate'      => 'required|numeric|min:1|max:5',
+            'comment'   => 'nullable|string',
+        ]);
+
+        $order = Order::find($request->order_id);
+
+        if(!$order)
+        {
+            return new ErrorResource(__('messages.order_not_found'));
+        }
+
+        $order->update([
+            'rate'      => $request->rate,
+            'comment'   => $request->comment,
+        ]);
+
+        return new SuccessResource([
+            'message'   => __('messages.order_rated_successfully')
+        ]);
+    }
+
 }

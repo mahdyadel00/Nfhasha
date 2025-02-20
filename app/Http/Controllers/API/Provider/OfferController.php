@@ -151,8 +151,9 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => 'Offer accepted',
-                'order' => $order,
+                'message'   => 'Offer accepted',
+                'order'     => $order,
+                'provider'  => auth()->user(),
             ]);
             return new SuccessResource(['message' => 'Offer accepted successfully']);
 
@@ -192,8 +193,9 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => 'Offer sent',
-                'order' => $order,
+                'message'   => 'Offer sent',
+                'order'     => $order,
+                'provider'  => auth()->user(),
             ]);
 
             DB::commit();
@@ -231,8 +233,9 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => 'Offer rejected',
-                'order' => $order,
+                'message'   => 'Offer rejected',
+                'order'     => $order,
+                'provider'  => auth()->user(),
             ]);
 
             return new SuccessResource([
