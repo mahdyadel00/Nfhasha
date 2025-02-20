@@ -32,9 +32,12 @@ class NotificationController extends Controller
                 return new PunctureServiceResource($service);
         });
 
+//        return count($transformedServices) > 0
+//            ? $transformedServices
+//            : new ErrorResource('No notifications found');
         return new SuccessResource([
             'message'   => 'Notifications found successfully',
-            'data'      => new NotificationsResource($notifications),
+            'data'      => $transformedServices,
         ]);
     }
 
