@@ -120,6 +120,7 @@ class OrderController extends Controller
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
                 'user_vehicle_id'       => $request->vehicle_id,
+                'pick_up_truck_id'      => $request->pick_up_truck_id,
                 'city_id'               => $request->city_id ?? null,
                 'status'                => 'pending',
                 'from_lat'              => $request->from_lat ?? $request->latitude,
