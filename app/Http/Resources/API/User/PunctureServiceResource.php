@@ -33,6 +33,9 @@ class PunctureServiceResource extends JsonResource
             'created_at'                    => $this->created_at,
             'updated_at'                    => $this->updated_at,
             'express_service'               => new ExpressServiceResource($this->express_service),
+            'user'                          => new UserResource($this->user),
+            'user_vehicle'                  => new VehiclesResource($this->user_vehicle),
+            'provider'                      => new UserResource($this->provider),
         ];
     }
 }
