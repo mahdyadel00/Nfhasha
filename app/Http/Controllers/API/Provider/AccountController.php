@@ -121,7 +121,7 @@ class AccountController extends Controller
             'message'   => __('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]),
         ]);
     }
-    
+
     public function profile()
     {
         return new SuccessResource([
@@ -129,4 +129,17 @@ class AccountController extends Controller
         ]);
     }
 
+    public function resendOtp()
+    {
+        $user = auth()->user();
+
+        $user->update([
+            'otp' => random_int(000000, 999999),
+        ]);
+
+        return new SuccessResource([
+            'message' => __('messages.otp_sent_successfully'),
+            'data'    => $user->otp,
+        ]);
+    }
 }

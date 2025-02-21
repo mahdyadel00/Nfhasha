@@ -134,7 +134,10 @@ class RegisterController extends Controller
 
         $user->update(['otp' => $otp]);
 
-        return apiResponse(200, __('messages.otp_sent_successfully') , ['otp' => str($otp)]);
+        return new SuccessResource([
+            'message' => __('messages.otp_sent_successfully'),
+            'data'    => $user->otp,
+        ]);
     }
 
 }
