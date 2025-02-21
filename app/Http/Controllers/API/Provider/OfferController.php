@@ -51,35 +51,6 @@ class OfferController extends Controller
                     ->get();
             }
 
-//            if($provider_notifications->pluck('service_type')->toArray() == 'maintenance'){
-//                $express_services = Maintenance::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-//                    ->where(function ($query) {
-//                        $query->where('status', 'pending')
-//                        ->orWhere(function ($query) {
-//                            $query->where('status', 'sent')
-//                            ->where('provider_id', auth()->id());
-//                        });
-//                    })
-//                    ->whereHas('user', function ($query) {
-//                        $query->where('role', 'provider');
-//                    })
-//                    ->orderBy('created_at', 'desc')
-//                    ->get();
-//            }
-//            $express_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-//                ->where(function ($query) {
-//                    $query->where('status', 'pending')
-//                    ->orWhere(function ($query) {
-//                        $query->where('status', 'sent')
-//                        ->where('provider_id', auth()->id());
-//                    });
-//                })
-//                ->whereHas('user', function ($query) {
-//                    $query->where('role', 'provider');
-//                })
-//                ->orderBy('created_at', 'desc')
-//                ->get();
-
             DB::commit();
 
             return new SuccessResource([
@@ -92,6 +63,7 @@ class OfferController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e->getMessage() , $e->getLine() , $e->getFile());
             Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
