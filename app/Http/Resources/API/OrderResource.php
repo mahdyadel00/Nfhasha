@@ -47,7 +47,7 @@ class OrderResource extends JsonResource
             'updated_at'                    => $this->updated_at,
             'user'                          => new UserResource($this->user),
             'express_service'               => new ExpressServiceResource($this->expressService),
-            'provider'                      => new ProviderResource($this->provider),
+            'provider'                      => new UserResource($this->provider),
             'userVehicle'                   => new VehiclesResource($this->userVehicle),
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
