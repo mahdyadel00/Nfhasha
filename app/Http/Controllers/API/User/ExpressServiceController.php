@@ -64,6 +64,7 @@ class ExpressServiceController extends Controller
             $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->express_service_id,
+                'user_vehicle_id'       => $request->user_vehicle_id ?? null,
                 'status'                => 'pending',
                 'from_lat'              => $request->from_latitude,
                 'from_long'             => $request->from_longitude,
