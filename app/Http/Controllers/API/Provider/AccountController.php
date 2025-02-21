@@ -67,6 +67,8 @@ class AccountController extends Controller
             'email'                             => $request->email,
             'role'                              => 'provider',
             'address'                           => $request->address,
+             'otp'                              => random_int(000000, 999999),
+             'email_verified_at'                => null,
         ]);
 
 
@@ -96,10 +98,33 @@ class AccountController extends Controller
             'owner_identity'            => $request->owner_identity,
             'general_license'           => $request->general_license,
             'municipal_license'         => $request->municipal_license,
-            'is_active'                 => 0,
         ]);
 
-        return new SuccessResource(__('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]));
+        return new SuccessResource([
+            'message'   => __('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]),
+            'data'      => $user->otp,
+        ]);
+    }
+
+    public function verifyPhone(Request $request)
+    {
+//        $request->validate([
+//            'otp' => 'required|numeric|min:6|max:6',
+//        ]);
+        $user = auth('sanctum')->user();
+
+        $user->update([
+            'otp'               => $request->otp,
+            'email_verified_at' => now(),
+        ]);
+
+        $user->provider()->update([
+            'is_active'     => 0,
+        ]);
+
+        return new SuccessResource([
+            'message'   => __('messages.otp_sent_successfully'),
+        ]);
     }
 
     public function profile()
