@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\API\Provider;
 
-use App\Http\Resources\API\{CityResource, DistrictsResource, PickupTrucksResource};
+use App\Http\Resources\API\{CityResource, DistrictsResource, OrderOfferResource, PickupTrucksResource};
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,7 +15,6 @@ class   ProviderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         return [
             'id'                    => $this->id,
             'type'                  => $this->type,

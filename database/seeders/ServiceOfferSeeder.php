@@ -50,6 +50,23 @@ class ServiceOfferSeeder extends Seeder
             ],
         ];
 
+        foreach ($service_offer as $offer) {
+            $service_offer = \App\Models\ServiceOffer::create([
+                'service_id'        => $offer['service_id'],
+                'price'             => $offer['price'],
+                'duration'          => $offer['duration'],
+                'image'             => $offer['image'],
+                'status'            => $offer['status'],
+                'created_at'        => now(),
+                'updated_at'        => now(),
+            ]);
+
+            $service_offer->translateOrNew('ar')->name = 'عرض خدمة ' . $offer['service_id'];
+            $service_offer->translateOrNew('en')->name = 'Service Offer ' . $offer['service_id'];
+
+            $service_offer->save();
+        }
+
 
     }
 }

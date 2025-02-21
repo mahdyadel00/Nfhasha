@@ -43,5 +43,4 @@ class Provider extends Model
         return $this->belongsTo(PickUpTruck::class);
     }
 
-
 }
