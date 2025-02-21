@@ -100,6 +100,7 @@ class NotificationController extends Controller
                 $order->update([
                     'status'        => 'accepted',
                     'provider_id'   => $offer->provider_id,
+                    'total_cost'    => $offer->amount,
                 ]);
 
                 $offer->update([
