@@ -67,6 +67,7 @@ class OfferController extends Controller
                     })
                     ->orderBy('created_at', 'desc')
                     ->get();
+                
 
                 $orders = $orders->merge($puncture_services);
                 
