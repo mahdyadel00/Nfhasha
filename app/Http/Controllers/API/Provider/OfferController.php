@@ -69,6 +69,7 @@ class OfferController extends Controller
                     ->get();
 
                 $orders = $orders->merge($puncture_services);
+                
             }
 
             DB::commit();
