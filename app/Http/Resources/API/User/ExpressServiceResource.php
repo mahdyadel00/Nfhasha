@@ -25,7 +25,7 @@ class ExpressServiceResource extends JsonResource
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
             'name'                      => $this->name,
-            'puncture_service'          => PunctureServiceResource::make($this->punctureService),
+            'puncture_service'          => PunctureServiceResource::collection($this->punctureServices->where('user_id', auth()->id())),
 
         ];
     }
