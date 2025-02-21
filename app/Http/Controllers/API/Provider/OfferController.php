@@ -33,7 +33,9 @@ class OfferController extends Controller
                     'message' => 'No offers found',
                 ]);
             }
+
             $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
+            $orders = collect(); // تعريف متغير $orders كـ Collection فارغة
 
             if (in_array('car_reservations', $serviceTypes)) {
                 $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
@@ -44,9 +46,9 @@ class OfferController extends Controller
                                     ->where('provider_id', auth()->id());
                             });
                     })
-//                    ->whereHas('user', function ($query) {
-//                        $query->where('role', 'provider');
-//                    })
+//                ->whereHas('user', function ($query) {
+//                    $query->where('role', 'provider');
+//                })
                     ->orderBy('created_at', 'desc')
                     ->get();
             }
@@ -63,11 +65,12 @@ class OfferController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage() , $e->getLine() , $e->getFile());
+            dd($e->getMessage(), $e->getLine(), $e->getFile());
             Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
+
 
     public function offer($id)
     {
