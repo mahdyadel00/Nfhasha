@@ -26,10 +26,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone' => 'required|regex:/^05\d{8}$/|exists:users,phone',
-            'password' => 'required|string|min:6',
-            'longitude' => 'required|numeric',
-            'latitude' => 'required|numeric',
+            'phone'         => 'required|regex:/^05\d{8}$/|exists:users,phone',
+            'password'      => 'required|string|min:6',
+            'longitude'     => 'required|numeric',
+            'latitude'      => 'required|numeric',
         ];
     }
 

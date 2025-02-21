@@ -53,6 +53,22 @@ class OfferController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
             }
+            //check type of service
+            if (in_array('puncture_service', $serviceTypes)) {
+                $puncture_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                    ->where('status' , '!=' , 'accepted')->where('status' , '!=' , 'completed')
+                    ->where(function ($query) {
+                        $query->where('status', 'pending')
+                            ->orWhere(function ($query) {
+                                $query->where('status', 'sent')
+                                    ->where('provider_id', auth()->id());
+                            });
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $orders = $orders->merge($puncture_services);
+            }
 
             DB::commit();
 
