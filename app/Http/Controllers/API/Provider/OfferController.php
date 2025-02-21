@@ -35,10 +35,11 @@ class OfferController extends Controller
             }
 
             $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
-            $orders = collect(); // تعريف متغير $orders كـ Collection فارغة
+            $orders = collect();
 
             if (in_array('car_reservations', $serviceTypes)) {
                 $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                    ->where('status' , '!=' , 'accepted')->where('status' , '!=' , 'completed')
                     ->where(function ($query) {
                         $query->where('status', 'pending')
                             ->orWhere(function ($query) {
