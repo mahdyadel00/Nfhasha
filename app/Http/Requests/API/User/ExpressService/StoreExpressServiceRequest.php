@@ -24,6 +24,7 @@ class StoreExpressServiceRequest extends FormRequest
         return [
             'express_service_id'        => ['required', 'integer', 'exists:express_services,id'],
             'user_vehicle_id'           => ['nullable', 'integer', 'exists:user_vehicles,id'],
+            'pick_up_truck_id'          => ['nullable', 'integer', 'exists:pick_up_trucks,id'],
             'from_latitude'             => ['required', 'numeric'],
             'from_longitude'            => ['required', 'numeric'],
             'to_latitude'               => ['nullable', 'numeric'],
