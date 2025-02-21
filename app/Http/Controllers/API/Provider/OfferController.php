@@ -54,7 +54,8 @@ class OfferController extends Controller
                     ->get();
             }
             //check type of service
-            if (in_array('puncture_service', $serviceTypes)) {
+            if (in_array('open_locks', $serviceTypes) || in_array('tow_truck', $serviceTypes) || in_array('fuel', $serviceTypes)
+                    || in_array('puncture', $serviceTypes) || in_array('battery', $serviceTypes)) {
                 $puncture_services = PunctureService::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
                     ->where('status' , '!=' , 'accepted')->where('status' , '!=' , 'completed')
                     ->where(function ($query) {
