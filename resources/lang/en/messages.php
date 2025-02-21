@@ -66,4 +66,5 @@ return
     'order_canceled_successfully'                   =>  'Order canceled successfully',
     'new_order'                                     =>  'New order',
     'order_rated_successfully'                      =>  'Order rated successfully',
+    'otp_required_for_phone_verification'           =>  'OTP required for phone verification',
 ];

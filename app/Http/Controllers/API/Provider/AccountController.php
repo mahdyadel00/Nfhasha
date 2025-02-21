@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
 use App\Http\Requests\API\Provider\UpdateProfileRequest;
+use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\UserResource;
 use Illuminate\Http\Request;
@@ -60,6 +61,7 @@ class AccountController extends Controller
     public function updateProfile(UpdateProfileRequest $request)
     {
         $user = auth('sanctum')->user();
+        $old_phone = $user->phone;
 
          $user->update([
             'name'                              => $request->name,
@@ -71,10 +73,25 @@ class AccountController extends Controller
              'email_verified_at'                => null,
         ]);
 
+         if($old_phone !== $request->phone){
+                $user->update([
+                    'otp' => random_int(000000, 999999),
+                ]);
 
+             return new SuccessResource([
+                 'message' => __('messages.otp_required_for_phone_verification'),
+                 'data'    => $user->otp,
+             ]);
+         }else{
+             $user->provider()->update([
+                 'is_active' => 0,
+             ]);
+         }
         if ($request->hasFile('profile_picture')) {
             $user->profile_picture = uploadImage($request->profile_picture, 'avatars');
         }
+
+
 
         $user->provider()->update([
             'city_id'                   => $request->city_id,
@@ -102,31 +119,9 @@ class AccountController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]),
-            'data'      => $user->otp,
         ]);
     }
-
-    public function verifyPhone(Request $request)
-    {
-//        $request->validate([
-//            'otp' => 'required|numeric|min:6|max:6',
-//        ]);
-        $user = auth('sanctum')->user();
-
-        $user->update([
-            'otp'               => $request->otp,
-            'email_verified_at' => now(),
-        ]);
-
-        $user->provider()->update([
-            'is_active'     => 0,
-        ]);
-
-        return new SuccessResource([
-            'message'   => __('messages.otp_sent_successfully'),
-        ]);
-    }
-
+    
     public function profile()
     {
         return new SuccessResource([
