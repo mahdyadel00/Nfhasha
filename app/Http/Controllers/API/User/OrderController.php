@@ -150,6 +150,7 @@ class OrderController extends Controller
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully') ,
+                'data'    => $order->id,
             ]);
         }catch (\Exception $e){
             DB::rollBack();
