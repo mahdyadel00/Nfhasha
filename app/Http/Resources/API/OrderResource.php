@@ -51,6 +51,7 @@ class OrderResource extends JsonResource
             'userVehicle'                   => new VehiclesResource($this->userVehicle),
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
+            'offer'                         => new OrderOfferResource($this->offer),
         ];
     }
 }

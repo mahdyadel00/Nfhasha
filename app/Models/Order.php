@@ -75,6 +75,10 @@ class Order extends Model
         return $this->hasMany(OrderRate::class);
     }
 
+    public function offers()
+    {
+        return $this->hasMany(OrderOffer::class);
+    }
 
 
 

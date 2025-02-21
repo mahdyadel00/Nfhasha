@@ -177,11 +177,22 @@ class OfferController extends Controller
             }
 
             $order->update([
-                'status'        => 'sent',
                 'provider_id'   => auth()->id(),
-                'total_cost'    => $request->amount,
             ]);
 
+             $order->offers()->create([
+                 'amount'       => $request->amount,
+                 'provider_id'  => auth()->id(),
+                 'status'       => 'sent',
+            ]);
+
+             //create notification
+            ProviderNotification::create([
+                'user_id'       => $order->user_id,
+                'provider_id'   => auth()->id(),
+                'service_type'  => $order->type,
+                'message'       => 'Offer sent',
+            ]);
 
             //send notification to user
             $pusher = new Pusher(
@@ -193,7 +204,7 @@ class OfferController extends Controller
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
                 'message'   => 'Offer sent',
-                'order'     => $order,
+                'offer'     => $order->offers()->latest()->first(),
                 'provider'  => auth()->user(),
             ]);
 
