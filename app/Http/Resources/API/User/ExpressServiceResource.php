@@ -25,8 +25,9 @@ class ExpressServiceResource extends JsonResource
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
             'name'                      => $this->name,
-            'battery_image'             => asset('storage/' . $this->punctureServices->first()->battery_image),
-            'type_battery'              => $this->punctureServices->first()->type_battery,
+            'battery_image'             => asset('storage/' . $this->punctureServices()->latest('created_at')->first()?->battery_image),
+            'type_battery'              => $this->punctureServices()->latest('created_at')->first()?->type_battery,
+
         ];
     }
 }
