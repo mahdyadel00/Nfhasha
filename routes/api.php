@@ -23,6 +23,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('splash-screens' , [SplashScreensController::class, 'index']);
 //get service_offers
 Route::get('service-offers' , [ServiceOfferController::class , 'index']);
+Route::get('service-offer/{id}' , [ServiceOfferController::class , 'show']);
+//get copun
+Route::post('coupon/{id}' , [ServiceOfferController::class , 'coupon']);
 Route::get('home-sliders' , HomeSlidersController::class);
 Route::get('services' , ServicesController::class);
 
