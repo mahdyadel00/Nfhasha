@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_id')->constrained(ExpressService::class)->cascadeOnDelete();
             $table->string('price');
+            $table->string('code');
             $table->string('duration');
             $table->string('image');
             $table->string('status')->default('active');

@@ -1,17 +1,19 @@
 <?php
 
 namespace App\Models;
-
+use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ServiceOffer extends Model
 {
-    use HasFactory;
+    use HasFactory , Translatable;
 
+    public $translatedAttributes = ['name' , 'description'];
     protected $fillable = [
-        'service_id',
+        'express_service_id',
         'price',
+        'code',
         'duration',
         'image',
         'status',
@@ -20,7 +22,7 @@ class ServiceOffer extends Model
 
     public function service()
     {
-        return $this->belongsTo(ExpressService::class , 'service_id');
+        return $this->belongsTo(ExpressService::class , 'express_service_id');
     }
 
 

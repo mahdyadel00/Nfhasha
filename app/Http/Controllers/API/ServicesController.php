@@ -20,4 +20,6 @@ class ServicesController extends Controller
         translate('messages.services_successfully_retrieved') ,
          ServicesResource::collection($services));
     }
+
+    
 }

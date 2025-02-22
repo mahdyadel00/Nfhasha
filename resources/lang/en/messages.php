@@ -57,7 +57,7 @@ return
     'orders'                                        =>  'Orders',
     'order_not_found'                               =>  'Order not found',
     'order_created_successfully'                    =>  'Order created successfully',
-    'pending_order_exists'                         =>  'You have pending order',
+    'pending_order_exists'                          =>  'You have pending order',
     'profile_updated_successfully'                  =>  'Profile updated successfully',
     'order_status_changed'                          =>  'Order status changed successfully',
     'links'                                         =>  'Links',
@@ -69,4 +69,5 @@ return
     'otp_required_for_phone_verification'           =>  'OTP required for phone verification',
     'order_tracking'                                =>  'Order tracking',
     'phone_invalid'                                 =>  'Phone number is invalid',
+    'coupon_applied_successfully'                   =>  'Coupon Applied Successfully',
 ];
