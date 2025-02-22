@@ -107,7 +107,7 @@ class OrderController extends Controller
                     'user_vehicle_id'           => $request->vehicle_id,
                     'pick_up_truck_id'          => $request->pick_up_truck_id,
                     'city_id'                   => $request->city_id,
-                    'inspection_type'           => $request->inspection_type,
+                    'inspection_type_id'        => $request->inspection_type_id,
                     'address'                   => $request->address,
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,

@@ -54,4 +54,10 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
         return $this->hasMany(ServiceOffer::class);
     }
 
+
+    public function typePeriodicInspections()
+    {
+        return $this->hasMany(TypePeriodicInspections::class);
+    }
+
 }

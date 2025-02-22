@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             ProviderSeeder::class,
             ExpressServicesSeeder::class,
             ServiceOfferSeeder::class,
+            TypePeriodicInspectionsSeeder::class,
         ]);
 
         User::factory()->count(50)->create();
