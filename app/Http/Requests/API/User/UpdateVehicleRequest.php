@@ -24,17 +24,17 @@ class UpdateVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'letters_ar' => ['nullable', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
-            'letters_en' => ['nullable', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
-            'numbers_ar' => ['nullable', 'string', 'size:3', 'regex:/^[٠-٩]{3}$/u'],
-            'numbers_en' => ['nullable', 'string', 'size:3', 'regex:/^[0-9]{3}$/'],
-            'vehicle_type_id' => ['nullable', 'string', 'exists:vehicle_types,id'],
-            'vehicle_model_id' => ['nullable', 'string', 'exists:vehicle_models,id'],
-            'vehicle_manufacture_year_id' => ['nullable', 'string', 'exists:vehicle_manufacture_years,id'],
-            'vehicle_brand_id' => ['nullable', 'string', 'exists:vehicle_brands,id'],
-            'checkup_date' => ['nullable', 'date', 'after_or_equal:today'],
-            'images' => ['nullable', 'array' , 'min:1', 'max:5'],
-            'images.*' => ['file', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'letters_ar'                        => ['nullable', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
+            'letters_en'                        => ['nullable', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
+            'numbers_ar'                        => ['nullable', 'string', 'size:4', 'regex:/^[٠-٩]{4}$/u'],
+            'numbers_en'                        => ['nullable', 'string', 'size:4', 'regex:/^[0-9]{4}$/'],
+            'vehicle_type_id'                   => ['nullable', 'string', 'exists:vehicle_types,id'],
+            'vehicle_model_id'                  => ['nullable', 'string', 'exists:vehicle_models,id'],
+            'vehicle_manufacture_year_id'       => ['nullable', 'string', 'exists:vehicle_manufacture_years,id'],
+            'vehicle_brand_id'                  => ['nullable', 'string', 'exists:vehicle_brands,id'],
+            'checkup_date'                      => ['nullable', 'date', 'after_or_equal:today'],
+            'images'                            => ['nullable', 'array' , 'min:1', 'max:5'],
+            'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg'],
         ];
     }
 

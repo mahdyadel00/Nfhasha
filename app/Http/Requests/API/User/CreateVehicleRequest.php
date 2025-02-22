@@ -34,7 +34,7 @@ class CreateVehicleRequest extends FormRequest
             'vehicle_brand_id'                  => ['required', 'string', 'exists:vehicle_brands,id'],
             'checkup_date'                      => ['required', 'date', 'after_or_equal:today'],
             'images'                            => ['required', 'array' , 'min:1', 'max:5'],
-            'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg'],
         ];
     }
 

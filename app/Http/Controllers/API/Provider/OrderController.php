@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
+use App\Models\ProviderNotification;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 
@@ -100,6 +101,14 @@ class OrderController extends Controller
         $user->update([
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude
+        ]);
+
+        //create notification
+        ProviderNotification::create([
+            'user_id'       => $order->user_id,
+            'provider_id'   => auth()->id(),
+            'service_type'  => $order->type,
+            'message'       => 'Offer sent',
         ]);
 
 

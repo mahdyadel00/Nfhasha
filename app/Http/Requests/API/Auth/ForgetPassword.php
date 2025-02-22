@@ -22,8 +22,9 @@ class ForgetPassword extends FormRequest
     public function rules(): array
     {
         return [
-            'phone'                 => 'required|regex:/^05\d{8}$/|exists:users,phone',
+            'phone' => 'required|string|regex:/^5\d{8}$/|exists:users,phone',
         ];
+
     }
 
 
