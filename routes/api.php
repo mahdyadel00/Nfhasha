@@ -53,3 +53,5 @@ Route::group(['prefix' => 'auth'], function () {
 Route::get('cities' , [InfoController::class, 'cities']);
 Route::get('districts/{city}' , [InfoController::class, 'districts']);
 Route::get('pickup-trucks' , [InfoController::class, 'pickupTrucks']);
+//get type TypePeriodicInspections
+Route::get('type-periodic-inspections' , [InfoController::class , 'typePeriodicInspections']);

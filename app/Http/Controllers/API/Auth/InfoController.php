@@ -8,6 +8,7 @@ use App\Http\Resources\API\DistrictsResource;
 use App\Http\Resources\API\PickupTrucksResource;
 use App\Models\City;
 use App\Models\PickUpTruck;
+use App\Models\TypePeriodicInspections;
 use Illuminate\Http\Request;
 
 class InfoController extends Controller
@@ -40,5 +41,15 @@ class InfoController extends Controller
         __('messages.data_returned_successfully', ['attr' => __('messages.pickup_trucks')]) ,
         PickupTrucksResource::collection($pickupTrucks)
         );
+    }
+
+
+    public function typePeriodicInspections()
+    {
+        $type_periodic_inspections = TypePeriodicInspections::get();
+
+        return response()->json([
+            'data' => $type_periodic_inspections
+        ]);
     }
 }
