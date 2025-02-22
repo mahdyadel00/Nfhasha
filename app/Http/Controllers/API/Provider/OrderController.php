@@ -7,6 +7,7 @@ use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Pusher\Pusher;
 
 class OrderController extends Controller
 {
@@ -95,7 +96,24 @@ class OrderController extends Controller
 
         $user = auth('sanctum')->user();
 
+
         $user->update([
+            'latitude'  => $request->latitude,
+            'longitude' => $request->longitude
+        ]);
+
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        );
+
+        $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.location', [
+            'message'   => 'Provider location',
+            'order'     => $order,
+            'provider'  => auth()->user(),
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude
         ]);
