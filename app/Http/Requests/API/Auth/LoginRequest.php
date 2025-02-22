@@ -26,7 +26,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone'         => 'required|regex:/^5\d{8}$/|exists:users,phone',
+            'phone'         => ['required','string','regex:/^5\d{8}$/','exists:users,phone'],
             'password'      => 'required|string|min:6',
             'longitude'     => 'required|numeric',
             'latitude'      => 'required|numeric',
