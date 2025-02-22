@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
+    public $locale;
+
+    public function __construct()
+    {
+        $this->locale = request()->header('Accept-Language', config('app.locale'));
+    }
+
     public function user(RegisterRequest $request)
     {
         $user = User::create([
@@ -138,6 +145,19 @@ class RegisterController extends Controller
             'message' => __('messages.otp_sent_successfully'),
             'data'    => $user->otp,
         ]);
+    }
+
+    public function terms()
+    {
+        dd(settings()->get('terms_and_conditions_' . $this->locale));
+        $terms = settings()->get('terms_and_conditions_' . $this->locale);
+
+
+        return apiResponse(200,
+            __('messages.data_returned_successfully' , ['attr' => __('messages.terms')]),
+            [
+                'terms' => $terms
+            ]);
     }
 
 }

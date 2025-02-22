@@ -23,6 +23,7 @@ class UpdateVehicleRequest extends FormRequest
      */
     public function rules(): array
     {
+        $lastDate = auth()->user()->vehicles()->latest()->first()->checkup_date;
         return [
             'letters_ar'                        => ['nullable', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
             'letters_en'                        => ['nullable', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
@@ -32,7 +33,11 @@ class UpdateVehicleRequest extends FormRequest
             'vehicle_model_id'                  => ['nullable', 'string', 'exists:vehicle_models,id'],
             'vehicle_manufacture_year_id'       => ['nullable', 'string', 'exists:vehicle_manufacture_years,id'],
             'vehicle_brand_id'                  => ['nullable', 'string', 'exists:vehicle_brands,id'],
-            'checkup_date'                      => ['nullable', 'date', 'after_or_equal:today'],
+            'checkup_date' => [
+                'nullable',
+                'date',
+                $lastDate ? 'before:' . $lastDate : 'nullable',
+            ],
             'images'                            => ['nullable', 'array' , 'min:1', 'max:5'],
             'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg'],
         ];
