@@ -14,6 +14,7 @@ class PunctureService extends Model
         'user_id',
         'user_vehicle_id',
         'provider_id',
+        'pick_up_truck_id',
         'from_latitude',
         'from_longitude',
         'to_latitude',

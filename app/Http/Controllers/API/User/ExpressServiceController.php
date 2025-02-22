@@ -47,6 +47,7 @@ class ExpressServiceController extends Controller
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
                 'user_vehicle_id'       => $request->user_vehicle_id ?? null,
+                'pick_up_truck_id'      => $request->pick_up_truck_id ?? null,
                 'address'               => $request->address,
                 'distanition'           => $request->distanition ?? null,
                 'from_latitude'         => $request->from_latitude,

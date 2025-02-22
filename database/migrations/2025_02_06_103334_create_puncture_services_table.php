@@ -1,8 +1,6 @@
 <?php
 
-use App\Models\ExpressService;
-use App\Models\User;
-use App\Models\UserVehicle;
+use App\Models\{ExpressService, User,PickUpTruck,UserVehicle};
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(PickUpTruck::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('address');
             $table->string('distanition')->nullable();
