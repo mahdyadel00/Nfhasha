@@ -12,13 +12,18 @@ class OrderController extends Controller
 {
     public function myOrders()
     {
-        $orders = Order::where('provider_id', auth('sanctum')->id())->latest()->paginate(config('app.pagination'));
+        // تحميل العلاقة 'offers' مع الطلبات
+        $orders = Order::where('provider_id', auth('sanctum')->id())
+            ->latest()
+            ->with('offers') // التأكد من تحميل العلاقة
+            ->paginate(config('app.pagination'));
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'data'    => OrderResource::collection($orders)
+            'message' => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
+            'data' => OrderResource::collection($orders)
         ]);
     }
+
 
 
     public function show($id)

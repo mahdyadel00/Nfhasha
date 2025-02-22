@@ -19,8 +19,7 @@ class OrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return
-        [
+        return [
             'id'                            => $this->id,
             'type'                          => $this->type,
             'status'                        => $this->status,
@@ -51,7 +50,12 @@ class OrderResource extends JsonResource
             'userVehicle'                   => new VehiclesResource($this->userVehicle),
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
-            'offer'                         => new OrderOfferResource($this->offer),
+
+            // عرض 'offers' فقط إذا كانت محملة
+            'offers' => $this->whenLoaded('offers', function () {
+                return OrderOfferResource::collection($this->offers); // عرض البيانات باستخدام OrderOfferResource
+            }),
         ];
+
     }
 }
