@@ -67,4 +67,5 @@ return
     'new_order'                                 => 'طلب جديد',
     'order_rated_successfully'                  => 'تم تقييم الطلب بنجاح',
     'otp_required_for_phone_verification'       => 'تم تحديث الملف الشخصي بنجاح. يرجى التحقق من رقم الهاتف الخاص بك',
+    'order_tracking'                            => 'تتبع الطلب',
 ];

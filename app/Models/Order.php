@@ -80,6 +80,10 @@ class Order extends Model
         return $this->hasMany(OrderOffer::class);
     }
 
+    public function tracking()
+    {
+        return $this->hasOne(OrderTracking::class);
+    }
 
 
 }

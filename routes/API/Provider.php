@@ -59,5 +59,7 @@ Route::post('complete-offer/{id}' , [OfferController::class , 'completeOffer']);
 //get my orders
 Route::get('my-orders' , [OrderController::class , 'myOrders']);
 Route::get('order/{id}' , [OrderController::class , 'show']);
+//order trackking
+Route::get('order-tracking/{id}' , [OrderController::class , 'orderTracking']);
 Route::get('orders' , [OrderController::class , 'ordersByStatus']);
 Route::post('change-order-status/{id}' , [OrderController::class , 'changeOrderStatus']);

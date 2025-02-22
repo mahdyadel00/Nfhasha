@@ -81,4 +81,34 @@ class OrderController extends Controller
             'message'   => __('messages.order_status_changed')
         ]);
     }
+
+    public function orderTracking(Request $request , $id)
+    {
+        $order = Order::where('provider_id' , auth('sanctum')->id())
+            ->where('status' , '!=', 'pending')
+            ->where('status' , '!=', 'canceled')
+            ->where('status' , '!=', 'completed')
+            ->where('status' , '!=', 'rejected')
+            ->where('status' ,  'accepted')
+            ->find($id);
+
+
+        $user = auth('sanctum')->user();
+        
+        $user->update([
+            'latitude'  => $request->latitude,
+            'longitude' => $request->longitude
+        ]);
+
+        if(!$order)
+        {
+            return new SuccessResource([
+                'message'   => __('messages.order_not_found')
+            ]);
+        }
+
+        return new SuccessResource([
+            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order_tracking')]) ,
+        ]);
+    }
 }
