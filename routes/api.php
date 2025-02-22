@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\HomeSlidersController;
 use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\SplashScreensController;
+use App\Http\Controllers\API\User\ServiceOfferController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('splash-screens' , [SplashScreensController::class, 'index']);
+//get service_offers
+Route::get('service-offers' , [ServiceOfferController::class , 'index']);
 Route::get('home-sliders' , HomeSlidersController::class);
 Route::get('services' , ServicesController::class);
 

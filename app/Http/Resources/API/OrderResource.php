@@ -52,12 +52,12 @@ class OrderResource extends JsonResource
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
             'order_tracking'                => new OrderTrackingResource($this->tracking),
-
-            // عرض 'offers' فقط إذا كانت محملة
             'offers' => $this->whenLoaded('offers', function () {
-                return OrderOfferResource::collection($this->offers); // عرض البيانات باستخدام OrderOfferResource
+                return OrderOfferResource::collection(
+                    $this->offers->where('provider_id', auth()->id())
+                );
             }),
-        ];
 
+        ];
     }
 }
