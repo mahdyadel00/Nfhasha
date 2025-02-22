@@ -106,6 +106,7 @@ Route::get('my-orders' , [OrderController::class , 'myOrders']);
 Route::get('order/{id}' , [OrderController::class , 'show']);
 Route::get('orders' , [OrderController::class , 'ordersByStatus']);
 Route::post('cancel-order/{id}' , [OrderController::class , 'cancelOrder']);
+Route::post('reject-order/{id}' , [OrderController::class , 'rejectOrder']);
 Route::post('rate/{order_id}' , [OrderController::class , 'rate']);
 
 //cy_periodics

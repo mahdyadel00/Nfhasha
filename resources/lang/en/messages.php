@@ -70,4 +70,6 @@ return
     'order_tracking'                                =>  'Order tracking',
     'phone_invalid'                                 =>  'Phone number is invalid',
     'coupon_applied_successfully'                   =>  'Coupon Applied Successfully',
+    'order'                                         =>  'Order',
+    'order_rejected_successfully'                   =>  'Order rejected successfully',
 ];
