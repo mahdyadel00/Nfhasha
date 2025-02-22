@@ -9,7 +9,7 @@ use App\Http\Controllers\API\User\{AppController,
     VehiclesController,
     VehiclesInfoController,
     WalletController,
-    ProviderController};
+    ProviderController, ServiceOfferController};
 use App\Http\Controllers\API\User\OrderController;
 use App\Http\Resources\API\CyPeriodicResource;
 use App\Models\CyPeriodic;
