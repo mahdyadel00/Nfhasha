@@ -68,4 +68,5 @@ return
     'order_rated_successfully'                      =>  'Order rated successfully',
     'otp_required_for_phone_verification'           =>  'OTP required for phone verification',
     'order_tracking'                                =>  'Order tracking',
+    'phone_invalid'                                 =>  'Phone number is invalid',
 ];

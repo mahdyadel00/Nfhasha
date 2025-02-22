@@ -14,13 +14,15 @@ class VehiclesController extends Controller
 {
     public function index()
     {
-        $vehicles = auth()->user()->vehicles;
+        $vehicles = auth()->user()->vehicles()->orderBy('created_at', 'desc')->get();
 
-        return apiResponse( 200 ,
-        __('messages.data_returned_successfully', ['attr' => __('messages.vehicles')]) ,
-        VehiclesResource::collection($vehicles)
-    );
+        return apiResponse(
+            200,
+            __('messages.data_returned_successfully', ['attr' => __('messages.vehicles')]),
+            VehiclesResource::collection($vehicles)
+        );
     }
+
 
     public function store(CreateVehicleRequest $request)
     {
@@ -41,9 +43,22 @@ class VehiclesController extends Controller
 
     public function show(UserVehicle $vehicle)
     {
+        if(!$vehicle){
+            return apiResponse( 404 ,
+            __('messages.data_not_found' , ['attr' => __('messages.vehicle')]) ,
+            null
+            );
+        }
         $this->authorize('view', $vehicle);
 
         $vehicle = auth()->user()->vehicles()->findOrFail($vehicle->id);
+
+        if(!$vehicle){
+            return apiResponse( 404 ,
+            __('messages.data_not_found' , ['attr' => __('messages.vehicle')]) ,
+            null
+            );
+        }
 
         return apiResponse( 200 ,
         __('messages.data_returned_successfully', ['attr' => __('messages.vehicle')]) ,
