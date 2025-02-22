@@ -132,6 +132,7 @@ class OrderController extends Controller
             'longitude' => $request->longitude
         ]);
 
+        
         if(!$order)
         {
             return new SuccessResource([
