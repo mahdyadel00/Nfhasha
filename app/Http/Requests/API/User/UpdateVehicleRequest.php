@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\API\User;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -23,7 +24,10 @@ class UpdateVehicleRequest extends FormRequest
      */
     public function rules(): array
     {
+
         $lastDate = auth()->user()->vehicles()->latest()->first()->checkup_date;
+        $maxDate = $lastDate ? Carbon::parse($lastDate)->addYear()->format('Y-m-d') : null;
+
         return [
             'letters_ar'                        => ['nullable', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
             'letters_en'                        => ['nullable', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
@@ -36,11 +40,12 @@ class UpdateVehicleRequest extends FormRequest
             'checkup_date' => [
                 'nullable',
                 'date',
-                $lastDate ? 'before:' . $lastDate : 'nullable',
+                $maxDate ? 'before_or_equal:' . $maxDate : 'nullable',
             ],
-            'images'                            => ['nullable', 'array' , 'min:1', 'max:5'],
+            'images'                            => ['nullable', 'array', 'min:1', 'max:5'],
             'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg'],
         ];
+
     }
 
     public function failedValidation(Validator $validator)

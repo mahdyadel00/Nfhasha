@@ -7,6 +7,7 @@ use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Http\Resources\API\User\UserResource;
 use App\Http\Resources\API\User\VehiclesResource;
+use App\Models\OrderTracking;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -50,6 +51,7 @@ class OrderResource extends JsonResource
             'userVehicle'                   => new VehiclesResource($this->userVehicle),
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
+            'order_tracking'                => new OrderTrackingResource($this->tracking),
 
             // عرض 'offers' فقط إذا كانت محملة
             'offers' => $this->whenLoaded('offers', function () {

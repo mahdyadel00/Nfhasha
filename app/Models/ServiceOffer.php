@@ -20,7 +20,7 @@ class ServiceOffer extends Model
 
     public function service()
     {
-        return $this->belongsTo(ExpressService::class);
+        return $this->belongsTo(ExpressService::class , 'service_id');
     }
 
 
