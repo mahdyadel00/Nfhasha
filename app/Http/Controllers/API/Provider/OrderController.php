@@ -94,7 +94,7 @@ class OrderController extends Controller
 
 
         $user = auth('sanctum')->user();
-        
+
         $user->update([
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude
