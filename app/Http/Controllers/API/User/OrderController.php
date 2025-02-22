@@ -257,6 +257,30 @@ class OrderController extends Controller
         ]);
     }
 
+    public function rejectOrder(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $order = Order::where('user_id', auth('sanctum')->id())->find($id);
+
+        if (!$order) {
+            return new SuccessResource([
+                'message' => __('messages.order_not_found')
+            ]);
+        }
+
+        $order->update([
+            'status' => 'rejected',
+            'reason' => $request->reason,
+        ]);
+
+        return new SuccessResource([
+            'message' => __('messages.order_rejected_successfully')
+        ]);
+    }
+
 
     public function rate(Request $request , $id)
     {

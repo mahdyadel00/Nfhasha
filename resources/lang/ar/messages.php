@@ -70,5 +70,7 @@ return
     'order_tracking'                            => 'تتبع الطلب',
     'phone_invalid'                             => 'رقم الهاتف غير صالح',
     'coupon_applied_successfully'               => 'تم تطبيق الكوبون بنجاح ',
+    'order'                                     => 'الطلب',
+    'order_rejected_successfully'               => 'تم رفض الطلب بنجاح',
 
 ];
