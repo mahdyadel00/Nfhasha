@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('service_offers', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('service_id')->constrained(ExpressService::class)->cascadeOnDelete();
             $table->string('price');
             $table->string('duration');
             $table->string('image');

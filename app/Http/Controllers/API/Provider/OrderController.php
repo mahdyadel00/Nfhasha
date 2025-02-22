@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
+use App\Models\OrderTracking;
 use App\Models\ProviderNotification;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
@@ -94,7 +95,6 @@ class OrderController extends Controller
             ->where('status' ,  'accepted')
             ->find($id);
 
-
         $user = auth('sanctum')->user();
 
 
@@ -103,12 +103,17 @@ class OrderController extends Controller
             'longitude' => $request->longitude
         ]);
 
+        $tracking_order = OrderTracking::create([
+            'order_id'   => $order->id,
+            'status'     => $request->status,
+        ]);
+
         //create notification
         ProviderNotification::create([
             'user_id'       => $order->user_id,
             'provider_id'   => auth()->id(),
             'service_type'  => $order->type,
-            'message'       => 'Offer sent',
+            'message'       => __('messages.tracking_my_order')
         ]);
 
 

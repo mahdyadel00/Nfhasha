@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\API\User;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -23,6 +24,10 @@ class UpdateVehicleRequest extends FormRequest
      */
     public function rules(): array
     {
+
+        $lastDate = auth()->user()->vehicles()->latest()->first()->checkup_date;
+        $maxDate = $lastDate ? Carbon::parse($lastDate)->addYear()->format('Y-m-d') : null;
+
         return [
             'letters_ar'                        => ['nullable', 'string', 'size:3', 'regex:/^[\p{Arabic}]{3}$/u'],
             'letters_en'                        => ['nullable', 'string', 'size:3', 'regex:/^[a-zA-Z]{3}$/'],
@@ -32,10 +37,15 @@ class UpdateVehicleRequest extends FormRequest
             'vehicle_model_id'                  => ['nullable', 'string', 'exists:vehicle_models,id'],
             'vehicle_manufacture_year_id'       => ['nullable', 'string', 'exists:vehicle_manufacture_years,id'],
             'vehicle_brand_id'                  => ['nullable', 'string', 'exists:vehicle_brands,id'],
-            'checkup_date'                      => ['nullable', 'date', 'after_or_equal:today'],
-            'images'                            => ['nullable', 'array' , 'min:1', 'max:5'],
+            'checkup_date' => [
+                'nullable',
+                'date',
+                $maxDate ? 'before_or_equal:' . $maxDate : 'nullable',
+            ],
+            'images'                            => ['nullable', 'array', 'min:1', 'max:5'],
             'images.*'                          => ['file', 'mimes:jpeg,png,jpg,gif,svg'],
         ];
+
     }
 
     public function failedValidation(Validator $validator)
