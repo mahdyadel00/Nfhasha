@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\ProviderRegisterRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,6 +29,7 @@ class RegisterController extends Controller
             'longitude'     => $request->longitude,
             'latitude'      => $request->latitude,
             'address'       => $request->address,
+            'fcm_token'     => $request->fcm_token,
         ]);
 
 
@@ -39,6 +40,9 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token' , ['role' => 'user'])->plainTextToken;
 
+        // إرسال الإشعار عبر FirebaseService
+    $firebaseService = new FirebaseService();
+    $firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
 
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
@@ -62,6 +66,7 @@ class RegisterController extends Controller
             'latitude'              => $request->latitude,
             'email'                 => $request->email,
             'role'                  => 'provider',
+            'fcm_token'             => $request->fcm_token,
         ]);
 
         $user->provider()->create(

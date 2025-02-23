@@ -30,6 +30,7 @@ class LoginRequest extends FormRequest
             'password'      => 'required|string|min:6',
             'longitude'     => 'required|numeric',
             'latitude'      => 'required|numeric',
+            'fcm_token'     => 'nullable|string'
         ];
     }
 
