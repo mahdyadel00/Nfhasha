@@ -27,7 +27,7 @@ class ExpressServiceResource extends JsonResource
             'name'                      => $this->name,
             'battery_image'             => asset('storage/' . $this->punctureServices()->latest('created_at')->first()?->battery_image),
             'type_battery'              => $this->punctureServices()->latest('created_at')->first()?->type_battery,
-
+            'car_reservation'           =>  CarReservationsResource::collection($this->carReservations),
         ];
     }
 }
