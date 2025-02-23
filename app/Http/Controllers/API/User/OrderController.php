@@ -42,18 +42,22 @@ class OrderController extends Controller
 
             //create car reservation
             if($expressService->type == 'car_reservations'){
-                $inspection_side_array  = explode(',', $request->inspection_side);
-                $inspection_side_string = implode(',', $inspection_side_array);
-
-                  CarReservations::create([
-                    'user_id'               => auth()->id(),
-                    'express_service_id'    => $request->service_id,
-                    'user_vehicle_id'       => $request->vehicle_id,
-                    'city_id'               => $request->city_id,
-                    'inspection_side'       => $inspection_side_string,
-                    'date'                  => $request->date,
-                    'time'                  => $request->time,
-                ]);
+                $inspection_side_array = is_array($request->inspection_side) 
+                ? $request->inspection_side 
+                : explode(',', $request->inspection_side);
+            
+            $inspection_side_string = implode(',', $inspection_side_array);
+            
+            CarReservations::create([
+                'user_id'               => auth()->id(),
+                'express_service_id'    => $request->service_id,
+                'user_vehicle_id'       => $request->vehicle_id,
+                'city_id'               => $request->city_id,
+                'inspection_side'       => $inspection_side_string,
+                'date'                  => $request->date,
+                'time'                  => $request->time,
+            ]);
+            
             }
 
             //create maintenance
