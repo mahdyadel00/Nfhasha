@@ -26,7 +26,7 @@ class UpdateProfileRequest extends FormRequest
         $user = auth('sanctum')->user();
         return [
             'name'                      => 'required|string|max:255',
-            'phone'                     => 'required|regex:/^05\d{8}$/|unique:users,phone,'.$user->id,
+            'phone'                     => 'required|regex:/^5\d{8}$/|unique:users,phone,'.$user->id,
             'email'                     => 'nullable|email|unique:users,email,'.$user->id,
             'city_id'                   => 'nullable|exists:cities,id',
             'district_id'               => 'nullable|exists:districts,id',
