@@ -243,7 +243,7 @@ class OrderController extends Controller
         ]);
     }
 
-    public function cancelOrder($id)
+    public function cancelOrder(Request $request , $id)
     {
         $order = Order::where('user_id' , auth('sanctum')->id())->find($id);
 
@@ -254,7 +254,10 @@ class OrderController extends Controller
             ]);
         }
 
-        $order->update(['status' => 'canceled']);
+        $order->update([
+            'status'    => 'canceled',
+            'reason'    => $request->reason
+            ]);
 
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
