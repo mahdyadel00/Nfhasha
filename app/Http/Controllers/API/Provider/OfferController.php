@@ -57,6 +57,7 @@ class OfferController extends Controller
             if (in_array('open_locks', $serviceTypes) || in_array('tow_truck', $serviceTypes) || in_array('fuel', $serviceTypes)
                     || in_array('puncture', $serviceTypes) || in_array('battery', $serviceTypes)) {
                  $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                 ->with('offers')
                     ->where('status' , '!=' , 'accepted')->where('status' , '!=' , 'completed')
                     ->where(function ($query) {
                         $query->where('status', 'pending')

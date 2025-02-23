@@ -15,10 +15,9 @@ class OrderController extends Controller
 {
     public function myOrders()
     {
-        // تحميل العلاقة 'offers' مع الطلبات
         $orders = Order::where('provider_id', auth('sanctum')->id())
             ->latest()
-            ->with('offers') // التأكد من تحميل العلاقة
+            ->with('offers')
             ->paginate(config('app.pagination'));
 
         return new SuccessResource([
@@ -132,7 +131,7 @@ class OrderController extends Controller
             'longitude' => $request->longitude
         ]);
 
-        
+
         if(!$order)
         {
             return new SuccessResource([
