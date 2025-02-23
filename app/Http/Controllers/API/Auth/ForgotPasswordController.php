@@ -9,7 +9,6 @@ use App\Http\Requests\API\Auth\VerifyOTP;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +27,7 @@ class ForgotPasswordController extends Controller
                 ]);
             }
             $user->update([
-                'otp' => random_int(000000, 999999),
+                'otp' => str(rand(000000, 999999)),
             ]);
 
 
