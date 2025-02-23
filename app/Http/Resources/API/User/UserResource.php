@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'longitude'             => $this->longitude,
             'latitude'              => $this->latitude,
             'role'                  => $this->role,
+            'fcm_token'             => $this->fcm_token,
             'profile_picture'       => $this->profile_picture,
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,

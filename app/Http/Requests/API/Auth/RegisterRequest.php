@@ -33,7 +33,8 @@ class RegisterRequest extends FormRequest
             'invitation_code'       => 'nullable|exists:users,invitation_code',
             'longitude'             => 'required|numeric',
             'latitude'              => 'required|numeric',
-            'address'               => 'required|max:255'
+            'address'               => 'required|max:255',
+            'fcm_token'             => 'nullable|string'
         ];
 
 

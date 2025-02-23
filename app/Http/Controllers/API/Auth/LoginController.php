@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
-use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -16,7 +15,11 @@ class LoginController extends Controller
         if(auth()->attempt($request->only('phone', 'password'))) {
             $user = auth()->user();
 
-            $user->update(['longitude' => $request->longitude, 'latitude' => $request->latitude]);
+            $user->update([
+            'longitude'         => $request->longitude,
+            'latitude'          => $request->latitude,
+            'fcm_token'         => $request->fcm_token
+            ]);
 
             if ($user->role === 'user') {
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -24,13 +27,13 @@ class LoginController extends Controller
                 return apiResponse(401, __('messages.not_verified'),
                 [
                     'token' => $token,
-                    'user' => $user
+                    'user'  => $user
                 ]);
             }
             return apiResponse(200, __('messages.logged_in_successfully'),
-             [
+            [
                 'token' => $token,
-                'user' => $user
+                'user'  => $user
             ]);
             } else {
             return apiResponse(403, __('messages.invalid_credentials'));
@@ -49,7 +52,8 @@ class LoginController extends Controller
 
             $user->update([
                 'longitude'     => $request->longitude,
-                'latitude'      => $request->latitude
+                'latitude'      => $request->latitude,
+                'fcm_token'     => $request->fcm_token
             ]);
 
             if ($user->role === 'provider') {
