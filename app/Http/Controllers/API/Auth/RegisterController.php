@@ -40,10 +40,9 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token' , ['role' => 'user'])->plainTextToken;
 
-        // إرسال الإشعار عبر FirebaseService
-    $firebaseService = new FirebaseService();
-    $firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
-
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
+            // dd($firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name')));
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
             'data'        => [

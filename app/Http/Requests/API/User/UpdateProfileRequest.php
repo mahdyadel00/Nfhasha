@@ -24,11 +24,11 @@ class UpdateProfileRequest extends FormRequest
     {
         $user = auth('sanctum')->user();
         return [
-            'name' => 'required|string|max:255',
-            'phone' => 'required|regex:/^05\d{8}$/|unique:users,phone,'.$user->id,
-            'email' => 'nullable|email|unique:users,email,'.$user->id,
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
-            'address' => 'nullable|max:255'
+            'name'                  => 'required|string|max:255',
+            'phone'                 => 'required|regex:/^5\d{8}$/|unique:users,phone,'.$user->id,
+            'email'                 => 'nullable|email|unique:users,email,'.$user->id,
+            'profile_picture'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
+            'address'               => 'nullable|max:255'
         ];
     }
 
