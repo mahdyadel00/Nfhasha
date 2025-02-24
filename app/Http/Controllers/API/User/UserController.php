@@ -19,30 +19,29 @@ class UserController extends Controller
 {
     public function changePassword(ChangePasswordRequest $request)
     {
-       try{
-           DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-              $user = auth()->user();
-                if (!Hash::check($request->old_password, $user->password)) {
-                    return new ErrorResource([
-                        'message' => __('messages.old_password_is_incorrect')
-                    ]);
-                }
-
-                $user->password = Hash::make($request->new_password);
-                $user->save();
-
-                DB::commit();
-
-                return new SuccessResource([
-                    'message' => __('messages.password_changed_successfully')
+            $user = auth()->user();
+            if (!Hash::check($request->old_password, $user->password)) {
+                return new ErrorResource([
+                    'message' => __('messages.old_password_is_incorrect')
                 ]);
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::channel('error')->error('Error in change password', ['error' => $e]);
-                return new ErrorResource(['message' => __('messages.error_occurred')]);
             }
+
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            DB::commit();
+
+            return new SuccessResource([
+                'message' => __('messages.password_changed_successfully')
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('error')->error('Error in change password', ['error' => $e]);
+            return new ErrorResource(['message' => __('messages.error_occurred')]);
+        }
     }
 
     public function logout()
@@ -51,7 +50,7 @@ class UserController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return apiResponse(200 , __('messages.logout_successfully'));
+        return apiResponse(200, __('messages.logout_successfully'));
     }
 
     public function deleteAccount()
@@ -60,7 +59,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        return apiResponse(200 , __('messages.account_deleted_successfully'));
+        return apiResponse(200, __('messages.account_deleted_successfully'));
     }
 
     public function profile()
@@ -68,20 +67,19 @@ class UserController extends Controller
         return new SuccessResource([
             'data' => auth()->user()
         ]);
-
     }
 
     public function updateProfile(UpdateProfileRequest $request)
     {
         $user = auth()->user();
 
-        if($user->phone     != $request->phone) {
+        if ($user->phone     != $request->phone) {
             $user->email_verified_at = null;
             $user->otp      = rand(100000, 999999);
         }
 
-        if($request->hasFile('profile_picture')) {
-            $user->profile_picture = uploadImage($request->profile_picture , 'avatars');
+        if ($request->hasFile('profile_picture')) {
+            $user->profile_picture = uploadImage($request->profile_picture, 'avatars');
         }
 
         $user->update($request->except('profile_picture'));
@@ -95,20 +93,20 @@ class UserController extends Controller
     {
         $notifications = auth()->user()->notifications;
 
-        return apiResponse(200 , __('messages.data_returned_successfully' , ['attr' => __('messages.notifications')]) , NotificationsResource::collection($notifications));
+        return apiResponse(200, __('messages.data_returned_successfully', ['attr' => __('messages.notifications')]), NotificationsResource::collection($notifications));
     }
 
     public function notification($notification)
     {
-        $notification = auth()->user()->notifications()->where('id' , $notification)->first();
+        $notification = auth()->user()->notifications()->where('id', $notification)->first();
 
         if (!$notification) {
-            return apiResponse(404 , __('messages.notification_not_found'));
+            return apiResponse(404, __('messages.notification_not_found'));
         }
 
         $notification->markAsRead();
 
-        return apiResponse(200 , __('messages.data_returned_successfully' , ['attr' => __('messages.notification')]) , new NotificationsResource($notification));
+        return apiResponse(200, __('messages.data_returned_successfully', ['attr' => __('messages.notification')]), new NotificationsResource($notification));
     }
 
     public function updateGeos(UpdateGeosRequest $request)
@@ -118,6 +116,14 @@ class UserController extends Controller
             'longitude' => $request->longitude
         ]);
 
-        return apiResponse(200 , __('messages.data_updated_successfully' , ['attr' => __('messages.Geos')]));
+        return apiResponse(200, __('messages.data_updated_successfully', ['attr' => __('messages.Geos')]));
+    }
+
+    public function fcmToken(Request $request)
+    {
+        $user = auth()->user();
+        $user->update(['fcm_token' => $request->fcm_token]);
+
+        return new SuccessResource(__('messages.fcm_token_updated_successfully'));
     }
 }

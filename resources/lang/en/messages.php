@@ -72,4 +72,5 @@ return
     'coupon_applied_successfully'                   =>  'Coupon Applied Successfully',
     'order'                                         =>  'Order',
     'order_rejected_successfully'                   =>  'Order rejected successfully',
+    'fcm_token_updated_successfully'                =>  'FCM token updated successfully',
 ];

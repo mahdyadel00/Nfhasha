@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\API\CitiesResource;
 use App\Http\Resources\API\DistrictsResource;
 use App\Http\Resources\API\PickupTrucksResource;
+use App\Http\Resources\API\SuccessResource;
 use App\Models\City;
 use App\Models\PickUpTruck;
 use App\Models\TypePeriodicInspections;
@@ -43,7 +44,6 @@ class InfoController extends Controller
         );
     }
 
-
     public function typePeriodicInspections()
     {
         $type_periodic_inspections = TypePeriodicInspections::get();
@@ -52,4 +52,5 @@ class InfoController extends Controller
             'data' => $type_periodic_inspections
         ]);
     }
+
 }

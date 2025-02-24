@@ -72,5 +72,6 @@ return
     'coupon_applied_successfully'               => 'تم تطبيق الكوبون بنجاح ',
     'order'                                     => 'الطلب',
     'order_rejected_successfully'               => 'تم رفض الطلب بنجاح',
+    'fcm_token_updated_successfully'            => 'تم تحديث رمز FCM بنجاح',
 
 ];

@@ -43,6 +43,7 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('send-otp', [RegisterController::class, 'sendOtp']);
         Route::post('resend-otp', [RegisterController::class, 'resendOtp']);
         Route::get('terms-and-conditions', [RegisterController::class, 'terms']);
+
     });
 });
 
