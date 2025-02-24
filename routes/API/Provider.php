@@ -31,6 +31,8 @@ Route::delete('delete-account', [AccountController::class, 'deleteAccount']);
 Route::post('update-profile', [AccountController::class, 'updateProfile']);
 Route::get('profile', [AccountController::class, 'profile']);
 Route::post('update-geos' , [AccountController::class , 'updateGeos']);
+//fcm_token
+Route::post('fcm-token' , [AccountController::class , 'fcmToken']);
 
 
 

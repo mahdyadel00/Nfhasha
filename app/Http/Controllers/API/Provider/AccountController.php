@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
 use App\Http\Requests\API\Provider\UpdateProfileRequest;
-use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\UserResource;
 use Illuminate\Http\Request;
@@ -25,7 +24,7 @@ class AccountController extends Controller
 
         $user->update(['password' => $request->new_password]);
 
-        return apiResponse(200 , __('messages.data_updated_successfully' , ['attr' => __('messages.Password')]));
+        return apiResponse(200, __('messages.data_updated_successfully', ['attr' => __('messages.Password')]));
     }
 
     public function logout()
@@ -34,7 +33,7 @@ class AccountController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return apiResponse(200 , __('messages.logout_successfully'));
+        return apiResponse(200, __('messages.logout_successfully'));
     }
 
     public function deleteAccount()
@@ -45,7 +44,7 @@ class AccountController extends Controller
 
         $user->delete();
 
-        return apiResponse(200 , __('messages.account_deleted_successfully'));
+        return apiResponse(200, __('messages.account_deleted_successfully'));
     }
 
     public function updateGeos(UpdateGeosRequest $request)
@@ -55,7 +54,7 @@ class AccountController extends Controller
             'longitude' => $request->longitude
         ]);
 
-        return apiResponse(200 , __('messages.data_updated_successfully' , ['attr' => __('messages.Geos')]));
+        return apiResponse(200, __('messages.data_updated_successfully', ['attr' => __('messages.Geos')]));
     }
 
     public function updateProfile(UpdateProfileRequest $request)
@@ -63,30 +62,30 @@ class AccountController extends Controller
         $user = auth('sanctum')->user();
         $old_phone = $user->phone;
 
-         $user->update([
+        $user->update([
             'name'                              => $request->name,
             'phone'                             => $request->phone,
             'email'                             => $request->email,
             'role'                              => 'provider',
             'address'                           => $request->address,
-             'otp'                              => random_int(000000, 999999),
-             'email_verified_at'                => null,
+            'otp'                              => random_int(000000, 999999),
+            'email_verified_at'                => null,
         ]);
 
-         if($old_phone !== $request->phone){
-                $user->update([
-                    'otp' => random_int(000000, 999999),
-                ]);
+        if ($old_phone !== $request->phone) {
+            $user->update([
+                'otp' => random_int(000000, 999999),
+            ]);
 
-             return new SuccessResource([
-                 'message' => __('messages.otp_required_for_phone_verification'),
-                 'data'    => $user->otp,
-             ]);
-         }else{
-             $user->provider()->update([
-                 'is_active' => 0,
-             ]);
-         }
+            return new SuccessResource([
+                'message' => __('messages.otp_required_for_phone_verification'),
+                'data'    => $user->otp,
+            ]);
+        } else {
+            $user->provider()->update([
+                'is_active' => 0,
+            ]);
+        }
         if ($request->hasFile('profile_picture')) {
             $user->profile_picture = uploadImage($request->profile_picture, 'avatars');
         }
@@ -118,7 +117,7 @@ class AccountController extends Controller
         ]);
 
         return new SuccessResource([
-            'message'   => __('messages.data_updated_successfully' , ['attr' => __('messages.Profile')]),
+            'message'   => __('messages.data_updated_successfully', ['attr' => __('messages.Profile')]),
         ]);
     }
 
@@ -141,5 +140,13 @@ class AccountController extends Controller
             'message' => __('messages.otp_sent_successfully'),
             'data'    => $user->otp,
         ]);
+    }
+
+    public function fcmToken(Request $request)
+    {
+        $user = auth()->user();
+        $user->update(['fcm_token' => $request->fcm_token]);
+
+        return new SuccessResource(__('messages.fcm_token_updated_successfully'));
     }
 }
