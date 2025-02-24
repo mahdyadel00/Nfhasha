@@ -262,7 +262,7 @@ class OrderController extends Controller
     public function rejectOrder(Request $request, $id)
     {
         $request->validate([
-            'reason' => 'required|string|max:255',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         $order = Order::where('user_id', auth('sanctum')->id())->find($id);
