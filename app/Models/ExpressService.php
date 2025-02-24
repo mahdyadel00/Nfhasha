@@ -26,22 +26,22 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
 
     public function carReservations()
     {
-        return $this->hasMany(CarReservations::class);
+        return $this->hasOne(CarReservations::class);
     }
 
     public function comprehensiveInspections()
     {
-        return $this->hasMany(ComprehensiveInspections::class);
+        return $this->hasOne(ComprehensiveInspections::class);
     }
 
     public function maintenance()
     {
-        return $this->hasMany(Maintenance::class);
+        return $this->hasOne(Maintenance::class);
     }
 
     public function periodicInspections()
     {
-        return $this->hasMany(PeriodicInspections::class);
+        return $this->hasOne(PeriodicInspections::class);
     }
 
     public function ordersCount()

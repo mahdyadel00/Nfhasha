@@ -199,11 +199,12 @@ class OrderController extends Controller
 
     public function myOrders(Request $request)
     {
-        $orders = Order::where('user_id' , auth('sanctum')->id())->latest()->paginate(config("app.pagination"));
+        $orders = Order::where('user_id' , auth('sanctum')->id())
+        ->latest()->paginate(config("app.pagination"));
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'data'    => OrderResource::collection($orders)
+            'data'    => OrderResource::collection($orders->load('carReservations'))
         ]);
     }
 
