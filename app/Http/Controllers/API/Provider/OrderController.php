@@ -107,6 +107,24 @@ class OrderController extends Controller
             'status'     => $request->status,
         ]);
 
+        if ($order->type == 'periodic_inspections') {
+
+            //creat array for image
+            $image = [];
+            if ($request->hasFile('inspection_reject_image')) {
+                foreach ($request->file('inspection_reject_image') as $file) {
+                    $image[] = uploadImage($file, 'periodic_inspections');
+                }
+            }
+
+
+            $order->expressService->periodicInspections->update([
+                'status'                    => $request->status,
+                'inspection_reject_reason'  => $request->reason,
+                'inspection_reject_image'   => json_encode($image),
+            ]);
+        }
+
         //create notification
         ProviderNotification::create([
             'user_id'       => $order->user_id,

@@ -278,36 +278,19 @@ class OrderController extends Controller
             'reason' => $request->reason,
         ]);
 
-        if ($order->type == 'periodic_inspections') {
 
-            //creat array for image
-            $image = [];
-            if ($request->hasFile('inspection_reject_image')) {
-                foreach ($request->file('inspection_reject_image') as $file) {
-                    $image[] = uploadImage($file, 'periodic_inspections');
-                }
-            }
+        // $pusher = new Pusher(
+        //     env('PUSHER_APP_KEY'),
+        //     env('PUSHER_APP_SECRET'),
+        //     env('PUSHER_APP_ID'),
+        //     ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        // );
 
-
-            $order->expressService->periodicInspections->update([
-                'status'                    => $request->status,
-                'inspection_reject_reason'  => $request->reason,
-                'inspection_reject_image'   => json_encode($image),
-            ]);
-        }
-
-        $pusher = new Pusher(
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-        );
-
-        $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-            'message'       => __('messages.order_rejected'),
-            'order'         => $order,
-            'provider_id'   =>$order->provider_id
-        ]);
+        // $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+        //     'message'       => __('messages.order_rejected'),
+        //     'order'         => $order,
+        //     'provider_id'   => $order->provider_id
+        // ]);
 
         return new SuccessResource([
             'message' => __('messages.order_rejected_successfully')
