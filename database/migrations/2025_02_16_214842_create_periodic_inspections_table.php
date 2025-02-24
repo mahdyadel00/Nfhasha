@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('address');
             $table->string('latitude');
             $table->string('longitude');
+            $table->enum('status', ['rejected', 'accepted', 'pending'])->default('pending');
+            $table->string('inspection_reject_image')->nullable();
+            $table->string('inspection_reject_reason')->nullable();
             $table->timestamps();
         });
     }

@@ -35,33 +35,32 @@ class OrderController extends Controller
     }
     public function createOrder(StoreperiodicExaminationRequest $request)
     {
-        try{
+        try {
             DB::beginTransaction();
 
             $expressService = ExpressService::find($request->service_id);
 
             //create car reservation
-            if($expressService->type == 'car_reservations'){
-                $inspection_side_array = is_array($request->inspection_side) 
-                ? $request->inspection_side 
-                : explode(',', $request->inspection_side);
-            
-            $inspection_side_string = implode(',', $inspection_side_array);
-            
-            CarReservations::create([
-                'user_id'               => auth()->id(),
-                'express_service_id'    => $request->service_id,
-                'user_vehicle_id'       => $request->vehicle_id,
-                'city_id'               => $request->city_id,
-                'inspection_side'       => $inspection_side_string,
-                'date'                  => $request->date,
-                'time'                  => $request->time,
-            ]);
-            
+            if ($expressService->type == 'car_reservations') {
+                $inspection_side_array = is_array($request->inspection_side)
+                    ? $request->inspection_side
+                    : explode(',', $request->inspection_side);
+
+                $inspection_side_string = implode(',', $inspection_side_array);
+
+                CarReservations::create([
+                    'user_id'               => auth()->id(),
+                    'express_service_id'    => $request->service_id,
+                    'user_vehicle_id'       => $request->vehicle_id,
+                    'city_id'               => $request->city_id,
+                    'inspection_side'       => $inspection_side_string,
+                    'date'                  => $request->date,
+                    'time'                  => $request->time,
+                ]);
             }
 
             //create maintenance
-            if($expressService->type == 'maintenance'){
+            if ($expressService->type == 'maintenance') {
 
                 //creat array for image
                 $image = [];
@@ -71,7 +70,7 @@ class OrderController extends Controller
                     }
                 }
 
-                 Maintenance::create([
+                Maintenance::create([
                     'user_id'                   => auth()->id(),
                     'express_service_id'        => $request->service_id,
                     'user_vehicle_id'           => $request->vehicle_id,
@@ -87,7 +86,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            if($expressService->type == 'comprehensive_inspections'){
+            if ($expressService->type == 'comprehensive_inspections') {
 
                 $comprehensive_inspection       = ComprehensiveInspections::create([
                     'user_id'                   => auth()->id(),
@@ -100,10 +99,9 @@ class OrderController extends Controller
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,
                 ]);
-
             }
 
-            if($expressService->type == 'periodic_inspections'){
+            if ($expressService->type == 'periodic_inspections') {
 
                 PeriodicInspections::create([
                     'user_id'                   => auth()->id(),
@@ -115,8 +113,8 @@ class OrderController extends Controller
                     'address'                   => $request->address,
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,
+                    'status'                    => 'pending',
                 ]);
-
             }
 
 
@@ -138,8 +136,8 @@ class OrderController extends Controller
 
             DB::commit();
 
-//            send notification to provider
-//            broadcast(new ServiceRequestEvent($order , $order->type));
+            //            send notification to provider
+            //            broadcast(new ServiceRequestEvent($order , $order->type));
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -148,18 +146,18 @@ class OrderController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message'   => __('messages.new_order') ,
+                'message'   => __('messages.new_order'),
                 'order'     => $order,
             ]);
 
 
             return new SuccessResource([
-                'message' => __('messages.order_created_successfully') ,
+                'message' => __('messages.order_created_successfully'),
                 'data'    => $order->id,
             ]);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getFile() , $e->getLine() , $e->getMessage());
+            dd($e->getFile(), $e->getLine(), $e->getMessage());
             Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }
@@ -169,22 +167,20 @@ class OrderController extends Controller
     {
         $order = auth('sanctum')->user()->orders()->find($order);
 
-        if(!$order)
-        {
-            return apiResponse(404 , __('messages.order_not_found'));
+        if (!$order) {
+            return apiResponse(404, __('messages.order_not_found'));
         }
 
-        if($order->status == 'paid')
-        {
-            return apiResponse(400 , __('messages.order_already_paid'));
+        if ($order->status == 'paid') {
+            return apiResponse(400, __('messages.order_already_paid'));
         }
 
         $order->update(['status' => 'approved']);
 
 
-        broadcast(new ServiceRequestEvent($order , $order->type));
+        broadcast(new ServiceRequestEvent($order, $order->type));
 
-        return apiResponse(200 , __('messages.order_paid') , $order);
+        return apiResponse(200, __('messages.order_paid'), $order);
     }
 
     public function index(Request $request)
@@ -192,64 +188,62 @@ class OrderController extends Controller
         $orders = auth('sanctum')->user()->orders()->latest()->paginate($request->limit ?? 10);
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
             'data'    => OrderResource::collection($orders)
         ]);
     }
 
     public function myOrders(Request $request)
     {
-        $orders = Order::where('user_id' , auth('sanctum')->id())
-        ->latest()->paginate(config("app.pagination"));
+        $orders = Order::where('user_id', auth('sanctum')->id())
+            ->latest()->paginate(config("app.pagination"));
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
-            'data'    => OrderResource::collection($orders->load('carReservations'))
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
+            'data'    => OrderResource::collection($orders)
         ]);
     }
 
 
     public function show($id)
     {
-        $order = Order::where('user_id' , auth('sanctum')->id())->find($id);
+        $order = Order::where('user_id', auth('sanctum')->id())->find($id);
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
         }
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
             'data'     => new OrderResource($order)
         ]);
     }
 
     public function ordersByStatus(Request $request)
     {
-        $orders = Order::where('user_id' , auth('sanctum')->id())
-            ->when($request->status , function ($query) use ($request) {
-                return $query->whereIn('status' , $request->status);
+        $orders = Order::where('user_id', auth('sanctum')->id())
+            ->when($request->status, function ($query) use ($request) {
+                return $query->whereIn('status', $request->status);
             })
-            ->when($request->type , function ($query) use ($request) {
-                return $query->where('type' , $request->type);
+            ->when($request->type, function ($query) use ($request) {
+                return $query->where('type', $request->type);
             })
             ->latest()
             ->paginate(config('app.pagination'));
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
             'data'    => OrderResource::collection($orders)
         ]);
     }
 
-    public function cancelOrder(Request $request , $id)
+    public function cancelOrder(Request $request, $id)
     {
-        $order = Order::where('user_id' , auth('sanctum')->id())->find($id);
+        $order = Order::where('user_id', auth('sanctum')->id())->find($id);
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
@@ -258,7 +252,7 @@ class OrderController extends Controller
         $order->update([
             'status'    => 'canceled',
             'reason'    => $request->reason
-            ]);
+        ]);
 
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
@@ -268,7 +262,7 @@ class OrderController extends Controller
     public function rejectOrder(Request $request, $id)
     {
         $request->validate([
-            'reason' => 'required|string|max:255',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         $order = Order::where('user_id', auth('sanctum')->id())->find($id);
@@ -280,8 +274,39 @@ class OrderController extends Controller
         }
 
         $order->update([
-            'status' => 'rejected',
+            'status' => $request->status,
             'reason' => $request->reason,
+        ]);
+
+        if ($order->type == 'periodic_inspections') {
+
+            //creat array for image
+            $image = [];
+            if ($request->hasFile('inspection_reject_image')) {
+                foreach ($request->file('inspection_reject_image') as $file) {
+                    $image[] = uploadImage($file, 'periodic_inspections');
+                }
+            }
+
+
+            $order->expressService->periodicInspections->update([
+                'status'                    => $request->status,
+                'inspection_reject_reason'  => $request->reason,
+                'inspection_reject_image'   => json_encode($image),
+            ]);
+        }
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        );
+
+        $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+            'message'       => __('messages.order_rejected'),
+            'order'         => $order,
+            'provider_id'   =>$order->provider_id
         ]);
 
         return new SuccessResource([
@@ -290,21 +315,21 @@ class OrderController extends Controller
     }
 
 
-    public function rate(Request $request , $id)
+    public function rate(Request $request, $id)
     {
         $request->validate([
             'rate'      => 'required|numeric|min:1|max:5',
             'comment'   => 'nullable|string',
         ]);
 
-        $order = Order::where('user_id' , auth('sanctum')->id())
-            ->where('status' , 'accepted')
-            ->where('status' , '!=', 'canceled')
-            ->where('status' , '!=', 'completed')
-            ->first();
+    
+        $order = Order::where('user_id', auth('sanctum')->id())
+            ->where('status', 'accepted')
+            ->where('status', '!=', 'canceled')
+            ->where('status', '!=', 'completed')
+            ->find($id);
 
-        if(!$order)
-        {
+        if (!$order) {
             return new ErrorResource(__('messages.order_not_found'));
         }
 
@@ -321,5 +346,4 @@ class OrderController extends Controller
             'message'   => __('messages.order_rated_successfully')
         ]);
     }
-
 }

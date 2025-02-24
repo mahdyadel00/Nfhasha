@@ -2,12 +2,9 @@
 
 namespace App\Http\Resources\API;
 
-use App\Http\Resources\API\Provider\ProviderResource;
-use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Http\Resources\API\User\UserResource;
 use App\Http\Resources\API\User\VehiclesResource;
-use App\Models\OrderTracking;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -52,6 +49,7 @@ class OrderResource extends JsonResource
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
             'order_tracking'                => new OrderTrackingResource($this->tracking),
+            'rate'                          => RateResource::collection($this->rates),
             'offers' => $this->whenLoaded('offers', function () {
                 return OrderOfferResource::collection(
                     $this->offers->where('provider_id', auth()->id())

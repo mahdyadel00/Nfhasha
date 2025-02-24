@@ -22,6 +22,9 @@ class PeriodicInspectionsResource extends JsonResource
             'address'                   => $this->address,
             'latitude'                  => $this->latitude,
             'longitude'                 => $this->longitude,
+            'status'                    => $this->status,
+            'inspection_reject_image'   => asset('storage/' . $this->inspection_reject_image),
+            'inspection_reject_reason'  => $this->inspection_reject_reason,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
         ];

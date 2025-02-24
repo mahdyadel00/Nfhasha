@@ -9,7 +9,21 @@ class PeriodicInspections extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'user_vehicle_id', 'city_id', 'express_service_id', 'pick_up_truck_id', 'provider_id', 'inspection_type_id', 'address', 'latitude', 'longitude'];
+    protected $fillable = [
+        'user_id',
+        'user_vehicle_id',
+        'city_id',
+        'express_service_id',
+        'pick_up_truck_id',
+        'provider_id',
+        'inspection_type_id',
+        'address',
+        'latitude',
+        'longitude',
+        'status',
+        'inspection_reject_image',
+        'inspection_reject_reason',
+    ];
 
     public function user()
     {
@@ -43,6 +57,6 @@ class PeriodicInspections extends Model
 
     public function inspectionType()
     {
-        return $this->belongsTo(TypePeriodicInspections::class , 'inspection_type_id');
+        return $this->belongsTo(TypePeriodicInspections::class, 'inspection_type_id');
     }
 }
