@@ -85,7 +85,8 @@ class UserController extends Controller
         $user->update($request->except('profile_picture'));
 
         return new SuccessResource([
-            'message' => __('messages.profile_updated_successfully')
+            'message' => __('messages.profile_updated_successfully'),
+            'otp'     => $user->otp
         ]);
     }
 

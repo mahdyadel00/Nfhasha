@@ -153,7 +153,6 @@ class RegisterController extends Controller
 
     public function terms()
     {
-        dd(settings()->get('terms_and_conditions_' . $this->locale));
         $terms = settings()->get('terms_and_conditions_' . $this->locale);
 
 

@@ -9,6 +9,7 @@ use App\Http\Requests\API\Auth\VerifyOTP;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +28,8 @@ class ForgotPasswordController extends Controller
                 ]);
             }
             $user->update([
-                'otp' => str(rand(000000, 999999)),
+                'otp'               => str(rand(000000, 999999)),
+                'email_verified_at' => null,
             ]);
 
 
@@ -44,7 +46,7 @@ class ForgotPasswordController extends Controller
         }
     }
 
-    public function verifyOtp(VerifyOTP $request)
+    public function verifyOtp(Request $request)
     {
         try {
             $user = User::where([

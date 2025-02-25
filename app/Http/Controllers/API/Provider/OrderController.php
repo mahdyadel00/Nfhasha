@@ -96,7 +96,12 @@ class OrderController extends Controller
 
         $user = auth('sanctum')->user();
 
-
+        if(!$order)
+        {
+            return new SuccessResource([
+                'message'   => __('messages.order_not_found')
+            ]);
+        }
         $user->update([
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude

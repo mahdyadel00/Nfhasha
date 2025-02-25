@@ -73,4 +73,5 @@ return
     'order'                                         =>  'Order',
     'order_rejected_successfully'                   =>  'Order rejected successfully',
     'fcm_token_updated_successfully'                =>  'FCM token updated successfully',
+    'invalid_phone'                                 =>  'Invalid phone number',
 ];

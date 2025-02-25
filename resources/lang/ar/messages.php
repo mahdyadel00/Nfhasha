@@ -73,5 +73,6 @@ return
     'order'                                     => 'الطلب',
     'order_rejected_successfully'               => 'تم رفض الطلب بنجاح',
     'fcm_token_updated_successfully'            => 'تم تحديث رمز FCM بنجاح',
+    'invalid_phone'                             => 'رقم الهاتف غير صالح',
 
 ];

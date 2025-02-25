@@ -115,3 +115,7 @@ Route::post('rate/{order_id}' , [OrderController::class , 'rate']);
 Route::post('cy_periodics' , [MainServicesController::class , 'store']);
 //use coupon
 // Route::post('coupon' , [ServiceOfferController::class , 'coupon']);
+
+//get service maintenance
+Route::get('service-maintenance' , [MainServicesController::class , 'index']);
+Route::get('service-maintenance/{id}' , [MainServicesController::class , 'show']);

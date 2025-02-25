@@ -22,7 +22,7 @@ class ResetPassword extends FormRequest
     public function rules(): array
     {
         return [
-            'phone'         => 'required|regex:/^05\d{8}$/|exists:users,phone',
+            'phone'         => 'required|regex:/^5\d{8}$/|exists:users,phone',
             'password'      => 'required|min:8|confirmed',
             'otp'           => 'required|numeric',
         ];
