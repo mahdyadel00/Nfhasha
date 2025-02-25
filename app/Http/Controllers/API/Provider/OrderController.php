@@ -108,7 +108,6 @@ class OrderController extends Controller
         ]);
 
         if ($order->type == 'periodic_inspections') {
-
             //creat array for image
             $image = [];
             if ($request->hasFile('inspection_reject_image')) {
@@ -116,8 +115,6 @@ class OrderController extends Controller
                     $image[] = uploadImage($file, 'periodic_inspections');
                 }
             }
-
-
             $order->expressService->periodicInspections->update([
                 'status'                    => $request->status,
                 'inspection_reject_reason'  => $request->reason,
