@@ -143,7 +143,10 @@ class RegisterController extends Controller
 
         $otp = rand(100000, 999999);
 
-        $user->update(['otp' => $otp]);
+        $user->update([
+            'otp'               => $otp,
+            'email_verified_at' => null,
+            ]);
 
         return new SuccessResource([
             'message' => __('messages.otp_sent_successfully'),
