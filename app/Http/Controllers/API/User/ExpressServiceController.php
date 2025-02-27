@@ -17,6 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pusher\Pusher;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class ExpressServiceController extends Controller
 {
@@ -93,6 +96,34 @@ class ExpressServiceController extends Controller
                 'message' => 'New express service request',
                 'puncture_service' => $puncture_service,
             ]);
+
+
+            $firebase = (new Factory)
+            ->withServiceAccount(storage_path('app/firebase-admin.json'))
+            ->createMessaging();
+            $deviceTokens = $users->pluck('fcm_token')->filter()->toArray();
+
+            if (!empty($deviceTokens)) {
+                $message = CloudMessage::new()
+                    ->withNotification(Notification::create(
+                        'New Express Service Request',
+                        'You have a new express service request.'
+                    ))
+                    ->withData([
+                        'puncture_service_id'   => (string) $puncture_service->id,
+                        'order_id'              => (string) $order->id,
+                    ]);
+
+                $report = $firebase->sendMulticast($message, $deviceTokens);
+
+                return response()->json([
+                    'success' => $report->successes()->count(),
+                    'failures' => $report->failures()->count(),
+                ]);
+            } else {
+                return response()->json(['message' => 'No valid FCM tokens found.']);
+            }
+
             DB::commit();
 
             return new SuccessResource([

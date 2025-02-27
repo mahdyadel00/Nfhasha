@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\API\Provider;
 
-use App\Http\Resources\API\{CityResource, DistrictsResource, OrderOfferResource, PickupTrucksResource};
+use App\Http\Resources\API\{CityResource, DistrictsResource, PickupTrucksResource};
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

@@ -9,10 +9,10 @@ use App\Http\Controllers\API\User\{AppController,
     VehiclesController,
     VehiclesInfoController,
     WalletController,
-    ProviderController, ServiceOfferController};
+    ProviderController,
+    PaymentController
+};
 use App\Http\Controllers\API\User\OrderController;
-use App\Http\Resources\API\CyPeriodicResource;
-use App\Models\CyPeriodic;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -110,6 +110,8 @@ Route::get('orders' , [OrderController::class , 'ordersByStatus']);
 Route::post('cancel-order/{id}' , [OrderController::class , 'cancelOrder']);
 Route::post('reject-order/{id}' , [OrderController::class , 'rejectOrder']);
 Route::post('rate/{order_id}' , [OrderController::class , 'rate']);
+//payment
+Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
 
 //cy_periodics
 Route::post('cy_periodics' , [MainServicesController::class , 'store']);
@@ -119,3 +121,28 @@ Route::post('cy_periodics' , [MainServicesController::class , 'store']);
 //get service maintenance
 Route::get('service-maintenance' , [MainServicesController::class , 'index']);
 Route::get('service-maintenance/{id}' , [MainServicesController::class , 'show']);
+use Kreait\Firebase\Factory;
+
+Route::get('/check-firebase', function () {
+    $path = base_path(config('firebase.credentials'));
+
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'Firebase service account file not found!', 'path' => $path]);
+    }
+
+    return response()->json(['success' => 'Firebase service account file found!', 'path' => $path]);
+});
+
+
+Route::get('/firebase-test', function () {
+    $serviceAccountPath = base_path('storage/app/firebase-admin.json'); // المسار المباشر للملف
+
+    if (!file_exists($serviceAccountPath)) {
+        return response()->json(['error' => 'Firebase service account file not found!', 'path' => $serviceAccountPath], 500);
+    }
+
+    $factory = (new Factory)->withServiceAccount($serviceAccountPath);
+    $database = $factory->createDatabase();
+
+    return response()->json(['message' => 'Firebase connected successfully!']);
+});

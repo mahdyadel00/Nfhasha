@@ -15,8 +15,8 @@ class WalletController extends Controller
         $transactions = auth()->user()->walletTransactions()->latest()->get();
 
         return apiResponse(200, __('messages.data_returned_successfully' , ['attr' => __('messages.wallet')]), [
-            'balance' => $balance,
-            'transactions' => TransactionsRequest::collection($transactions)
+            'balance'       => $balance,
+            'transactions'  => TransactionsRequest::collection($transactions)
         ]);
     }
 
@@ -25,16 +25,17 @@ class WalletController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:1',
-            'notes' => 'nullable|string|max:255'
+            'notes'  => 'nullable|string|max:255'
         ]);
 
         $user = auth()->user();
 
         $user->increment('balance', $request->amount);
         $user->walletTransactions()->create([
-            'amount' => $request->amount,
-            'type' => 'deposit',
-            'notes' => $request->notes
+            
+            'amount'    => $request->amount,
+            'type'      => 'deposit',
+            'notes'     => $request->notes
         ]);
 
         return apiResponse(200, __('manage.created_successfully' , ['attr' => __('messages.deposit')]));
@@ -44,7 +45,7 @@ class WalletController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:1',
-            'notes' => 'nullable|string|max:255'
+            'notes'  => 'nullable|string|max:255'
         ]);
 
         $user = auth()->user();
