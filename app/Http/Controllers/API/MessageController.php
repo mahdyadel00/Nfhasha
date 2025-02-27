@@ -2,21 +2,56 @@
 
 namespace App\Http\Controllers\Api;
 
+use Pusher\Pusher;
+use App\Models\Order;
 use App\Models\Message;
-use App\Events\NewMessage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class MessageController extends Controller
 {
-    public function sendMessage(Request $request) {
-        $message = Message::create([
-            'chat_id' => $request->chat_id,
-            'sender_id' => $request->sender_id,
-            'message' => $request->message,
-            'type' => $request->type,
+    public function sendMessage(Request $request , $id) {
+
+        $request->validate([
+            'chat_id'       => 'required',
+            'message'       => 'required',
+            'type'          => 'required',
         ]);
-        broadcast(new NewMessage($message))->toOthers();
-        return response()->json($message);
+
+        $order = Order::find($id)->where('status' , 'accepted')->first();
+
+        if(!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        if($order->user_id == auth()->id()) {
+            $request->merge(['sender_id' => $order->user_id]);
+        } else {
+            $request->merge(['sender_id' => $order->provider_id]);
+        }
+
+
+        $message = Message::create($request->all());
+
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        );
+
+        $pusher->trigger('chat-channel', 'chat-event', [
+            'order_id'      => $order->id,
+            'sender_id'     => $message->sender_id,
+            'chat_id'       => $message->chat_id,
+            'type'          => $message->type,
+            'message'       => $message->message,
+            'reservation_id'=> $order->provider_id,
+            'created_at'    => $message->created_at,
+        ]);
+
+
+        return response()->json(['message' => __('messages.message_sent')]);
+
     }
 }

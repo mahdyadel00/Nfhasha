@@ -12,6 +12,8 @@ use App\Http\Controllers\API\User\{AppController,
     ProviderController,
     PaymentController
 };
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\API\User\OrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -110,6 +112,11 @@ Route::get('orders' , [OrderController::class , 'ordersByStatus']);
 Route::post('cancel-order/{id}' , [OrderController::class , 'cancelOrder']);
 Route::post('reject-order/{id}' , [OrderController::class , 'rejectOrder']);
 Route::post('rate/{order_id}' , [OrderController::class , 'rate']);
+//start chat\
+Route::post('start-chat/{id}' , [ChatController::class , 'startChat']);
+//send message
+Route::post('send-message/{id}' , [MessageController::class , 'sendMessage']);
+
 //payment
 Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);
 

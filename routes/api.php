@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\API\ServicesController;
 use App\Http\Controllers\API\Auth\InfoController;
 use App\Http\Controllers\API\Auth\LoginController;
@@ -65,9 +63,3 @@ Route::get('districts/{city}' , [InfoController::class, 'districts']);
 Route::get('pickup-trucks' , [InfoController::class, 'pickupTrucks']);
 //get type TypePeriodicInspections
 Route::get('type-periodic-inspections' , [InfoController::class , 'typePeriodicInspections']);
-
-//start chat\
-Route::post('start-chat' , [ChatController::class , 'startChat']);
-
-//send message
-Route::post('send-message' , [MessageController::class , 'sendMessage']);
