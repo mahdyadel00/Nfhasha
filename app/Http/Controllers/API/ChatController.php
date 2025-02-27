@@ -19,8 +19,8 @@ class ChatController extends Controller
             ]);
         } else {
             $chat = Chat::firstOrCreate([
-                'user_id'       => $order->provider_id,
-                'provider_id'   => $order->user_id,
+                'user_id'       => auth()->id(),
+                'provider_id'   => $order->provider_id,
             ]);
         }
         return response()->json($chat);
