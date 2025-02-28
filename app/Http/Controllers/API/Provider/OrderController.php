@@ -102,15 +102,22 @@ class OrderController extends Controller
                 'message'   => __('messages.order_not_found')
             ]);
         }
+
+        if ($order->status !== 'accepted') {
+            return new SuccessResource([
+                'message' => __('messages.invalid_order_status')
+            ]);
+        }
         $user->update([
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude
         ]);
 
-        $tracking_order = OrderTracking::create([
-            'order_id'   => $order->id,
-            'status'     => $request->status,
-        ]);
+        $tracking_order = OrderTracking::updateOrCreate(
+            ['order_id'     => $order->id],
+                ['status'       => $request->status]
+        );
+
 
         if ($order->type == 'periodic_inspections') {
             //creat array for image
