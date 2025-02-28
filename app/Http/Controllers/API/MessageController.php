@@ -18,7 +18,7 @@ class MessageController extends Controller
             'type'          => 'required',
         ]);
 
-        $order = Order::find($id)->where('status' , 'accepted')->first();
+        $order = Order::where('status' , 'accepted')->find($id);
 
         if(!$order) {
             return response()->json(['message' => 'Order not found'], 404);

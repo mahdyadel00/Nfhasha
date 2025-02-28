@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 class ChatController extends Controller
 {
     public function startChat(Request $request , $id) {
-        $order = Order::find($id)->where('status' , 'accepted')->first();
+        $order = Order::where('status' , 'accepted')->find($id);
 
         if($order->user_id == auth()->id()) {
             $chat = Chat::firstOrCreate([
