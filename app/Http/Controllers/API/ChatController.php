@@ -29,8 +29,8 @@ class ChatController extends Controller
     {
         $chats = Chat::where('order_id', $id)
             ->where(function ($query) {
-                $query->where('sender_id', auth()->id())
-                    ->orWhere('receiver_id', auth()->id());
+                $query->where('user_id', auth()->id())
+                    ->orWhere('provider_id', auth()->id());
             })
             ->get();
 
@@ -44,8 +44,8 @@ class ChatController extends Controller
     {
         $chat = Chat::where('order_id', $order_id)
             ->where(function ($query) {
-                $query->where('sender_id', auth()->id())
-                    ->orWhere('receiver_id', auth()->id());
+                $query->where('user_id', auth()->id())
+                    ->orWhere('provider_id', auth()->id());
             })
             ->where('id', $id)
             ->first();
