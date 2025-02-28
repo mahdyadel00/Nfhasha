@@ -28,9 +28,9 @@ class ChatController extends Controller
         return response()->json($chat);
     }
 
-    public function chats() {
+    public function chats($id) {
 
-        $chats = Chat::where('user_id' , auth()->id())->orWhere('provider_id' , auth()->id())->get();
+        $chats = Chat::where('order_id' , $id)->where('user_id' , auth()->id())->orWhere('provider_id' , auth()->id())->get();
 
         return response()->json([
             'data' => $chats
@@ -38,8 +38,8 @@ class ChatController extends Controller
     }
 
 
-    public function chat($id) {
-        $chat = Chat::find($id);
+    public function chat($order_id , $id) {
+        $chat = Chat::where('order_id' , $order_id)->find($id);
 
         if(!$chat) {
             return response()->json(['message' => 'Chat not found'], 404);
