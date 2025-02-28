@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Pusher\Pusher;
+use App\Models\Chat;
 use App\Models\Order;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -53,5 +54,17 @@ class MessageController extends Controller
 
         return response()->json(['message' => __('messages.message_sent')]);
 
+    }
+
+    public function messages($id) {
+        $chat = Chat::find($id);
+
+        if(!$chat) {
+            return response()->json(['message' => 'Chat not found'], 404);
+        }
+
+        $messages = $chat->messages;
+
+        return response()->json(['messages' => $messages]);
     }
 }

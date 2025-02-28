@@ -116,6 +116,12 @@ Route::post('rate/{order_id}' , [OrderController::class , 'rate']);
 Route::post('start-chat/{id}' , [ChatController::class , 'startChat']);
 //send message
 Route::post('send-message/{id}' , [MessageController::class , 'sendMessage']);
+//get messages
+Route::get('messages/{id}' , [MessageController::class , 'messages']);
+//get chat
+Route::get('chats' , [ChatController::class , 'chats']);
+//get chat
+Route::get('chat/{id}' , [ChatController::class , 'chat']);
 
 //payment
 Route::post('/initiate-payment', [PaymentController::class, 'initiatePayment']);

@@ -25,43 +25,27 @@ class ChatController extends Controller
         }
         return response()->json($chat);
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+
+    public function chats() {
+
+        $chats = Chat::where('user_id' , auth()->id())->orWhere('provider_id' , auth()->id())->get();
+
+        return response()->json([
+            'chats' => $chats
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    public function chat($id) {
+        $chat = Chat::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        if(!$chat) {
+            return response()->json(['message' => 'Chat not found'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json([
+            'chat'      => $chat,
+            'messages' => $chat->messages
+        ]);
     }
 }
