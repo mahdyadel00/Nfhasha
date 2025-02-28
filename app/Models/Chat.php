@@ -12,6 +12,7 @@ class Chat extends Model
     protected $fillable = [
         'user_id',
         'provider_id',
+        'order_id',
     ];
 
     public function user() {
@@ -22,5 +23,8 @@ class Chat extends Model
     }
     public function messages() {
         return $this->hasMany(Message::class);
+    }
+    public function order() {
+        return $this->belongsTo(Order::class);
     }
 }

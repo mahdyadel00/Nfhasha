@@ -85,5 +85,10 @@ class Order extends Model
         return $this->hasOne(OrderTracking::class);
     }
 
+    public function chat()
+    {
+        return $this->hasOne(Chat::class);
+    }
+
 
 }

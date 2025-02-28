@@ -14,11 +14,13 @@ class ChatController extends Controller
 
         if($order->user_id == auth()->id()) {
             $chat = Chat::firstOrCreate([
+                'order_id'      => $order->id,
                 'user_id'       => auth()->id(),
                 'provider_id'   => $order->provider_id,
             ]);
         } else {
             $chat = Chat::firstOrCreate([
+                'order_id'      => $order->id,
                 'user_id'       => auth()->id(),
                 'provider_id'   => $order->provider_id,
             ]);

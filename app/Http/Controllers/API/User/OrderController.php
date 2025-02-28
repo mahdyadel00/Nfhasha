@@ -305,11 +305,11 @@ class OrderController extends Controller
             'comment'   => 'nullable|string',
         ]);
 
-    
+
         $order = Order::where('user_id', auth('sanctum')->id())
-            ->where('status', 'accepted')
+            ->where('status', '!=', 'accepted')
             ->where('status', '!=', 'canceled')
-            ->where('status', '!=', 'completed')
+            ->where('status', 'completed')
             ->find($id);
 
         if (!$order) {
