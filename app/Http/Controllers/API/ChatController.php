@@ -31,7 +31,7 @@ class ChatController extends Controller
         $chats = Chat::where('user_id' , auth()->id())->orWhere('provider_id' , auth()->id())->get();
 
         return response()->json([
-            'chats' => $chats
+            'data' => $chats
         ]);
     }
 
@@ -44,7 +44,7 @@ class ChatController extends Controller
         }
 
         return response()->json([
-            'chat'      => $chat,
+            'data'      => $chat,
             'messages' => $chat->messages
         ]);
     }

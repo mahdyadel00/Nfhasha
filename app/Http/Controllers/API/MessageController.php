@@ -65,6 +65,6 @@ class MessageController extends Controller
 
         $messages = $chat->messages;
 
-        return response()->json(['messages' => $messages]);
+        return response()->json(['data' => $messages]);
     }
 }
