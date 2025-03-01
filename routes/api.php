@@ -44,6 +44,9 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('resend-otp', [RegisterController::class, 'resendOtp']);
         Route::get('terms-and-conditions', [RegisterController::class, 'terms']);
 
+        Route::get('/get-firebase-token', [RegisterController::class, 'getFirebaseToken']);
+
+
     });
 });
 

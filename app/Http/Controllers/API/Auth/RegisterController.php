@@ -42,7 +42,6 @@ class RegisterController extends Controller
 
         $firebaseService = new FirebaseService();
         $firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
-            // dd($firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name')));
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
             'data'        => [
@@ -164,6 +163,17 @@ class RegisterController extends Controller
             [
                 'terms' => $terms
             ]);
+    }
+
+    public function getFirebaseToken()
+    {
+        $firebaseService = new FirebaseService();
+        $token = $firebaseService->getAccessToken();
+
+        return response()->json([
+            'message' => 'Token retrieved successfully',
+            'access_token' => $token
+        ]);
     }
 
 }

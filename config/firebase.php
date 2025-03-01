@@ -50,7 +50,9 @@ return [
              *
              */
 
-            'credentials' => base_path(env('GOOGLE_APPLICATION_CREDENTIALS', 'storage/app/firebase-admin.json')),
+            // 'credentials' => base_path(env('GOOGLE_APPLICATION_CREDENTIALS', 'storage/app/firebase-admin.json')),
+            'credentials' => storage_path('app/firebase-admin.json'),
+
 
 
             /*

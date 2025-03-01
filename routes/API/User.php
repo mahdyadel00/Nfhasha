@@ -10,7 +10,8 @@ use App\Http\Controllers\API\User\{AppController,
     VehiclesInfoController,
     WalletController,
     ProviderController,
-    PaymentController
+    PaymentController,
+    HyperPayController
 };
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\MessageController;
@@ -159,3 +160,7 @@ Route::get('/firebase-test', function () {
 
     return response()->json(['message' => 'Firebase connected successfully!']);
 });
+
+
+Route::post('/payment/initiate/{id}', [HyperPayController::class, 'initiatePayment']);
+Route::get('/payment/status', [HyperPayController::class, 'getPaymentStatus']);
