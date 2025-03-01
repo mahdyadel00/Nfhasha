@@ -113,10 +113,20 @@ class OrderController extends Controller
             'longitude' => $request->longitude
         ]);
 
-        $tracking_order = OrderTracking::updateOrCreate(
-            ['order_id'     => $order->id],
-                ['status'       => $request->status]
-        );
+        $tracking_order = OrderTracking::where('order_id' , $order->id)->first();
+
+        if($tracking_order){
+            $tracking_order->update([
+                'status'  => $request->status,
+            ]);
+        }else{
+            OrderTracking::create([
+                'order_id'    => $order->id,
+                'status'      => $request->status,
+            ]);
+            
+        }
+
 
 
         if ($order->type == 'periodic_inspections') {
