@@ -18,26 +18,25 @@ class HyperPayController extends Controller
 
     public function initiatePayment(Request $request, $id)
     {
-        $order = Order::findOrFail($id);
-        
         $request->validate([
             'paymentMethod' => 'required|in:visa,mada',
         ]);
 
+        $order = Order::findOrFail($id);
 
         $order->payment_method = $request->paymentMethod;
         $order->status = 'completed';
         $order->save();
 
         $customerData = [
-            'email'      => auth()->user()->email,
-            'street'     => 'Na',
-            'city'       => 'NA',
-            'state'      => 'NA',
-            'country'    => 'NA',
-            'postcode'   => 'NA',
-            'first_name'       => auth()->user()->name,
-            'last_name'       => auth()->user()->name,
+            'email'             => auth()->user()->email,
+            'street'            => 'Na',
+            'city'              => 'NA',
+            'state'             => 'NA',
+            'country'           => 'NA',
+            'postcode'          => 'NA',
+            'first_name'        => auth()->user()->name,
+            'last_name'         => auth()->user()->name,
         ];
 
         // تنفيذ عملية الدفع
@@ -46,6 +45,7 @@ class HyperPayController extends Controller
             $request->paymentMethod,
             $customerData
         );
+
 
         // تحديث الطلب بمعرف الدفع
         if (isset($paymentData['id'])) {
@@ -65,6 +65,7 @@ class HyperPayController extends Controller
             'message' => 'Redirect to payment page',
             'url' => $paymentUrl
         ]);
+
 
 
     }

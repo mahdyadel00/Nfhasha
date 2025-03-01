@@ -16,7 +16,7 @@ class HyperPayService
     {
         $this->baseUrl = config('hyperpay.base_url');
         $this->accessToken = config('hyperpay.access_token');
-        $this->entityVisa = config('hyperpay.entity_id_visa');
+        $this->entityVisa = config('hyperpay.entity_id_visa_master');
         $this->entityMada = config('hyperpay.entity_id_mada');
         $this->currency = config('hyperpay.currency');
     }
