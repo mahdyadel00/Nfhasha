@@ -18,11 +18,11 @@ class HyperPayController extends Controller
 
     public function initiatePayment(Request $request, $id)
     {
+        $order = Order::findOrFail($id);
         $request->validate([
             'paymentMethod' => 'required|in:visa,mada',
         ]);
 
-        $order = Order::findOrFail($id);
 
         $order->payment_method = $request->paymentMethod;
         $order->status = 'completed';
