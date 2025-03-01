@@ -163,4 +163,4 @@ Route::get('/firebase-test', function () {
 
 
 Route::post('/payment/initiate/{id}', [HyperPayController::class, 'initiatePayment']);
-Route::get('/payment/status', [HyperPayController::class, 'getPaymentStatus']);
+Route::get('/payment/status/{id}', [HyperPayController::class, 'getPaymentStatus']);

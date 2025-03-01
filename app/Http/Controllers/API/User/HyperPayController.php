@@ -70,15 +70,19 @@ class HyperPayController extends Controller
 
     }
 
-
-    public function getPaymentStatus(Request $request)
+    public function getPaymentStatus(Request $request, $orderId)
     {
-        $request->validate([
-            'checkoutId' => 'required|string',
-        ]);
+        $order = Order::findOrFail($orderId);
 
-        $status = $this->hyperPayService->getPaymentStatus($request->checkoutId);
+        if (!$order->payment_transaction_id) {
+            return response()->json([
+                'error' => 'Checkout ID not found for this order.'
+            ], 400);
+        }
+
+        $status = $this->hyperPayService->getPaymentStatus($order->payment_transaction_id);
 
         return response()->json($status);
     }
+
 }
