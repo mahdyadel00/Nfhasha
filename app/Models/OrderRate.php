@@ -9,7 +9,7 @@ class OrderRate extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'user_id', 'rate', 'comment'];
+    protected $fillable = ['order_id', 'user_id', 'provider_id' , 'rate', 'comment'];
 
     public function order()
     {
@@ -20,4 +20,10 @@ class OrderRate extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function provider()
+{
+    return $this->belongsTo(Provider::class, 'provider_id');
+}
+
 }

@@ -15,6 +15,9 @@ class   ProviderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // dd(optional($this->ratings)->where('provider_id', auth()->id()));
+
+        $this->resource->loadMissing('ratings');
         return [
             'id'                    => $this->id,
             'type'                  => $this->type,
@@ -41,6 +44,9 @@ class   ProviderResource extends JsonResource
             'city'                  => CityResource::make($this->city),
             'district'              => DistrictsResource::make($this->district),
             'pick_up_truck'         => PickupTrucksResource::make($this->pickUpTruck),
+            'rate'                  => RateResource::make(optional($this->ratings)->firstWhere('provider_id', auth()->id())),
+
+
         ];
     }
 }

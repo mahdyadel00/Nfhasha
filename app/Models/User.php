@@ -181,10 +181,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PeriodicInspections::class);
     }
 
-    public function rates()
-    {
-        return $this->hasMany(OrderRate::class);
-    }
+    // public function rates()
+    // {
+    //     return $this->hasMany(OrderRate::class);
+    // }
+
 
     public function orderOffers()
     {

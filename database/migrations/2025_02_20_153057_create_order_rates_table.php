@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('provider_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('rate');
             $table->text('comment')->nullable();
             $table->timestamps();

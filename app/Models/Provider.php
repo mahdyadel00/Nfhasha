@@ -41,4 +41,12 @@ class Provider extends Model
         return $this->belongsTo(PickUpTruck::class);
     }
 
+    public function ratings()
+{
+    return $this->hasManyThrough(OrderRate::class, User::class, 'id', 'provider_id', 'user_id', 'id');
+}
+
+
+
+
 }

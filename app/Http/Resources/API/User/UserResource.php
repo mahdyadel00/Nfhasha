@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\API\User;
 
-use App\Http\Resources\API\Provider\ProviderResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\API\Provider\RateResource;
+use App\Http\Resources\API\Provider\ProviderResource;
 
 class UserResource extends JsonResource
 {
@@ -15,7 +16,7 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-//         return parent::toArray($request);
+
 
         return [
             'id'                    => $this->id,

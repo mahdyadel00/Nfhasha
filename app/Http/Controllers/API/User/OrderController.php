@@ -18,6 +18,7 @@ use App\Models\Order;
 use App\Models\PeriodicInspections;
 use App\Models\PickUpTruck;
 use App\Models\Provider;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -316,13 +317,23 @@ class OrderController extends Controller
             return new ErrorResource(__('messages.order_not_found'));
         }
 
-        $order->rates()->updateOrCreate(
-            ['user_id' => auth('sanctum')->id()], // البحث عن تقييم لهذا المستخدم
+        $providerId = $order->provider_id;
+
+        if (!User::where('role' , 'provider')->where('id', $providerId)->exists()) {
+            return response()->json(['error' => 'Invalid provider_id. Provider does not exist.'], 400);
+        }
+
+
+
+        $order->rates()->Create(
             [
-                'rate'    => $request->rate,
-                'comment' => $request->comment,
+                'user_id'     => auth('sanctum')->id(),
+                'provider_id' => $order->provider_id ?? null,
+                'rate'        => $request->rate,
+                'comment'     => $request->comment,
             ]
         );
+
 
 
         return new SuccessResource([
