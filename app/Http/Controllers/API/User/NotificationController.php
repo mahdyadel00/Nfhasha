@@ -1,22 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\API\User;
-
-use App\Events\AccepteOffer;
-use App\Events\SentOffer;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderOfferResource;
-use App\Http\Resources\API\OrderResource;
-use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
-use App\Http\Resources\API\User\ExpressServiceResource;
-use App\Http\Resources\API\User\NotificationsResource;
-use App\Http\Resources\API\User\ProviderNotificationResource;
 use App\Models\Order;
 use App\Models\OrderOffer;
 use App\Models\ProviderNotification;
-use App\Models\PunctureService;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 
