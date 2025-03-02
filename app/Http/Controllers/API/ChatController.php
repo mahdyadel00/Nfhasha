@@ -55,8 +55,8 @@ class ChatController extends Controller
         }
 
         return response()->json([
-            'data'     => $chat,
-            'messages' => $chat->messages()->orderBy('created_at', 'asc')->get() // order by created_at
+            'details'     => $chat,
+            'data'        => $chat->messages()->orderBy('created_at', 'asc')->get() // order by created_at
         ]);
     }
 }
