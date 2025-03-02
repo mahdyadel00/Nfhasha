@@ -51,7 +51,7 @@ class HyperPayController extends Controller
         }
 
         $checkoutId = $paymentData['id'];
-        $paymentUrl = "https://eu-prod.oppwa.com/paymentWidgets.js?checkoutId={$checkoutId}";
+        $paymentUrl = "https://eu-prod.oppwa.com/v1/checkouts/{$checkoutId}/payment";
 
         $order->payment_transaction_id = $checkoutId;
         $order->status = 'pending';
