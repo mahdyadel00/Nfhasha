@@ -16,7 +16,6 @@ use App\Models\ExpressService;
 use App\Models\Maintenance;
 use App\Models\Order;
 use App\Models\PeriodicInspections;
-use App\Models\PickUpTruck;
 use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Http\Request;

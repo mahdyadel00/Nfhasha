@@ -5,16 +5,10 @@ namespace App\Http\Controllers\API\Provider;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
-use App\Http\Resources\API\Provider\PunctureServiceResource;
 use App\Http\Resources\API\SuccessResource;
-use App\Http\Resources\API\User\ExpressServiceResource;
-use App\Models\CarReservations;
-use App\Models\ExpressService;
 use App\Models\Order;
 use App\Models\ProviderNotification;
-use App\Models\PunctureService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pusher\Pusher;
@@ -28,16 +22,17 @@ class OfferController extends Controller
 
             $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
 
-            if ($provider_notifications->count() == 0) {
-                return new ErrorResource([
-                    'message' => 'No offers found',
-                ]);
-            }
+            // if ($provider_notifications->count() == 0) {
+            //     return new ErrorResource([
+            //         'message' => 'No offers found',
+            //     ]);
+            // }
 
             $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
             $orders = collect();
 
-            if (in_array('car_reservations', $serviceTypes)) {
+            if (in_array('car_reservations', $serviceTypes) || in_array('maintenance', $serviceTypes) || in_array('comprehensive_inspections', $serviceTypes)
+            || in_array('periodic_inspections', $serviceTypes)) {
                 $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
                     ->where('status', '!=', 'accepted')->where('status', '!=', 'completed')
                     ->where(function ($query) {
@@ -85,7 +80,7 @@ class OfferController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage(), $e->getLine(), $e->getFile());
+            // dd($e->getMessage(), $e->getLine(), $e->getFile());
             Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
