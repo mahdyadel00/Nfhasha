@@ -20,7 +20,6 @@ class HyperPayService
         $this->entityMada = config('hyperpay.entity_id_mada');
         $this->currency = config('hyperpay.currency');
     }
-
     public function initiatePayment($amount, $paymentMethod, $customerData)
     {
         $entityId = ($paymentMethod === 'mada') ? $this->entityMada : $this->entityVisa;
@@ -33,7 +32,7 @@ class HyperPayService
             'amount'                            => number_format($amount, 2, '.', ''),
             'currency'                          => $this->currency,
             'paymentType'                       => 'DB',
-            'testMode'                          => 'EXTERNAL',
+            // إزالة testMode لأنه غير مسموح في البيئة الحية
             'customParameters[3DS2_enrolled]'   => 'true',
             'merchantTransactionId'             => uniqid(),
             'customer.email'                    => $customerData['email'],
@@ -48,6 +47,7 @@ class HyperPayService
 
         return $response->json();
     }
+
 
     public function getPaymentStatus($checkoutId)
     {

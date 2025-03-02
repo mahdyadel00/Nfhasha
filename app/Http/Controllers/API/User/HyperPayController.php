@@ -39,24 +39,20 @@ class HyperPayController extends Controller
             'last_name'         => auth()->user()->name,
         ];
 
-        // تنفيذ عملية الدفع
         $paymentData = $this->hyperPayService->initiatePayment(
             $order->total_cost,
             $request->paymentMethod,
             $customerData
         );
 
-
-        // تحديث الطلب بمعرف الدفع
         if (isset($paymentData['id'])) {
             $order->payment_transaction_id = $paymentData['id'];
             $order->save();
         }
 
-        $checkoutId = $paymentData['id']; // معرف الـ Checkout الذي تم إرجاعه من HyperPay
-        $paymentUrl = "https://eu-test.oppwa.com/paymentWidgets.js?checkoutId={$checkoutId}";
+        $checkoutId = $paymentData['id'];
+        $paymentUrl = "https://eu-prod.oppwa.com/paymentWidgets.js?checkoutId={$checkoutId}";
 
-        // حفظ معرف الـ Checkout في الطلب لتتبعه لاحقًا
         $order->payment_transaction_id = $checkoutId;
         $order->status = 'pending';
         $order->save();
