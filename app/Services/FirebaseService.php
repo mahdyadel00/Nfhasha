@@ -2,52 +2,77 @@
 
 namespace App\Services;
 
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Google\Auth\Credentials\ServiceAccountCredentials;
-
+use Google\Auth\ApplicationDefaultCredentials;
+use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 
 class FirebaseService
 {
-    protected $messaging;
-
-    protected $serviceAccountPath;
-
+    protected $serverKey;
 
     public function __construct()
     {
-        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase-admin.json'));
-        $this->messaging = $factory->createMessaging();
+        $this->serverKey = config('services.firebase.server_key');
 
-        $this->serviceAccountPath = storage_path('app/firebase-admin.json');
+        if (!$this->serverKey) {
+            throw new \Exception("❌ تأكد من ضبط FCM_SERVER_KEY في .env!");
+        }
     }
 
+    /**
+     * استرجاع OAuth Access Token من Firebase
+     */
+    private function getFirebaseAccessToken()
+    {
+        $jsonKeyFilePath = base_path('storage/app/firebase-admin.json');
+
+        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $jsonKeyFilePath);
+
+        $scope = 'https://www.googleapis.com/auth/firebase.messaging';
+        $auth = ApplicationDefaultCredentials::getCredentials($scope);
+        $httpClient = new Client([
+            'handler' => HandlerStack::create(),
+            'auth' => 'google_auth'
+        ]);
+
+        $token = $auth->fetchAuthToken();
+        return $token['access_token'] ?? null;
+    }
+
+    /**
+     * إرسال الإشعارات إلى Firebase
+     */
     public function sendNotification($token, $title, $body)
     {
-        $message = CloudMessage::withTarget('token', $token)
-            ->withNotification([
-                'title' => $title,
-                'body'  => $body,
-            ]);
+        $accessToken = $this->getFirebaseAccessToken(); // استخدام الدالة داخل الكلاس
 
+        $url = "https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send";
 
-        return $this->messaging->send($message);
-    }
+        $data = [
+            "message" => [
+                "token" => $token,
+                "notification" => [
+                    "title" => $title,
+                    "body" => $body,
+                ]
+            ]
+        ];
 
-    public function getAccessToken()
-    {
-        $scopes = ['https://www.googleapis.com/auth/firebase.messaging']; // النطاق المطلوب
+        $headers = [
+            "Authorization: Bearer $accessToken",
+            "Content-Type: application/json",
+        ];
 
-        // إنشاء كائن الاعتماد
-        $credentials = new ServiceAccountCredentials($scopes, $this->serviceAccountPath);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
-        // الحصول على `Access Token`
-        $token = $credentials->fetchAuthToken();
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-        if (!isset($token['access_token'])) {
-            throw new \Exception("❌ فشل الحصول على Access Token!");
-        }
-
-        return $token['access_token'];
+        return json_decode($response, true);
     }
 }

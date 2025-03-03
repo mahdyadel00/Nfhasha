@@ -45,8 +45,8 @@ class RegisterController extends Controller
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
             'data'        => [
-                'otp'       => str($user->otp),
-                'token'     => $token,
+            'otp'         => str($user->otp),
+            'token'       => $token,
             ]
         ]);
     }
