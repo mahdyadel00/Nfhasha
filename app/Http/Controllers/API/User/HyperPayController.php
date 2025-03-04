@@ -81,4 +81,30 @@ class HyperPayController extends Controller
         return response()->json($status);
     }
 
+    public function refundPayment(Request $request, $orderId)
+{
+    $order = Order::findOrFail($orderId)->where('user_id', auth()->id())->first();
+
+    if (!$order->payment_transaction_id) {
+        return response()->json(['error' => 'Transaction ID not found.'], 400);
+    }
+
+    if ($order->status !== 'completed') {
+        return response()->json(['error' => 'Only completed orders can be refunded.'], 400);
+    }
+
+    $refundResponse = $this->hyperPayService->refundPayment($order->payment_transaction_id, $order->total_cost);
+    dd($refundResponse);
+
+    if (isset($refundResponse['result']) && str_contains($refundResponse['result']['code'], '000.100.')) {
+        $order->status = 'refunded';
+        $order->save();
+
+        return response()->json(['message' => 'Refund successful', 'data' => $refundResponse]);
+    }
+
+    return response()->json(['error' => 'Refund failed', 'data' => $refundResponse], 400);
+}
+
+
 }

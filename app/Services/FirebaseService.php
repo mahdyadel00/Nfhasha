@@ -2,20 +2,37 @@
 
 namespace App\Services;
 
-use Google\Auth\ApplicationDefaultCredentials;
+use Google\Auth\Credentials\ServiceAccountCredentials;
+use Google\Auth\Middleware\AuthTokenMiddleware;
+use Google\Auth\FetchAuthTokenInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 
 class FirebaseService
 {
-    protected $serverKey;
+    protected $credentials;
+    protected $projectId;
 
     public function __construct()
     {
-        $this->serverKey = config('services.firebase.server_key');
+        $jsonKeyFilePath = base_path(env('GOOGLE_APPLICATION_CREDENTIALS', 'storage/app/firebase-admin.json'));
 
-        if (!$this->serverKey) {
-            throw new \Exception("❌ تأكد من ضبط FCM_SERVER_KEY في .env!");
+        if (!file_exists($jsonKeyFilePath)) {
+            throw new \Exception("❌ ملف Google Service Account غير موجود في: $jsonKeyFilePath");
+        }
+
+        // تحميل بيانات الاعتماد
+        $this->credentials = new ServiceAccountCredentials(
+            ['https://www.googleapis.com/auth/firebase.messaging'],
+            $jsonKeyFilePath
+        );
+
+        // استخراج project_id من الملف
+        $jsonData = json_decode(file_get_contents($jsonKeyFilePath), true);
+        $this->projectId = $jsonData['project_id'] ?? null;
+
+        if (!$this->projectId) {
+            throw new \Exception("❌ تعذر العثور على project_id داخل ملف Google Service Account!");
         }
     }
 
@@ -24,17 +41,7 @@ class FirebaseService
      */
     private function getFirebaseAccessToken()
     {
-        $jsonKeyFilePath = base_path('storage/app/firebase-admin.json');
-
-        putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $jsonKeyFilePath);
-
-        $scope = 'https://www.googleapis.com/auth/firebase.messaging';
-        $auth = ApplicationDefaultCredentials::getCredentials($scope);
-        $httpClient = new Client([
-            'handler' => HandlerStack::create(),
-            'auth' => 'google_auth'
-        ]);
-
+        $auth = $this->credentials;
         $token = $auth->fetchAuthToken();
         return $token['access_token'] ?? null;
     }
@@ -44,9 +51,12 @@ class FirebaseService
      */
     public function sendNotification($token, $title, $body)
     {
-        $accessToken = $this->getFirebaseAccessToken(); // استخدام الدالة داخل الكلاس
+        $accessToken = $this->getFirebaseAccessToken();
+        if (!$accessToken) {
+            throw new \Exception("❌ تعذر استرجاع Access Token من Firebase!");
+        }
 
-        $url = "https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send";
+        $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
         $data = [
             "message" => [
@@ -54,8 +64,8 @@ class FirebaseService
                 "notification" => [
                     "title" => $title,
                     "body" => $body,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $headers = [
@@ -63,16 +73,12 @@ class FirebaseService
             "Content-Type: application/json",
         ];
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        $client = new Client();
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'json' => $data,
+        ]);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($response, true);
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

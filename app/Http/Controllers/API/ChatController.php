@@ -2,16 +2,47 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\API\ErrorResource;
 use App\Models\Chat;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class ChatController extends Controller
 {
     public function startChat(Request $request, $id)
     {
-        $order = Order::where('status', 'accepted')->findOrFail($id);
+        $order = Order::where('status', 'accepted')->find($id);
+
+        if(!$order) {
+            return new ErrorResource([
+                'message' => __('messages.order_not_found')
+            ]);
+        }
+
+        if(!in_array(auth()->id(), [$order->user_id, $order->provider_id])) {
+            return new ErrorResource([
+                'message' => __('messages.unauthorized')
+            ]);
+        }
+
+        if(!$order->provider_id) {
+            return new ErrorResource([
+                'message' => __('messages.provider_not_assigned')
+            ]);
+        }
+
+        if(!$order->user_id) {
+            return new ErrorResource([
+                'message' => __('messages.user_not_assigned')
+            ]);
+        }
+
+        if(!$order->status == 'accepted') {
+            return new ErrorResource([
+                'message' => __('messages.order_not_accepted')
+            ]);
+        }
 
         $otherUserId = ($order->user_id == auth()->id()) ? $order->provider_id : $order->user_id;
 

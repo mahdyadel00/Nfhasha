@@ -60,4 +60,28 @@ class HyperPayService
 
         return $response->json();
     }
+
+    public function refundPayment($paymentTransactionId, $amount)
+    {
+        // استخراج أول 32 حرف فقط من الـ paymentTransactionId وتحويلها إلى حروف صغيرة
+        $referencedPaymentId = strtolower(substr($paymentTransactionId, 0, 32));
+
+        $url = "{$this->baseUrl}v1/payments";
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->accessToken,
+        ])->asForm()->post($url, [
+            'entityId'           => $this->entityVisa, // تأكد من استخدام الـ entity المناسب لطريقة الدفع
+            'amount'             => number_format($amount, 2, '.', ''),
+            'currency'           => $this->currency,
+            'paymentType'        => 'RF',  // RF تعني Refund
+            'referencedPaymentId'=> $referencedPaymentId, // المعرف الأساسي للمعاملة الأصلية
+        ]);
+
+        dd($response->json()); // لفحص الاستجابة أثناء الاختبار
+
+        return $response->json();
+    }
+
+
 }
