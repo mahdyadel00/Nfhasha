@@ -13,8 +13,8 @@ use App\Http\Controllers\API\User\{AppController,
     PaymentController,
     HyperPayController
 };
-use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\User\OrderController;
 use Illuminate\Support\Facades\Route;
 
