@@ -164,8 +164,18 @@ class OrderController extends Controller
                 ]);
             }
 
+            $tokens = $users->pluck('fcm_token')->filter()->toArray(); // تصفية القيم الفارغة
+
+            if (empty($tokens)) {
+                return new ErrorResource(['message' => '❌ لم يتم العثور على أي FCM Token صالح!']);
+            }
+
             $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New order', 'New order');
+            $firebaseService->sendNotificationToMultipleUsers($tokens, 'New order', 'New order');
+
+
+            // $firebaseService = new FirebaseService();
+            // $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New order', 'New order');
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully'),
