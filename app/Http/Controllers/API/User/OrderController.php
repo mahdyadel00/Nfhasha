@@ -137,12 +137,9 @@ class OrderController extends Controller
 
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                // ->nearby($request->from_latitude, $request->from_longitude, 50)
+                ->nearby($request->latitude, $request->longitude, 50)
                 ->where('role', 'provider')
-                // ->orderBy('distance')
                 ->get();
-
-            // dd($users);
 
 
             DB::commit();
@@ -176,7 +173,7 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getFile(), $e->getLine(), $e->getMessage());
+            // dd($e->getFile(), $e->getLine(), $e->getMessage());
             Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }

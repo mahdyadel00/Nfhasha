@@ -70,6 +70,7 @@ class FirebaseService
      */
     public function sendNotificationToMultipleUsers(array $tokens, $title, $body)
     {
+
         if (empty($tokens)) {
             throw new \Exception("❌ لم يتم تمرير أي FCM Token!");
         }
