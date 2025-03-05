@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
+use App\Services\FirebaseService;
 
 class LoginController extends Controller
 {
@@ -30,6 +31,9 @@ class LoginController extends Controller
                     'user'  => $user
                 ]);
             }
+
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser($user->fcm_token, __('messages.welcome'), __('messages.welcome_message'));
             return apiResponse(200, __('messages.logged_in_successfully'),
             [
                 'token' => $token,
@@ -63,6 +67,8 @@ class LoginController extends Controller
 
                 $token = $user->createToken('auth_token')->plainTextToken;
 
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser($user->fcm_token, __('messages.welcome'), __('messages.welcome_message'));
                 return apiResponse(200, __('messages.logged_in_successfully'), [
                     'token' => $token,
                     'user' => $user
