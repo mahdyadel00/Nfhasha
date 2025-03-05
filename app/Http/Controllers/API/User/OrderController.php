@@ -136,11 +136,13 @@ class OrderController extends Controller
             ]);
 
             $users = User::whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->nearby($request->from_latitude, $request->from_longitude, 50)
-            ->where('role', 'provider')
-            ->orderBy('distance')
-            ->get();
+                ->whereNotNull('longitude')
+                // ->nearby($request->from_latitude, $request->from_longitude, 50)
+                ->where('role', 'provider')
+                // ->orderBy('distance')
+                ->get();
+
+            // dd($users);
 
 
             DB::commit();
@@ -154,10 +156,16 @@ class OrderController extends Controller
                 ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
             );
 
-            $pusher->trigger('notifications.providers.' . $users->pluck('id'), 'sent.offer', [
-                'message'   => __('messages.new_order'),
-                'order'     => $order,
-            ]);
+            // $pusher->trigger('notifications.providers.' . $users->pluck('id'), 'sent.offer', [
+            //     'message'   => __('messages.new_order'),
+            //     'order'     => $order,
+            // ]);
+            foreach ($users as $user) {
+                $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                    'message'   => __('messages.new_order'),
+                    'order'     => $order,
+                ]);
+            }
 
             $firebaseService = new FirebaseService();
             $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New order', 'New order');
@@ -333,7 +341,7 @@ class OrderController extends Controller
 
         $providerId = $order->provider_id;
 
-        if (!User::where('role' , 'provider')->where('id', $providerId)->exists()) {
+        if (!User::where('role', 'provider')->where('id', $providerId)->exists()) {
             return response()->json(['error' => 'Invalid provider_id. Provider does not exist.'], 400);
         }
 
