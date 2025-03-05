@@ -135,6 +135,14 @@ class OrderController extends Controller
                 'address_to'            => $request->address_to,
             ]);
 
+            $users = User::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->nearby($request->from_latitude, $request->from_longitude, 50)
+            ->where('role', 'provider')
+            ->orderBy('distance')
+            ->get();
+
+
             DB::commit();
 
             //            send notification to provider
@@ -146,13 +154,13 @@ class OrderController extends Controller
                 ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
             );
 
-            $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
+            $pusher->trigger('notifications.providers.' . $users->pluck('id'), 'sent.offer', [
                 'message'   => __('messages.new_order'),
                 'order'     => $order,
             ]);
 
             $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToMultipleUsers($order->user->pluck('fcm_token')->toArray(), 'New order', 'New order');
+            $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New order', 'New order');
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully'),
