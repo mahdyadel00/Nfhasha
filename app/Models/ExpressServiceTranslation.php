@@ -9,6 +9,6 @@ class ExpressServiceTranslation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['express_service_id', 'name', 'locale'];
+    protected $fillable = ['express_service_id', 'name', 'locale' , 'terms_condition'];
 
 }

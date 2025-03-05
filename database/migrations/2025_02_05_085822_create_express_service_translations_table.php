@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(ExpressService::class)->constrained()->cascadeOnDelete();
             $table->string('locale')->index();
             $table->string('name');
+            $table->string('terms_condition')->nullable();
             $table->unique(['express_service_id', 'locale']);
             $table->timestamps();
         });

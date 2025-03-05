@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API\User;
 
-use App\Events\ProviderNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\User\ExpressService\StoreExpressServiceRequest;
 use App\Http\Resources\API\ErrorResource;

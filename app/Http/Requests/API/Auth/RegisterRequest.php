@@ -34,7 +34,7 @@ class RegisterRequest extends FormRequest
             'longitude'             => 'required|numeric',
             'latitude'              => 'required|numeric',
             'address'               => 'required|max:255',
-            'fcm_token'             => 'nullable|string'
+            // 'fcm_token'             => 'nullable|string'
         ];
 
 

@@ -110,10 +110,10 @@ class AccountController extends Controller
             'available_from'            => $request->truck_barriers_from,
             'available_to'              => $request->truck_barriers_to,
             'home_service'              => $request->home_service,
-            'commercial_register'       => $request->commercial_register,
-            'owner_identity'            => $request->owner_identity,
-            'general_license'           => $request->general_license,
-            'municipal_license'         => $request->municipal_license,
+            'commercial_register'       => $request->file('commercial_register') ? uploadImage($request->file('commercial_register'), 'providers/commercial_registers') : null,
+            'owner_identity'            => $request->file('owner_identity') ? uploadImage($request->file('owner_identity'), 'providers/owner_identities') : null,
+            'general_license'           => $request->file('general_license') ? uploadImage($request->file('general_license'), 'providers/general_licenses') : null,
+            'municipal_license'         => $request->file('municipal_license') ? uploadImage($request->file('municipal_license'), 'providers/municipal_licenses') : null,
         ]);
 
         return new SuccessResource([

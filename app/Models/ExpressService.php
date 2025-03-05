@@ -10,7 +10,7 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
 {
     use HasFactory , Translatable;
 
-    public $translatedAttributes = ['name'];
+    public $translatedAttributes = ['name' , 'terms_condition'];
 
     protected $fillable = ['is_active' , 'type' ,'price' , 'vat'];
 

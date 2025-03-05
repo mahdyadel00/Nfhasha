@@ -53,7 +53,7 @@ class ProviderRegisterRequest extends FormRequest
             'municipal_license'         => 'requiredif:type,center|file',
             'longitude'                 => 'required|numeric',
             'latitude'                  => 'required|numeric',
-            'fcm_token'                 => 'nullable|string'
+            // 'fcm_token'                 => 'nullable|string'
         ];
     }
 

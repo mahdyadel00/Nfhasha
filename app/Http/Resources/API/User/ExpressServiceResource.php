@@ -16,8 +16,7 @@ class ExpressServiceResource extends JsonResource
     public function toArray(Request $request): array
     {
 
-        return
-        [
+        return [
             'id'                        => $this->id,
             'is_active'                 => $this->is_active == 1 ? true : false,
             'type'                      => $this->type,
@@ -26,12 +25,14 @@ class ExpressServiceResource extends JsonResource
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
             'name'                      => $this->name,
+            'terms_condition'           => $this->terms_condition ?? null,
             'battery_image'             => asset('storage/' . $this->punctureServices()->latest('created_at')->first()?->battery_image),
             'type_battery'              => $this->punctureServices()->latest('created_at')->first()?->type_battery,
-            'car_reservation'           =>  CarReservationsResource::make($this->carReservations),
+            'car_reservation'           => CarReservationsResource::make($this->carReservations),
             'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($this->comprehensiveInspections),
             'maintenance'               => MaintenanceResource::make($this->maintenance),
             'periodicInspections'       => PeriodicInspectionsResource::make($this->periodicInspections),
         ];
+
     }
 }
