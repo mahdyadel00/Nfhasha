@@ -94,7 +94,7 @@ class ExpressServiceController extends Controller
                 'puncture_service' => $puncture_service,
             ]);
                 $firebaseService = new FirebaseService();
-                $firebaseService->sendNotification($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
+                $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
 
             DB::commit();
 

@@ -47,50 +47,66 @@ class FirebaseService
         return $token['access_token'];
     }
 
-    /**
-     * إرسال الإشعارات إلى Firebase
+  /**
+     * إرسال إشعار لمستخدم واحد
      */
-    public function sendNotification($tokens, $title, $body)
-{
-    $accessToken = $this->getFirebaseAccessToken();
-    if (!$accessToken) {
-        throw new \Exception("❌ تعذر استرجاع Access Token من Firebase!");
-    }
+    public function sendNotificationToUser($token, $title, $body)
+    {
+        if (empty($token)) {
+            throw new \Exception("❌ لم يتم تمرير FCM Token للمستخدم!");
+        }
 
-    $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
-
-    // تأكيد أن المتغير يحتوي على بيانات صحيحة
-    if (empty($tokens)) {
-        throw new \Exception("❌ لم يتم تمرير أي FCM Token!");
-    }
-
-    // دعم إرسال إشعار لمستخدم واحد أو لعدة مستخدمين
-    $messagePayload = is_array($tokens) && count($tokens) > 1
-        ? ["tokens" => $tokens] // إرسال لمجموعة
-        : ["token" => is_array($tokens) ? $tokens[0] : $tokens]; // إرسال لمستخدم واحد
-
-    $data = [
-        "message" => array_merge($messagePayload, [
+        return $this->sendNotificationRequest([
+            "token" => $token,
             "notification" => [
                 "title" => $title,
                 "body" => $body,
             ],
-        ]),
-    ];
+        ]);
+    }
 
-    $headers = [
-        "Authorization" => "Bearer $accessToken",
-        "Content-Type"  => "application/json",
-    ];
+    /**
+     * إرسال إشعار لمجموعة من المستخدمين
+     */
+    public function sendNotificationToMultipleUsers(array $tokens, $title, $body)
+    {
+        if (empty($tokens)) {
+            throw new \Exception("❌ لم يتم تمرير أي FCM Token!");
+        }
 
-    $client = new Client();
-    $response = $client->post($url, [
-        'headers' => $headers,
-        'json'    => $data,
-    ]);
+        $responses = [];
 
-    return json_decode($response->getBody()->getContents(), true);
-}
+        foreach ($tokens as $token) {
+            $responses[] = $this->sendNotificationToUser($token, $title, $body);
+        }
 
+        return $responses;
+    }
 
+    /**
+     * دالة مساعدة لإرسال الطلب إلى Firebase
+     */
+    private function sendNotificationRequest($messageData)
+    {
+        $accessToken = $this->getFirebaseAccessToken();
+        if (!$accessToken) {
+            throw new \Exception("❌ تعذر استرجاع Access Token من Firebase!");
+        }
+
+        $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+        $data = ["message" => $messageData];
+
+        $headers = [
+            "Authorization" => "Bearer $accessToken",
+            "Content-Type"  => "application/json",
+        ];
+
+        $client = new Client();
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'json'    => $data,
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
+    }
 }
