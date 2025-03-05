@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Order extends Model
 {
@@ -31,6 +32,18 @@ class Order extends Model
         'address_to',
         'reason',
     ];
+
+
+    public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)
+    {
+        $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
+        * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
+
+        return $query->select('*')
+            ->selectRaw("{$haversine} AS distance", [$latitude, $longitude, $latitude])
+            ->having('distance', '<', $distance) // المسافة بالكيلومترات
+            ->orderBy('distance');
+    }
 
     public function user()
     {

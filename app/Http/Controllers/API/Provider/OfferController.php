@@ -50,7 +50,7 @@ class OfferController extends Controller
                         });
                 })
                 // تطبيق فلتر الموقع الجغرافي
-                ->nearby($latitude, $longitude, 50) // تصفية الطلبات حسب المسافة
+                ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
