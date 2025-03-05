@@ -22,7 +22,7 @@ class MainServicesController extends Controller
 
     public function index()
     {
-        $ervice_maintenance = ServiceMaintenance::paginate(config('app.paginate'));
+        $ervice_maintenance = ServiceMaintenance::get();
 
         return new SuccessResource([
             'data' => $ervice_maintenance
