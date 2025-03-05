@@ -39,20 +39,23 @@ class OfferController extends Controller
             $latitude   = $provider->latitude;
             $longitude  = $provider->longitude;
 
-            $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-                ->where('status', '!=', 'accepted')
-                ->where('status', '!=', 'completed')
-                ->where(function ($query) {
-                    $query->where('status', 'pending')
-                        ->orWhere(function ($query) {
-                            $query->where('status', 'sent')
-                                ->where('provider_id', auth()->id());
-                        });
-                })
-                // تطبيق فلتر الموقع الجغرافي
-                ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $orders = Order::query()
+            ->whereHas('user', function ($query) {
+                $query->where('role', 'provider'); // تأكيد أن المستخدم هو مزود خدمة
+            })
+            ->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+            ->whereNotIn('status', ['accepted', 'completed'])
+            ->where(function ($query) {
+                $query->where('status', 'pending')
+                    ->orWhere(function ($query) {
+                        $query->where('status', 'sent')
+                            ->where('provider_id', auth()->id());
+                    });
+            })
+            ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         }
 
             //check type of service

@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-
 class Order extends Model
 {
     use HasFactory;
@@ -32,7 +31,6 @@ class Order extends Model
         'address_to',
         'reason',
     ];
-
 
     public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)
     {
