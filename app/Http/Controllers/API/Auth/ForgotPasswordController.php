@@ -28,7 +28,7 @@ class ForgotPasswordController extends Controller
             }
             $user->update([
                 'otp'               => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
-                'otp_expires_at'    => now()->addMinutes(10),
+                // 'otp_expires_at'    => now()->addMinutes(10),
                 'email_verified_at' => null,
             ]);
 
