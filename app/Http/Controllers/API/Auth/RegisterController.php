@@ -38,15 +38,17 @@ class RegisterController extends Controller
             $inviter->invitations()->create(['invited_user_id' => $user->id]);
         }
 
-        $token = $user->createToken('auth_token' , ['role' => 'user'])->plainTextToken;
+        $token = $user->createToken('auth_token', ['role' => 'user'])->plainTextToken;
 
         $firebaseService = new FirebaseService();
-        $firebaseService->sendNotification($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
+
+        $firebaseService->sendNotification([$user->fcm_token], 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
+
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
             'data'        => [
-            'otp'         => str($user->otp),
-            'token'       => $token,
+                'otp'         => str($user->otp),
+                'token'       => $token,
             ]
         ]);
     }
@@ -56,16 +58,17 @@ class RegisterController extends Controller
 
         $user = User::create(
             [
-            'name'                  => $request->name,
-            'phone'                 => $request->phone,
-            'password'              => $request->password,
-            'address'               => $request->location,
-            'longitude'             => $request->longitude,
-            'latitude'              => $request->latitude,
-            'email'                 => $request->email,
-            'role'                  => 'provider',
-            'fcm_token'             => $request->fcm_token,
-        ]);
+                'name'                  => $request->name,
+                'phone'                 => $request->phone,
+                'password'              => $request->password,
+                'address'               => $request->location,
+                'longitude'             => $request->longitude,
+                'latitude'              => $request->latitude,
+                'email'                 => $request->email,
+                'role'                  => 'provider',
+                'fcm_token'             => $request->fcm_token,
+            ]
+        );
 
         $user->provider()->create(
             [
@@ -93,15 +96,15 @@ class RegisterController extends Controller
             ]
         );
 
-        $token = $user->createToken('auth_token' , ['role' => 'provider'])->plainTextToken;
+        $token = $user->createToken('auth_token', ['role' => 'provider'])->plainTextToken;
 
-       return new SuccessResource([
-           'message'     => __('messages.registered_successfully'),
-           'data'        => [
-               'otp'       => str($user->otp),
-               'token'     => $token,
-           ]
-       ]);
+        return new SuccessResource([
+            'message'     => __('messages.registered_successfully'),
+            'data'        => [
+                'otp'       => str($user->otp),
+                'token'     => $token,
+            ]
+        ]);
     }
 
 
@@ -118,9 +121,9 @@ class RegisterController extends Controller
         }
 
         $user->update([
-                'email_verified_at' => now(),
-                'otp' => null,
-            ]);
+            'email_verified_at' => now(),
+            'otp' => null,
+        ]);
 
         return apiResponse(200, __('messages.verified_successfully'));
     }
@@ -133,7 +136,7 @@ class RegisterController extends Controller
 
         $user->update(['otp' => $otp]);
 
-        return apiResponse(200, __('messages.otp_sent_successfully') , ['otp' => str($otp)]);
+        return apiResponse(200, __('messages.otp_sent_successfully'), ['otp' => str($otp)]);
     }
 
     public function resendOtp(Request $request)
@@ -145,7 +148,7 @@ class RegisterController extends Controller
         $user->update([
             'otp'               => $otp,
             'email_verified_at' => null,
-            ]);
+        ]);
 
         return new SuccessResource([
             'message' => __('messages.otp_sent_successfully'),
@@ -158,11 +161,13 @@ class RegisterController extends Controller
         $terms = settings()->get('terms_and_conditions_' . $this->locale);
 
 
-        return apiResponse(200,
-            __('messages.data_returned_successfully' , ['attr' => __('messages.terms')]),
+        return apiResponse(
+            200,
+            __('messages.data_returned_successfully', ['attr' => __('messages.terms')]),
             [
                 'terms' => $terms
-            ]);
+            ]
+        );
     }
 
     public function getFirebaseToken()
@@ -175,5 +180,4 @@ class RegisterController extends Controller
             'access_token' => $token
         ]);
     }
-
 }
