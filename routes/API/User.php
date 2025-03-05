@@ -135,32 +135,10 @@ Route::post('cy_periodics' , [MainServicesController::class , 'store']);
 //get service maintenance
 Route::get('service-maintenance' , [MainServicesController::class , 'index']);
 Route::get('service-maintenance/{id}' , [MainServicesController::class , 'show']);
-use Kreait\Firebase\Factory;
-
-Route::get('/check-firebase', function () {
-    $path = base_path(config('firebase.credentials'));
-
-    if (!file_exists($path)) {
-        return response()->json(['error' => 'Firebase service account file not found!', 'path' => $path]);
-    }
-
-    return response()->json(['success' => 'Firebase service account file found!', 'path' => $path]);
-});
-
-
-Route::get('/firebase-test', function () {
-    $serviceAccountPath = base_path('storage/app/firebase-admin.json'); // المسار المباشر للملف
-
-    if (!file_exists($serviceAccountPath)) {
-        return response()->json(['error' => 'Firebase service account file not found!', 'path' => $serviceAccountPath], 500);
-    }
-
-    $factory = (new Factory)->withServiceAccount($serviceAccountPath);
-    $database = $factory->createDatabase();
-
-    return response()->json(['message' => 'Firebase connected successfully!']);
-});
-
+//get typeperiodicinspections
+Route::get('type-periodic-inspections' , [MainServicesController::class , 'typePeriodicInspections']);
+//get typeperiodicinspections
+Route::get('type-periodic-inspections/{id}' , [MainServicesController::class , 'typePeriodicInspection']);
 
 Route::post('/payment/initiate/{id}', [HyperPayController::class, 'initiatePayment']);
 Route::get('/payment/status/{id}', [HyperPayController::class, 'getPaymentStatus']);

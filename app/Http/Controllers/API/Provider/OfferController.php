@@ -8,6 +8,7 @@ use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
 use App\Models\ProviderNotification;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -161,6 +162,8 @@ class OfferController extends Controller
                 'order'     => $order,
                 'provider'  => auth()->user(),
             ]);
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer accepted', 'Your offer has been accepted');
             return new SuccessResource(['message' => 'Offer accepted successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -219,6 +222,9 @@ class OfferController extends Controller
             'provider'  => auth()->user(),
         ]);
 
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer sent', 'You have received an offer');
+
         DB::commit();
 
         return new SuccessResource([
@@ -259,6 +265,9 @@ class OfferController extends Controller
                 'order'     => $order,
                 'provider'  => auth()->user(),
             ]);
+
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected');
 
             return new SuccessResource([
                 'message' => 'Offer rejected successfully',

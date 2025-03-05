@@ -8,6 +8,7 @@ use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
 use App\Models\OrderOffer;
 use App\Models\ProviderNotification;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 
@@ -79,6 +80,9 @@ class NotificationController extends Controller
                 'message'       => 'Offer rejected',
             ]);
 
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer rejected', 'Offer rejected');
+
             return new SuccessResource('Offer rejected successfully');
         }
         return new ErrorResource('No notification found');
@@ -122,6 +126,9 @@ class NotificationController extends Controller
                     'service_type'  => $order->type,
                     'message'       => 'Offer accepted',
                 ]);
+
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer accepted', 'Offer accepted');
 
                 return new SuccessResource('Offer accepted successfully');
             }

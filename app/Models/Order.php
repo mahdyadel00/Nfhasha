@@ -34,8 +34,8 @@ class Order extends Model
 
     public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)
     {
-        $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
-        * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
+        $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(from_lat))
+        * cos(radians(from_long) - radians(?)) + sin(radians(?)) * sin(radians(from_lat))))";
 
         return $query->select('*')
             ->selectRaw("{$haversine} AS distance", [$latitude, $longitude, $latitude])

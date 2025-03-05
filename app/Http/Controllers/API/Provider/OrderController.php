@@ -8,6 +8,7 @@ use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
 use App\Models\OrderTracking;
 use App\Models\ProviderNotification;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
 
@@ -79,6 +80,9 @@ class OrderController extends Controller
             'status'    => $request->status
         ]);
 
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotificationToUser($order->user->fcm_token, 'تغيير حالة الطلب', 'تم تغيير حالة الطلب الخاص بك');
+
         return new SuccessResource([
             'message'   => __('messages.order_status_changed')
         ]);
@@ -124,7 +128,7 @@ class OrderController extends Controller
                 'order_id'    => $order->id,
                 'status'      => $request->status,
             ]);
-            
+
         }
 
 

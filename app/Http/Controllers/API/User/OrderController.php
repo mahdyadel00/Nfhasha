@@ -18,6 +18,7 @@ use App\Models\Order;
 use App\Models\PeriodicInspections;
 use App\Models\Provider;
 use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -150,6 +151,8 @@ class OrderController extends Controller
                 'order'     => $order,
             ]);
 
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToMultipleUsers($order->user->pluck('fcm_token')->toArray(), 'New order', 'New order');
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully'),
@@ -254,6 +257,8 @@ class OrderController extends Controller
             'reason'    => $request->reason
         ]);
 
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotificationToUser($order->provider->fcm_token, 'Order canceled', 'Order canceled');
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
         ]);
@@ -291,6 +296,8 @@ class OrderController extends Controller
         //     'order'         => $order,
         //     'provider_id'   => $order->provider_id
         // ]);
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotificationToUser($order->provider->fcm_token, 'Order rejected', 'Order rejected');
 
         return new SuccessResource([
             'message' => __('messages.order_rejected_successfully')

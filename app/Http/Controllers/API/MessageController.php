@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
-use Pusher\Pusher;
-use App\Models\Chat;
-use App\Models\Order;
-use App\Models\Message;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Chat;
+use App\Models\Message;
+use App\Models\Order;
+use App\Services\FirebaseService;
+use Illuminate\Http\Request;
+use Pusher\Pusher;
 
 class MessageController extends Controller
 {
@@ -52,6 +53,8 @@ class MessageController extends Controller
         ]);
 
 
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotificationToUser($order->provider->fcm_token, 'New message from ' . $order->user->name, $message->message);
         return response()->json(['message' => __('messages.message_sent')]);
 
     }
