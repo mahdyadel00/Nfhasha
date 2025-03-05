@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\ForgetPassword;
 use App\Http\Requests\API\Auth\ResetPassword;
-use App\Http\Requests\API\Auth\VerifyOTP;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
@@ -28,7 +27,8 @@ class ForgotPasswordController extends Controller
                 ]);
             }
             $user->update([
-                'otp'               => str(rand(000000, 999999)),
+                'otp'               => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
+                'otp_expires_at'    => now()->addMinutes(10),
                 'email_verified_at' => null,
             ]);
 
