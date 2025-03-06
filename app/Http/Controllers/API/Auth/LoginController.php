@@ -13,34 +13,46 @@ class LoginController extends Controller
      */
     public function user(LoginRequest $request)
     {
-        if(auth()->attempt($request->only('phone', 'password'))) {
+        if (auth()->attempt($request->only('phone', 'password'))) {
             $user = auth()->user();
 
             $user->update([
-            'longitude'         => $request->longitude,
-            'latitude'          => $request->latitude,
-            'fcm_token'         => $request->fcm_token
+                'longitude'         => $request->longitude,
+                'latitude'          => $request->latitude,
+                'fcm_token'         => $request->fcm_token ?? null,
             ]);
 
             if ($user->role === 'user') {
-            $token = $user->createToken('auth_token')->plainTextToken;
-            if(!$user->email_verified_at) {
-                return apiResponse(401, __('messages.not_verified'),
-                [
-                    'token' => $token,
-                    'user'  => $user
-                ]);
-            }
+                $token = $user->createToken('auth_token')->plainTextToken;
+                if (!$user->email_verified_at) {
+                    return apiResponse(
+                        401,
+                        __('messages.not_verified'),
+                        [
+                            'token' => $token,
+                            'user'  => $user
+                        ]
+                    );
+                }
 
-            $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($user->fcm_token, __('messages.welcome'), __('messages.welcome_message'));
-            return apiResponse(200, __('messages.logged_in_successfully'),
-            [
-                'token' => $token,
-                'user'  => $user
-            ]);
+                if (!empty($user->fcm_token)) {
+                    $firebaseService = new FirebaseService();
+                    $firebaseService->sendNotificationToUser(
+                        $user->fcm_token,
+                        'Welcome to ' . config('app.name'),
+                        'Welcome to ' . config('app.name')
+                    );
+                }
+                return apiResponse(
+                    200,
+                    __('messages.logged_in_successfully'),
+                    [
+                        'token' => $token,
+                        'user'  => $user
+                    ]
+                );
             } else {
-            return apiResponse(403, __('messages.invalid_credentials'));
+                return apiResponse(403, __('messages.invalid_credentials'));
             }
         }
 
@@ -57,7 +69,7 @@ class LoginController extends Controller
             $user->update([
                 'longitude'     => $request->longitude,
                 'latitude'      => $request->latitude,
-                'fcm_token'     => $request->fcm_token
+                'fcm_token'     => $request->fcm_token ?? null,
             ]);
 
             if ($user->role === 'provider') {
@@ -66,9 +78,14 @@ class LoginController extends Controller
                 }
 
                 $token = $user->createToken('auth_token')->plainTextToken;
-
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToUser($user->fcm_token, __('messages.welcome'), __('messages.welcome_message'));
+                if (!empty($user->fcm_token)) {
+                    $firebaseService = new FirebaseService();
+                    $firebaseService->sendNotificationToUser(
+                        $user->fcm_token,
+                        'Welcome to ' . config('app.name'),
+                        'Welcome to ' . config('app.name')
+                    );
+                }
                 return apiResponse(200, __('messages.logged_in_successfully'), [
                     'token' => $token,
                     'user' => $user

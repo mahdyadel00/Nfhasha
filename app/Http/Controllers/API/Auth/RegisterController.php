@@ -29,7 +29,7 @@ class RegisterController extends Controller
             'longitude'     => $request->longitude,
             'latitude'      => $request->latitude,
             'address'       => $request->address,
-            'fcm_token'     => $request->fcm_token,
+            'fcm_token'     => $request->fcm_token ?? null,
         ]);
 
 
@@ -40,8 +40,14 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token', ['role' => 'user'])->plainTextToken;
 
-        $firebaseService = new FirebaseService();
-        $firebaseService->sendNotificationToUser($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
+        if (!empty($user->fcm_token)) {
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser(
+                $user->fcm_token,
+                'Welcome to ' . config('app.name'),
+                'Welcome to ' . config('app.name')
+            );
+        }
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),
             'data'        => [
@@ -64,7 +70,7 @@ class RegisterController extends Controller
                 'latitude'              => $request->latitude,
                 'email'                 => $request->email,
                 'role'                  => 'provider',
-                'fcm_token'             => $request->fcm_token,
+                'fcm_token'             => $request->fcm_token ?? null,
             ]
         );
 
@@ -96,8 +102,15 @@ class RegisterController extends Controller
 
         $token = $user->createToken('auth_token', ['role' => 'provider'])->plainTextToken;
 
-        $firebaseService = new FirebaseService();
-        $firebaseService->sendNotificationToUser($user->fcm_token, 'Welcome to ' . config('app.name'), 'Welcome to ' . config('app.name'));
+        if (!empty($user->fcm_token)) {
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser(
+                $user->fcm_token,
+                'Welcome to ' . config('app.name'),
+                'Welcome to ' . config('app.name')
+            );
+        }
+
 
         return new SuccessResource([
             'message'     => __('messages.registered_successfully'),

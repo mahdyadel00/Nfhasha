@@ -52,8 +52,12 @@ class FirebaseService
      */
     public function sendNotificationToUser($token, $title, $body)
     {
-        if (empty($token)) {
-            throw new \Exception("❌ لم يتم تمرير FCM Token للمستخدم!");
+        // التحقق من أن التوكن ليس فارغًا أو قصيرًا جدًا (غير صالح)
+        if (empty($token) || strlen($token) < 20) {
+            return [
+                'success' => false,
+                'message' => "⚠️ لم يتم إرسال الإشعار بسبب FCM Token غير صالح أو مفقود!",
+            ];
         }
 
         return $this->sendNotificationRequest([
