@@ -185,6 +185,10 @@ class User extends Authenticatable implements FilamentUser
     //     return $this->hasMany(OrderRate::class);
     // }
 
+    public function ratings()
+    {
+        return $this->hasManyThrough(OrderRate::class, User::class, 'id', 'provider_id', 'user_id', 'id');
+    }
 
     public function orderOffers()
     {
