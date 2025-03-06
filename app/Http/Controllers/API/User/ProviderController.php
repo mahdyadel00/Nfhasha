@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\API\User;
 
-use App\Events\ProviderNotification;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
-use App\Http\Resources\API\User\ProviderResources;
-use App\Models\Provider;
+use App\Http\Resources\API\Provider\ProviderResource;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +29,7 @@ class ProviderController extends Controller
 
             return new SuccessResource([
                 'success'       => true,
-                'data'          => ProviderResources::collection($users),
+                'data'          => ProviderResource::collection($users),
                 'message'       => 'Nearby providers retrieved successfully.',
             ]);
 

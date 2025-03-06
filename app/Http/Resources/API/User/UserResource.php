@@ -4,7 +4,6 @@ namespace App\Http\Resources\API\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Http\Resources\API\Provider\RateResource;
 use App\Http\Resources\API\Provider\ProviderResource;
 
 class UserResource extends JsonResource
