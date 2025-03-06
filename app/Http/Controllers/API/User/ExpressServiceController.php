@@ -22,7 +22,7 @@ class ExpressServiceController extends Controller
 {
     public function index(Request $request)
     {
-        $express_services = ExpressService::where('type' , $request->type)->paginate(config("app.pagination"));
+        $express_services = ExpressService::where('type', $request->type)->paginate(config("app.pagination"));
 
         return Count($express_services) > 0
             ? ExpressServiceResource::collection($express_services)
@@ -31,7 +31,7 @@ class ExpressServiceController extends Controller
 
     public function store(StoreExpressServiceRequest $request)
     {
-        try{
+        try {
             DB::beginTransaction();
 
             $users = User::whereNotNull('latitude')
@@ -92,8 +92,17 @@ class ExpressServiceController extends Controller
                 'message' => 'New express service request',
                 'puncture_service' => $puncture_service,
             ]);
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
+            $tokens = $users->pluck('fcm_token')
+                ->filter() // حذف القيم الفارغة (null أو "")
+                ->unique() // إزالة التكرارات
+                ->toArray();
+
+            if (empty($tokens)) {
+                return new ErrorResource(['message' => '❌ لا يوجد أي FCM Token صالح للإرسال!']);
+            }
+            
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
 
             DB::commit();
 
@@ -101,8 +110,7 @@ class ExpressServiceController extends Controller
                 'message'   => __('messages.express_service_created'),
                 'data'      => $order->id,
             ]);
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error($e->getMessage());
             return new ErrorResource($e->getMessage());

@@ -141,6 +141,11 @@ class OrderController extends Controller
                 ->where('role', 'provider')
                 ->get();
 
+                if(!$users){
+                    return response()->json(['message' => 'No providers available in your area'], 404);
+                }
+
+
 
             DB::commit();
 
@@ -265,7 +270,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
-            'data'    => OrderResource::collection($orders)
+            'data'      => OrderResource::collection($orders)
         ]);
     }
 
