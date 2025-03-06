@@ -16,94 +16,173 @@ use Pusher\Pusher;
 
 class OfferController extends Controller
 {
+    // public function offers()
+    // {
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
+
+    //         // if ($provider_notifications->count() == 0) {
+    //         //     return new ErrorResource([
+    //         //         'message' => 'No offers found',
+    //         //     ]);
+    //         // }
+
+    //         $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
+    //         $orders = collect();
+
+    //         if (in_array('car_reservations', $serviceTypes) || in_array('maintenance', $serviceTypes) || in_array('comprehensive_inspections', $serviceTypes)
+    //         || in_array('periodic_inspections', $serviceTypes)) {
+
+    //         // احصل على إحداثيات مقدم الخدمة الحالي
+    //         $provider   = auth()->user();
+    //         $latitude   = $provider->latitude;
+    //         $longitude  = $provider->longitude;
+
+    //         $orders = Order::query()
+    //         ->whereHas('user', function ($query) {
+    //             $query->where('role', 'provider'); // تأكيد أن المستخدم هو مزود خدمة
+    //         })
+    //         ->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+    //         ->whereNotIn('status', ['accepted', 'completed'])
+    //         ->where(function ($query) {
+    //             $query->where('status', 'pending')
+    //                 ->orWhere(function ($query) {
+    //                     $query->where('status', 'sent')
+    //                         ->where('provider_id', auth()->id());
+    //                 });
+    //         })
+    //         ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
+
+    //     }
+
+    //         //check type of service
+    //         if (
+    //             in_array('open_locks', $serviceTypes) || in_array('tow_truck', $serviceTypes) ||
+    //             in_array('fuel', $serviceTypes) || in_array('puncture', $serviceTypes) ||
+    //             in_array('battery', $serviceTypes)
+    //         ) {
+    //             // احصل على إحداثيات مقدم الخدمة الحالي
+    //             $provider = auth()->user();
+    //             $latitude = $provider->latitude;
+    //             $longitude = $provider->longitude;
+
+    //             $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+    //                 ->with('offers')
+    //                 ->where('status', '!=', 'accepted')
+    //                 ->where('status', '!=', 'completed')
+    //                 ->where(function ($query) {
+    //                     $query->where('status', 'pending')
+    //                         ->orWhere(function ($query) {
+    //                             $query->where('status', 'sent')
+    //                                 ->where('provider_id', auth()->id());
+    //                         });
+    //                 })
+    //                 // تطبيق شرط القرب الجغرافي
+    //                 ->nearby($latitude, $longitude, 50)
+    //                 ->orderBy('created_at', 'desc')
+    //                 ->get();
+    //         }
+
+    //         DB::commit();
+
+    //         return new SuccessResource([
+    //             'data' => OrderResource::collection($orders->map(function ($order) {
+    //                 $isSentByMe = $order->provider_id == auth()->id();
+    //                 $order->is_sent_by_me = $isSentByMe;
+    //                 return $order;
+    //             })),
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         // dd($e->getMessage(), $e->getLine(), $e->getFile());
+    //         Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
+    //         return new ErrorResource(['message' => $e->getMessage()]);
+    //     }
+    // }
+
+
     public function offers()
-    {
-        try {
-            DB::beginTransaction();
+{
+    try {
+        DB::beginTransaction();
 
-            $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
+        $provider_notifications = ProviderNotification::where('provider_id', auth()->id())->get();
+        $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
+        $orders = collect(); // تأكد أن `orders` فارغ بدلاً من `null`
 
-            // if ($provider_notifications->count() == 0) {
-            //     return new ErrorResource([
-            //         'message' => 'No offers found',
-            //     ]);
-            // }
-
-            $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
-            $orders = collect();
-
-            if (in_array('car_reservations', $serviceTypes) || in_array('maintenance', $serviceTypes) || in_array('comprehensive_inspections', $serviceTypes)
-            || in_array('periodic_inspections', $serviceTypes)) {
+        if (in_array('car_reservations', $serviceTypes) || in_array('maintenance', $serviceTypes) ||
+            in_array('comprehensive_inspections', $serviceTypes) || in_array('periodic_inspections', $serviceTypes)) {
 
             // احصل على إحداثيات مقدم الخدمة الحالي
-            $provider   = auth()->user();
-            $latitude   = $provider->latitude;
-            $longitude  = $provider->longitude;
+            $provider = auth()->user();
+            $latitude = $provider->latitude;
+            $longitude = $provider->longitude;
 
             $orders = Order::query()
-            ->whereHas('user', function ($query) {
-                $query->where('role', 'provider'); // تأكيد أن المستخدم هو مزود خدمة
-            })
-            ->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-            ->whereNotIn('status', ['accepted', 'completed'])
-            ->where(function ($query) {
-                $query->where('status', 'pending')
-                    ->orWhere(function ($query) {
-                        $query->where('status', 'sent')
-                            ->where('provider_id', auth()->id());
-                    });
-            })
-            ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
-            ->orderBy('created_at', 'desc')
-            ->get();
-
+                ->whereHas('user', function ($query) {
+                    $query->where('role', 'provider'); // تأكيد أن المستخدم هو مزود خدمة
+                })
+                ->whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                ->whereNotIn('status', ['accepted', 'completed'])
+                ->where(function ($query) {
+                    $query->where('status', 'pending')
+                        ->orWhere(function ($query) {
+                            $query->where('status', 'sent')
+                                ->where('provider_id', auth()->id());
+                        });
+                })
+                ->nearby($latitude, $longitude) // تصفية الطلبات حسب المسافة
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
-            //check type of service
-            if (
-                in_array('open_locks', $serviceTypes) || in_array('tow_truck', $serviceTypes) ||
-                in_array('fuel', $serviceTypes) || in_array('puncture', $serviceTypes) ||
-                in_array('battery', $serviceTypes)
-            ) {
-                // احصل على إحداثيات مقدم الخدمة الحالي
-                $provider = auth()->user();
-                $latitude = $provider->latitude;
-                $longitude = $provider->longitude;
+        //check type of service
+        if (in_array('open_locks', $serviceTypes) || in_array('tow_truck', $serviceTypes) ||
+            in_array('fuel', $serviceTypes) || in_array('puncture', $serviceTypes) ||
+            in_array('battery', $serviceTypes)) {
 
-                $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
-                    ->with('offers')
-                    ->where('status', '!=', 'accepted')
-                    ->where('status', '!=', 'completed')
-                    ->where(function ($query) {
-                        $query->where('status', 'pending')
-                            ->orWhere(function ($query) {
-                                $query->where('status', 'sent')
-                                    ->where('provider_id', auth()->id());
-                            });
-                    })
-                    // تطبيق شرط القرب الجغرافي
-                    ->nearby($latitude, $longitude, 50)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-            }
+            $provider = auth()->user();
+            $latitude = $provider->latitude;
+            $longitude = $provider->longitude;
 
-            DB::commit();
-
-            return new SuccessResource([
-                'data' => OrderResource::collection($orders->map(function ($order) {
-                    $isSentByMe = $order->provider_id == auth()->id();
-                    $order->is_sent_by_me = $isSentByMe;
-                    return $order;
-                })),
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            // dd($e->getMessage(), $e->getLine(), $e->getFile());
-            Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
-            return new ErrorResource(['message' => $e->getMessage()]);
+            $orders = Order::whereIn('user_id', $provider_notifications->pluck('user_id')->toArray())
+                ->with('offers')
+                ->where('status', '!=', 'accepted')
+                ->where('status', '!=', 'completed')
+                ->where(function ($query) {
+                    $query->where('status', 'pending')
+                        ->orWhere(function ($query) {
+                            $query->where('status', 'sent')
+                                ->where('provider_id', auth()->id());
+                        });
+                })
+                ->nearby($latitude, $longitude, 50) // تطبيق شرط القرب الجغرافي
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
+
+        DB::commit();
+
+        // ✅ ✅ إذا كانت القائمة فارغة، إرجاع 200 مع قائمة فارغة بدلاً من خطأ
+        return response()->json([
+            'success' => true,
+            'data' => OrderResource::collection($orders->map(function ($order) {
+                $isSentByMe = $order->provider_id == auth()->id();
+                $order->is_sent_by_me = $isSentByMe;
+                return $order;
+            })),
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
+        return new ErrorResource(['message' => $e->getMessage()]);
     }
-
+}
 
     public function offer($id)
     {
