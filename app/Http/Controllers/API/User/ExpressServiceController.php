@@ -80,29 +80,32 @@ class ExpressServiceController extends Controller
             ]);
 
             //send notification to provider
+            if ($users->isNotEmpty()) {
 
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-            );
+                $pusher = new Pusher(
+                    env('PUSHER_APP_KEY'),
+                    env('PUSHER_APP_SECRET'),
+                    env('PUSHER_APP_ID'),
+                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                );
 
-            $pusher->trigger('notifications.providers', 'new.express.service', [
-                'message' => 'New express service request',
-                'puncture_service' => $puncture_service,
-            ]);
-            $tokens = $users->pluck('fcm_token')
-                ->filter() // حذف القيم الفارغة (null أو "")
-                ->unique() // إزالة التكرارات
-                ->toArray();
+                $pusher->trigger('notifications.providers', 'new.express.service', [
+                    'message' => 'New express service request',
+                    'puncture_service' => $puncture_service,
+                ]);
+                $tokens = $users->pluck('fcm_token')
+                    ->filter() // حذف القيم الفارغة (null أو "")
+                    ->unique() // إزالة التكرارات
+                    ->toArray();
 
-            if (empty($tokens)) {
-                return new ErrorResource(['message' => '❌ لا يوجد أي FCM Token صالح للإرسال!']);
+                if (empty($tokens)) {
+                    return new ErrorResource(['message' => '❌ لا يوجد أي FCM Token صالح للإرسال!']);
+                }
+
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
             }
-            
-            $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
+
 
             DB::commit();
 
