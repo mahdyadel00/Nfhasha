@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\API\Auth\LoginRequest;
 use App\Services\FirebaseService;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\API\SuccessResource;
+use App\Http\Requests\API\Auth\LoginRequest;
+use App\Http\Resources\API\User\UserResource;
 
 class LoginController extends Controller
 {
@@ -77,6 +79,8 @@ class LoginController extends Controller
                     return apiResponse(401, __('messages.pending_approval'));
                 }
 
+                $user->tokens()->delete();
+
                 $token = $user->createToken('auth_token')->plainTextToken;
                 if (!empty($user->fcm_token)) {
                     $firebaseService = new FirebaseService();
@@ -86,9 +90,13 @@ class LoginController extends Controller
                         'Welcome to ' . config('app.name')
                     );
                 }
-                return apiResponse(200, __('messages.logged_in_successfully'), [
+                // return apiResponse(200, __('messages.logged_in_successfully'), [
+                //     'token' => $token,
+                //     'user' => $user
+                // ]);
+                return new SuccessResource([
                     'token' => $token,
-                    'user' => $user
+                    'data' => UserResource::make(auth()->user())
                 ]);
             } else {
                 return apiResponse(401, __('messages.invalid_credentials'));
