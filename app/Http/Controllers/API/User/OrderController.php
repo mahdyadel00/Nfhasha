@@ -43,7 +43,24 @@ class OrderController extends Controller
 
             $expressService = ExpressService::find($request->service_id);
 
-            //create car reservation
+            // ✅ إنشاء الطلب أولًا قبل إضافة أي حجز
+            $order = Order::create([
+                'user_id'               => auth()->id(),
+                'express_service_id'    => $request->service_id,
+                'user_vehicle_id'       => $request->vehicle_id,
+                'pick_up_truck_id'      => $request->pick_up_truck_id,
+                'city_id'               => $request->city_id ?? null,
+                'status'                => 'pending',
+                'from_lat'              => $request->from_lat ?? $request->latitude,
+                'from_long'             => $request->from_long ?? $request->longitude,
+                'type'                  => $expressService->type,
+                'payment_method'        => $request->payment_method ?? 'cash',
+                'total_cost'            => $expressService->price,
+                'address'               => $request->address,
+                'address_to'            => $request->address_to,
+            ]);
+
+            // ✅ إضافة order_id عند إنشاء الخدمة
             if ($expressService->type == 'car_reservations') {
                 $inspection_side_array = is_array($request->inspection_side)
                     ? $request->inspection_side
@@ -52,6 +69,7 @@ class OrderController extends Controller
                 $inspection_side_string = implode(',', $inspection_side_array);
 
                 CarReservations::create([
+                    'order_id'              => $order->id, // ✅ إضافة order_id
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
@@ -62,10 +80,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            //create maintenance
             if ($expressService->type == 'maintenance') {
-
-                //creat array for image
                 $image = [];
                 if ($request->hasFile('image')) {
                     foreach ($request->file('image') as $file) {
@@ -74,117 +89,54 @@ class OrderController extends Controller
                 }
 
                 Maintenance::create([
-                    'user_id'                   => auth()->id(),
-                    'express_service_id'        => $request->service_id,
-                    'user_vehicle_id'           => $request->vehicle_id,
-                    'pick_up_truck_id'          => $request->pick_up_truck_id,
-                    'maintenance_type'          => $request->maintenance_type,
-                    'maintenance_description'   => $request->maintenance_description,
-                    'address'                   => $request->address,
-                    'latitude'                  => $request->latitude,
-                    'longitude'                 => $request->longitude,
-                    'is_working'                => filter_var($request->is_working, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
-                    'image'                     => json_encode($image),
-                    'note'                      => $request->note,
+                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'user_id'               => auth()->id(),
+                    'express_service_id'    => $request->service_id,
+                    'user_vehicle_id'       => $request->vehicle_id,
+                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'maintenance_type'      => $request->maintenance_type,
+                    'maintenance_description' => $request->maintenance_description,
+                    'address'               => $request->address,
+                    'latitude'              => $request->latitude,
+                    'longitude'             => $request->longitude,
+                    'is_working'            => filter_var($request->is_working, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
+                    'image'                 => json_encode($image),
+                    'note'                  => $request->note,
                 ]);
             }
 
             if ($expressService->type == 'comprehensive_inspections') {
-
-                $comprehensive_inspection       = ComprehensiveInspections::create([
-                    'user_id'                   => auth()->id(),
-                    'express_service_id'        => $request->service_id,
-                    'user_vehicle_id'           => $request->vehicle_id,
-                    'pick_up_truck_id'          => $request->pick_up_truck_id,
-                    'city_id'                   => $request->city_id,
-                    'date'                      => $request->date,
-                    'address'                   => $request->address,
-                    'latitude'                  => $request->latitude,
-                    'longitude'                 => $request->longitude,
+                ComprehensiveInspections::create([
+                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'user_id'               => auth()->id(),
+                    'express_service_id'    => $request->service_id,
+                    'user_vehicle_id'       => $request->vehicle_id,
+                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'city_id'               => $request->city_id,
+                    'date'                  => $request->date,
+                    'address'               => $request->address,
+                    'latitude'              => $request->latitude,
+                    'longitude'             => $request->longitude,
                 ]);
             }
 
             if ($expressService->type == 'periodic_inspections') {
-
                 PeriodicInspections::create([
-                    'user_id'                   => auth()->id(),
-                    'express_service_id'        => $request->service_id,
-                    'user_vehicle_id'           => $request->vehicle_id,
-                    'pick_up_truck_id'          => $request->pick_up_truck_id,
-                    'city_id'                   => $request->city_id,
-                    'inspection_type_id'        => $request->inspection_type_id,
-                    'address'                   => $request->address,
-                    'latitude'                  => $request->latitude,
-                    'longitude'                 => $request->longitude,
-                    'status'                    => 'pending',
+                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'user_id'               => auth()->id(),
+                    'express_service_id'    => $request->service_id,
+                    'user_vehicle_id'       => $request->vehicle_id,
+                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'city_id'               => $request->city_id,
+                    'inspection_type_id'    => $request->inspection_type_id,
+                    'address'               => $request->address,
+                    'latitude'              => $request->latitude,
+                    'longitude'             => $request->longitude,
+                    'status'                => 'pending',
                 ]);
             }
 
-
-            $order = Order::create([
-                'user_id'               => auth()->id(),
-                'express_service_id'    => $request->service_id,
-                'user_vehicle_id'       => $request->vehicle_id,
-                'pick_up_truck_id'      => $request->pick_up_truck_id,
-                'city_id'               => $request->city_id ?? null,
-                'status'                => 'pending',
-                'from_lat'              => $request->from_lat ?? $request->latitude,
-                'from_long'             => $request->from_long ?? $request->longitude,
-                'type'                  => ExpressService::find($request->service_id)->type,
-                'payment_method'        => $request->payment_method ?? 'cash',
-                'total_cost'            => $expressService->price,
-                'address'               => $request->address,
-                'address_to'            => $request->address_to,
-            ]);
-
-            $users = User::whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->nearby($request->latitude, $request->longitude, 50)
-                ->where('role', 'provider')
-                ->get();
-
-            if ($users->isNotEmpty()) {
-                try {
-                    $pusher = new Pusher(
-                        env('PUSHER_APP_KEY'),
-                        env('PUSHER_APP_SECRET'),
-                        env('PUSHER_APP_ID'),
-                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                    );
-
-                    $message = match ($order->type) {
-                        'battery'  => '🔋 Battery order request',
-                        'towing'   => '🚛 Towing order request',
-                        'puncture' => '🛞 Puncture repair order request',
-                        default    => '🚀 New order request',
-                    };
-
-
-                    foreach ($users as $user) {
-                        $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                            'message' => $message,
-                            'order'   => $order,
-                        ]);
-                    }
-
-                    $tokens = $users->pluck('fcm_token')
-                        ->filter() // حذف القيم الفارغة (null أو "")
-                        ->unique() // إزالة التكرارات
-                        ->toArray();
-
-                    if (!empty($tokens)) {
-                        $firebaseService = new FirebaseService();
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
-                    }
-                } catch (\Exception $e) {
-                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
-                }
-            }
-
             DB::commit();
-
-            // $firebaseService = new FirebaseService();
-            // $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New order', 'New order');
 
             return new SuccessResource([
                 'message' => __('messages.order_created_successfully'),
@@ -192,11 +144,11 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            // dd($e->getFile(), $e->getLine(), $e->getMessage());
             Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }
     }
+
 
     public function payment($order)
     {
