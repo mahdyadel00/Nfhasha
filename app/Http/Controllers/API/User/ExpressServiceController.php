@@ -81,31 +81,40 @@ class ExpressServiceController extends Controller
 
             //send notification to provider
             if ($users->isNotEmpty()) {
+                try {
+                    $pusher = new Pusher(
+                        env('PUSHER_APP_KEY'),
+                        env('PUSHER_APP_SECRET'),
+                        env('PUSHER_APP_ID'),
+                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                    );
 
-                $pusher = new Pusher(
-                    env('PUSHER_APP_KEY'),
-                    env('PUSHER_APP_SECRET'),
-                    env('PUSHER_APP_ID'),
-                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                );
+                    $service_type = $express_services->type;
 
-                $pusher->trigger('notifications.providers', 'new.express.service', [
-                    'message' => 'New express service request',
-                    'puncture_service' => $puncture_service,
-                ]);
-                $tokens = $users->pluck('fcm_token')
-                    ->filter() // حذف القيم الفارغة (null أو "")
-                    ->unique() // إزالة التكرارات
-                    ->toArray();
+                    $message = match ($service_type) {
+                        'battery' => '🔋 Battery service request',
+                        'towing' => '🚛 Towing service request',
+                        'puncture' => '🛞 Puncture repair service request',
+                        default => '🚀 New express service request',
+                    };
 
-                if (empty($tokens)) {
-                    return new ErrorResource(['message' => '❌ لا يوجد أي FCM Token صالح للإرسال!']);
+                    // إرسال الإشعار برسالة مخصصة
+                    $pusher->trigger('notifications.providers', 'new.express.service', [
+                        'message'            => $message,
+                        'puncture_service'   => $puncture_service,
+                    ]);
+
+
+                    $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
+
+                    if (!empty($tokens)) {
+                        $firebaseService = new FirebaseService();
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
-
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToMultipleUsers($users->pluck('fcm_token')->toArray(), 'New express service request', 'New express service request');
             }
-
 
             DB::commit();
 

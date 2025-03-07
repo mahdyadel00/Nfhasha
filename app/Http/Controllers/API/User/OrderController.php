@@ -142,37 +142,41 @@ class OrderController extends Controller
                 ->get();
 
             if ($users->isNotEmpty()) {
-                //            send notification to provider
-                //            broadcast(new ServiceRequestEvent($order , $order->type));
-                $pusher = new Pusher(
-                    env('PUSHER_APP_KEY'),
-                    env('PUSHER_APP_SECRET'),
-                    env('PUSHER_APP_ID'),
-                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                );
+                try {
+                    $pusher = new Pusher(
+                        env('PUSHER_APP_KEY'),
+                        env('PUSHER_APP_SECRET'),
+                        env('PUSHER_APP_ID'),
+                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                    );
 
-                // $pusher->trigger('notifications.providers.' . $users->pluck('id'), 'sent.offer', [
-                //     'message'   => __('messages.new_order'),
-                //     'order'     => $order,
-                // ]);
-                foreach ($users as $user) {
-                    $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                        'message'   => __('messages.new_order'),
-                        'order'     => $order,
-                    ]);
+                    $message = match ($order->type) {
+                        'battery'  => '🔋 Battery order request',
+                        'towing'   => '🚛 Towing order request',
+                        'puncture' => '🛞 Puncture repair order request',
+                        default    => '🚀 New order request',
+                    };
+
+
+                    foreach ($users as $user) {
+                        $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                            'message' => $message,
+                            'order'   => $order,
+                        ]);
+                    }
+
+                    $tokens = $users->pluck('fcm_token')
+                        ->filter() // حذف القيم الفارغة (null أو "")
+                        ->unique() // إزالة التكرارات
+                        ->toArray();
+
+                    if (!empty($tokens)) {
+                        $firebaseService = new FirebaseService();
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
-
-                $tokens = $users->pluck('fcm_token')
-                    ->filter() // حذف القيم الفارغة (null أو "")
-                    ->unique() // إزالة التكرارات
-                    ->toArray();
-
-                if (empty($tokens)) {
-                    return new ErrorResource(['message' => '❌ لا يوجد أي FCM Token صالح للإرسال!']);
-                }
-
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToMultipleUsers($tokens, 'New order', 'New order');
             }
 
             DB::commit();
