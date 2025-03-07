@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\API\FAQsReource;
 use App\Models\FAQ;
 use App\Models\SocialLinks;
-use Rawilk\Settings\Contracts\Setting;
 use Illuminate\Http\Request;
 
 class AppController extends Controller

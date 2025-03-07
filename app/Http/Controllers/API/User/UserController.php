@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\API\User;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\API\User\ChangePasswordRequest;
-use App\Http\Requests\API\User\UpdateProfileRequest;
-use App\Http\Requests\API\User\UpdateGeosRequest;
-use App\Http\Resources\API\ErrorResource;
-use App\Http\Resources\API\SuccessResource;
-use App\Http\Resources\API\User\NotificationsResource;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\SuccessResource;
+use App\Http\Resources\API\User\UserResource;
+use App\Http\Requests\API\User\UpdateGeosRequest;
+use App\Http\Requests\API\User\UpdateProfileRequest;
+use App\Http\Requests\API\User\ChangePasswordRequest;
+use App\Http\Resources\API\User\NotificationsResource;
 
 class UserController extends Controller
 {
@@ -65,7 +65,7 @@ class UserController extends Controller
     public function profile()
     {
         return new SuccessResource([
-            'data' => auth()->user()
+            'data' => UserResource::make(auth()->user())
         ]);
     }
 
