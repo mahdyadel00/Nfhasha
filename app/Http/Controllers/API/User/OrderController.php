@@ -83,7 +83,7 @@ class OrderController extends Controller
                     'address'                   => $request->address,
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,
-                    'is_working'                => $request->is_working ? true : false,
+                    'is_working'                => filter_var($request->is_working, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                     'image'                     => json_encode($image),
                     'note'                      => $request->note,
                 ]);
