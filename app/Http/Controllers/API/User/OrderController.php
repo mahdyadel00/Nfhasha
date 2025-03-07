@@ -83,7 +83,7 @@ class OrderController extends Controller
                     'address'                   => $request->address,
                     'latitude'                  => $request->latitude,
                     'longitude'                 => $request->longitude,
-                    'is_working'                => $request->is_working ? 1 : 0,
+                    'is_working'                => $request->is_working ? true : false,
                     'image'                     => json_encode($image),
                     'note'                      => $request->note,
                 ]);
