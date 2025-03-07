@@ -37,7 +37,6 @@ class LoginController extends Controller
                     );
                 }
 
-              /
                 return apiResponse(
                     200,
                     __('messages.logged_in_successfully'),

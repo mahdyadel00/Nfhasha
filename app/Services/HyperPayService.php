@@ -20,6 +20,7 @@ class HyperPayService
         $this->entityMada = config('hyperpay.entity_id_mada');
         $this->currency = config('hyperpay.currency');
     }
+
     public function initiatePayment($amount, $paymentMethod, $customerData)
     {
         $entityId = ($paymentMethod === 'mada') ? $this->entityMada : $this->entityVisa;
@@ -28,60 +29,36 @@ class HyperPayService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->accessToken,
         ])->asForm()->post($url, [
-            'entityId'                          => $entityId,
-            'amount'                            => number_format($amount, 2, '.', ''),
-            'currency'                          => $this->currency,
-            'paymentType'                       => 'DB',
-            // إزالة testMode لأنه غير مسموح في البيئة الحية
-            'customParameters[3DS2_enrolled]'   => 'true',
-            'merchantTransactionId'             => uniqid(),
-            'customer.email'                    => $customerData['email'],
-            'billing.street1'                   => $customerData['street'],
-            'billing.city'                      => $customerData['city'],
-            'billing.state'                     => $customerData['state'],
-            'billing.country'                   => $customerData['country'],
-            'billing.postcode'                  => $customerData['postcode'],
-            'customer.givenName'                => $customerData['first_name'],
-            'customer.surname'                  => $customerData['last_name'],
+            'entityId'             => $entityId,
+            'amount'               => number_format($amount, 2, '.', ''),
+            'currency'             => $this->currency,
+            'paymentType'          => 'DB',
+            'customParameters[3DS2_enrolled]' => 'true',
+            'merchantTransactionId' => uniqid(),
+            'customer.email'       => $customerData['email'],
+            'billing.street1'      => $customerData['street'],
+            'billing.city'         => $customerData['city'],
+            'billing.state'        => $customerData['state'],
+            'billing.country'      => $customerData['country'],
+            'billing.postcode'     => $customerData['postcode'],
+            'customer.givenName'   => $customerData['first_name'],
+            'customer.surname'     => $customerData['last_name'],
         ]);
 
         return $response->json();
     }
 
-
-    public function getPaymentStatus($checkoutId)
+    public function getPaymentStatus($checkoutId, $paymentMethod)
     {
+        $entityId = ($paymentMethod === 'mada') ? $this->entityMada : $this->entityVisa;
         $url = "{$this->baseUrl}v1/checkouts/{$checkoutId}/payment";
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->accessToken,
         ])->get($url, [
-            'entityId' => $this->entityVisa,
+            'entityId' => $entityId,
         ]);
 
         return $response->json();
     }
-
-    public function refundPayment($paymentTransactionId, $amount)
-    {
-        // استخراج أول 32 حرف فقط من الـ paymentTransactionId وتحويلها إلى حروف صغيرة
-        $referencedPaymentId = strtolower(substr($paymentTransactionId, 0, 32));
-
-        $url = "{$this->baseUrl}v1/payments";
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
-        ])->asForm()->post($url, [
-            'entityId'           => $this->entityVisa, // تأكد من استخدام الـ entity المناسب لطريقة الدفع
-            'amount'             => number_format($amount, 2, '.', ''),
-            'currency'           => $this->currency,
-            'paymentType'        => 'RF',  // RF تعني Refund
-            'referencedPaymentId'=> $referencedPaymentId, // المعرف الأساسي للمعاملة الأصلية
-        ]);
-
-        dd($response->json()); // لفحص الاستجابة أثناء الاختبار
-
-        return $response->json();
-    }
-
-
 }
