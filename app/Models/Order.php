@@ -30,6 +30,7 @@ class Order extends Model
         'address',
         'address_to',
         'reason',
+        'images',
     ];
 
     public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)

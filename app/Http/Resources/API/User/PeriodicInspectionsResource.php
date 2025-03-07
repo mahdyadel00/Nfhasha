@@ -16,20 +16,19 @@ class PeriodicInspectionsResource extends JsonResource
     {
 
         $images = json_decode($this->inspection_reject_image, true);
-        $images = array_map(function ($image) {
-            return asset('storage/' . $image);
-        }, $images);
-        $this->inspection_reject_image = $images;
 
-        return
-        [
+        $images = is_array($images) ? array_map(function ($image) {
+            return asset('storage/' . $image);
+        }, $images) : [];
+
+        return [
             'id'                        => $this->id,
             'inspectionType'            => TypePeriodicInspectionsResource::make($this->inspectionType),
             'address'                   => $this->address,
             'latitude'                  => $this->latitude,
             'longitude'                 => $this->longitude,
             'status'                    => $this->status,
-            'inspection_reject_image'   => $this->inspection_reject_image,
+            'inspection_reject_image'   => $images,
             'inspection_reject_reason'  => $this->inspection_reject_reason,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,

@@ -3,8 +3,6 @@
 use App\Models\City;
 use App\Models\CyPeriodic;
 use App\Models\ExpressService;
-use App\Models\PickUpTruck;
-use App\Models\Provider;
 use App\Models\User;
 use App\Models\UserVehicle;
 use Illuminate\Database\Migrations\Migration;
@@ -36,7 +34,8 @@ return new class extends Migration {
             $table->string('position')->nullable();
             $table->string('address')->nullable();
             $table->string('address_to')->nullable();
-            $table->string('reason')->nullable();
+            // $table->string('reason')->nullable();
+            $table->text('reason')->nullable();
             $table->timestamps();
         });
     }

@@ -31,7 +31,9 @@ class OrderResource extends JsonResource
             'from_lat'                      => $this->from_lat,
             'from_long'                     => $this->from_long,
             'address_to'                    => $this->address_to,
-            'reason'                        => $this->reason,
+            'reasons'                       => json_decode($this->reason, true),
+            'images'                        => collect(json_decode($this->images, true) ?? [])
+                                            ->map(fn($path) => asset('storage/' . $path)),
             'to_lat'                        => $this->to_lat,
             'to_long'                       => $this->to_long,
             'details'                       => $this->details,
@@ -50,11 +52,11 @@ class OrderResource extends JsonResource
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
             'order_tracking'                => new OrderTrackingResource($this->tracking),
             'rate'                          => RateResource::collection($this->rates),
-            'offers' => $this->whenLoaded('offers', function () {
-                return OrderOfferResource::collection(
-                    $this->offers->where('provider_id', auth()->id())
-                );
-            }),
+            'offers'                        => $this->whenLoaded('offers', function () {
+                                                return OrderOfferResource::collection(
+                                                        $this->offers->where('provider_id', auth()->id())
+                                                    );
+                                                }),
 
         ];
     }

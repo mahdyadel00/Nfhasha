@@ -23,6 +23,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pusher\Pusher;
+use Illuminate\Support\Facades\Storage;
+
 
 class OrderController extends Controller
 {
@@ -297,44 +299,69 @@ class OrderController extends Controller
     public function rejectOrder(Request $request, $id)
     {
         $request->validate([
-            'reason' => 'nullable|string|max:255',
+            'reason'    => 'nullable|array',
+            'reason.*'  => 'string|max:255',
+            'images'    => 'nullable|array',
+            'images.*'  => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $order = Order::where('user_id', auth('sanctum')->id())->find($id);
+        try {
+            $order = Order::where('user_id', auth('sanctum')->id())->find($id);
 
-        if (!$order) {
-            return new SuccessResource([
-                'message' => __('messages.order_not_found')
+            if (!$order) {
+                return new SuccessResource([
+                    'message' => __('messages.order_not_found')
+                ]);
+            }
+
+            $imagePaths = [];
+
+            // ✅ تأكد أن مجلد التخزين متاح
+            if (!Storage::exists('public/order_rejections')) {
+                Storage::makeDirectory('public/order_rejections', 0775, true);
+            }
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('order_rejections', 'public');
+                    if ($path) {
+                        $imagePaths[] = $path;
+                    }
+                }
+            }
+
+            $order->update([
+                'status' => 'rejected',
+                'reason' => json_encode($request->reason),
+                'images' => count($imagePaths) > 0 ? json_encode($imagePaths) : null,
             ]);
+
+            // ✅ إرسال إشعار عبر FCM إذا كان هناك `fcm_token`
+            if (!empty($order->provider->fcm_token)) {
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser(
+                    $order->provider->fcm_token,
+                    'Order Rejected',
+                    'Your order has been rejected. Check the reasons and images in your app.'
+                );
+            } else {
+                Log::warning('❌ No valid FCM token found for provider ID: ' . $order->provider->id);
+            }
+
+            return new SuccessResource([
+                'message' => __('messages.order_rejected_successfully'),
+                'reasons' => $request->reason,
+                'images'  => collect($imagePaths)->map(fn($path) => asset('storage/' . $path)),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ Error in rejectOrder: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Something went wrong!',
+                'error'   => $e->getMessage(),
+            ], 500);
         }
-
-        $order->update([
-            'status' => $request->status,
-            'reason' => $request->reason,
-        ]);
-
-
-        // $pusher = new Pusher(
-        //     env('PUSHER_APP_KEY'),
-        //     env('PUSHER_APP_SECRET'),
-        //     env('PUSHER_APP_ID'),
-        //     ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-        // );
-
-        // $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-        //     'message'       => __('messages.order_rejected'),
-        //     'order'         => $order,
-        //     'provider_id'   => $order->provider_id
-        // ]);
-        $firebaseService = new FirebaseService();
-        $firebaseService->sendNotificationToUser($order->provider->fcm_token, 'Order rejected', 'Order rejected');
-
-        return new SuccessResource([
-            'message' => __('messages.order_rejected_successfully')
-        ]);
     }
-
-
     public function rate(Request $request, $id)
     {
         $request->validate([
