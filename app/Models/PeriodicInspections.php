@@ -10,6 +10,7 @@ class PeriodicInspections extends Model
     use HasFactory;
 
     protected $fillable = [
+        'order_id',
         'user_id',
         'user_vehicle_id',
         'city_id',
@@ -58,5 +59,10 @@ class PeriodicInspections extends Model
     public function inspectionType()
     {
         return $this->belongsTo(TypePeriodicInspections::class, 'inspection_type_id');
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

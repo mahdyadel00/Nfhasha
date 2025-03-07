@@ -10,6 +10,7 @@ class CarReservations extends Model
     use HasFactory;
 
     protected $fillable = [
+        'order_id',
         'city_id',
         'user_id',
         'express_service_id',
@@ -39,6 +40,11 @@ class CarReservations extends Model
     public function expressService()
     {
         return $this->belongsTo(ExpressService::class);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 
 }

@@ -9,7 +9,7 @@ class ComprehensiveInspections extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'user_vehicle_id' , 'express_service_id' , 'city_id', 'pick_up_truck_id', 'provider_id', 'date', 'address', 'latitude', 'longitude'];
+    protected $fillable = ['user_id', 'user_vehicle_id' , 'order_id' , 'express_service_id' , 'city_id', 'pick_up_truck_id', 'provider_id', 'date', 'address', 'latitude', 'longitude'];
 
 
     public function user()
@@ -40,5 +40,10 @@ class ComprehensiveInspections extends Model
     public function expressService()
     {
         return $this->belongsTo(ExpressService::class);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

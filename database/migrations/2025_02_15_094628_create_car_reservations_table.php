@@ -17,13 +17,13 @@ return new class extends Migration
     {
         Schema::create('car_reservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(City::class)->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(ExpressService::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(City::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(UserVehicle::class)->nullable()->constrained()->onDelete('set null');
+            $table->foreignIdFor(ExpressService::class)->nullable()->constrained()->onDelete('set null');
             $table->set('inspection_side', ['all', 'front', 'back', 'sides', 'left'])->default('all');
-            $table->date('date')->nullable(false);
-            $table->time('time')->nullable(false);
+            $table->date('date');
+            $table->time('time');
             $table->timestamps();
         });
     }
