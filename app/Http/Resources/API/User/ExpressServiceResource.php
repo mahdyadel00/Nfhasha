@@ -8,21 +8,24 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExpressServiceResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
+    protected $orderId; // ✅ تخزين `order_id`
+
+    public function __construct($resource, $orderId = null)
+    {
+        parent::__construct($resource);
+        $this->orderId = $orderId; // ✅ حفظ `order_id`
+    }
+
     public function toArray(Request $request): array
     {
         $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
-        // دالة لجلب الحجز الخاص بالمستخدم للخدمة المحددة
+        // ✅ تعديل دالة `getUserReservation` لاستخدام `orderId` الممرر من `OrderResource`
         $getUserReservation = function ($relation) use ($request) {
             return $this->$relation()
                 ->where('user_id', $request->user()->id)
                 ->where('express_service_id', $this->id)
-                ->where('order_id', $this->order_id) // ✅ إضافة شرط `order_id`
+                ->where('order_id', $this->orderId) // ✅ استخدام `orderId` الممرر من `OrderResource`
                 ->first();
         };
 
