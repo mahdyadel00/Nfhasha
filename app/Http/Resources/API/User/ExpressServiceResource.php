@@ -22,7 +22,7 @@ class ExpressServiceResource extends JsonResource
             return $this->$relation()
                 ->where('user_id', $request->user()->id)
                 ->where('express_service_id', $this->id)
-                ->where('order_id', $request->order_id) // ✅ إضافة شرط `order_id`
+                ->where('order_id', $this->order_id) // ✅ إضافة شرط `order_id`
                 ->first();
         };
 
