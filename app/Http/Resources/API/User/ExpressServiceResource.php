@@ -14,14 +14,12 @@ class ExpressServiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // جلب أحدث خدمة إطارات مرة واحدة فقط
         $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
-        // جلب الحجز الخاص بنفس الطلب (`express_service_id`) ونفس المستخدم (`user_id`)
         $carReservation = $this->carReservations()
-            ->where('user_id', $request->user()->id) // فلترة حسب المستخدم
-            ->where('express_service_id', $this->id) // فلترة حسب الطلب الحالي
-            ->first(); // جلب أول سجل مطابق
+            ->where('user_id', $request->user()->id)
+            ->where('express_service_id', $this->id)
+            ->first();
 
         return [
             'id'                        => $this->id,

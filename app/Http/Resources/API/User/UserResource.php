@@ -30,6 +30,8 @@ class UserResource extends JsonResource
             'profile_picture'       => $this->profile_picture,
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,
+            'otp'                   => $this->otp,
+            'need_verify'           => !empty($this->otp) && is_null($this->email_verified_at), // إذا كان هناك OTP يتم إرجاع true
             'provider'              => ProviderResource::make($this->provider),
         ];
     }
