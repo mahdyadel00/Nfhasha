@@ -33,20 +33,20 @@ class NotificationController extends Controller
 
     }
 
-
-    public function show($id)
+    public function show($order_id)
     {
-        $offer = OrderOffer::find($id);
+        $offers = OrderOffer::where('order_id', $order_id)->get();
 
-        if ($offer) {
+        if ($offers->isNotEmpty()) {
             return new SuccessResource([
-                'message'   => 'Notification found successfully',
-                'data'      => new OrderOfferResource($offer),
+                'message' => 'Offers found successfully',
+                'data'    => OrderOfferResource::collection($offers),
             ]);
         }
 
-        return new ErrorResource('No notification found');
+        return new ErrorResource('No offers found for this order');
     }
+
 
     public function rejectOffer(Request $request, $id)
     {

@@ -76,10 +76,27 @@ class HyperPayController extends Controller
             ], 400);
         }
 
-        $status = $this->hyperPayService->getPaymentStatus($order->payment_transaction_id);
+        $entityId = env('HYPERPAY_ENTITY_ID'); // تأكد من وجوده في .env
+        $status = $this->hyperPayService->getPaymentStatus($order->payment_transaction_id, $entityId);
 
-        return response()->json($status);
+        if (isset($status['result']['code'])) {
+            $code = $status['result']['code'];
+
+            if (in_array($code, ["000.100.110", "000.000.000"])) { // الدفع ناجح
+                $order->update(['payment_status' => 'paid']);
+                return response()->json(['message' => 'Payment successful']);
+            } elseif ($code === "000.200.000") { // الدفع معلق
+                return response()->json(['message' => 'Payment is still pending. Please check again later.']);
+            } else { // الدفع فشل
+                $order->update(['payment_status' => 'failed']);
+                return response()->json(['message' => 'Payment failed', 'details' => $status]);
+            }
+        }
+
+        return response()->json(['error' => 'Unknown response'], 500);
     }
+
+
 
     public function refundPayment(Request $request, $orderId)
 {
