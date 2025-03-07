@@ -23,7 +23,6 @@ class ExpressServiceResource extends JsonResource
             ->where('express_service_id', $this->id) // فلترة حسب الطلب الحالي
             ->first(); // جلب أول سجل مطابق
 
-            dd($carReservation);
         return [
             'id'                        => $this->id,
             'is_active'                 => (bool) $this->is_active,
