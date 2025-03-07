@@ -15,13 +15,15 @@ class ExpressServiceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
-        $carReservation = $this->carReservations()
-            ->where('user_id', $request->user()->id)
-            ->where('express_service_id', $this->id)
-            ->first();
+        // دالة لجلب الحجز الخاص بالمستخدم للخدمة المحددة
+        $getUserReservation = function ($relation) use ($request) {
+            return $this->$relation()
+                ->where('user_id', $request->user()->id)
+                ->where('express_service_id', $this->id)
+                ->first();
+        };
 
         return [
             'id'                        => $this->id,
@@ -35,11 +37,10 @@ class ExpressServiceResource extends JsonResource
             'terms_condition'           => $this->terms_condition ?? null,
             'battery_image'             => $latestPunctureService ? asset('storage/' . $latestPunctureService->battery_image) : null,
             'type_battery'              => $latestPunctureService?->type_battery,
-            'car_reservation'           => CarReservationsResource::make($this->carReservations),
-            'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($this->comprehensiveInspections),
-            'maintenance'               => MaintenanceResource::make($this->maintenance),
-            'periodicInspections'       => PeriodicInspectionsResource::make($this->periodicInspections),
+            'car_reservation'           => CarReservationsResource::make($getUserReservation('carReservations')),
+            'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections')),
+            'maintenance'               => MaintenanceResource::make($getUserReservation('maintenance')),
+            'periodicInspections'       => PeriodicInspectionsResource::make($getUserReservation('periodicInspections')),
         ];
-
     }
 }
