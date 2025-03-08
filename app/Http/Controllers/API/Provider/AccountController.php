@@ -95,18 +95,21 @@ class AccountController extends Controller
         $user->provider()->update([
             'city_id'                   => $request->city_id,
             'district_id'               => $request->district_id,
-            'pick_up_truck_id'          => $request->pick_up_truck_id,
             'type'                      => $request->type,
             'mechanical'                => $request->mechanical,
             'plumber'                   => $request->plumber,
             'electrical'                => $request->electrical,
             'puncture'                  => $request->puncture,
+            'tow_truck'                 => $request->tow_truck,
             'battery'                   => $request->battery,
+            'fuel'                      => $request->fuel,
             'pickup'                    => $request->pickup,
             'open_locks'                => $request->open_locks,
-            'full_examination'          => $request->full_examination,
-            'periodic_examination'      => $request->periodic_examination,
-            'truck_barriers'            => $request->truck_barriers,
+            'periodic_inspections'      => $request->periodic_inspections,
+            'comprehensive_inspections' => $request->comprehensive_inspections,
+            'maintenance'               => $request->maintenance,
+            'car_reservations'          => $request->car_reservations,
+            'pick_up_truck_id'          => $request->wenchId,
             'available_from'            => $request->truck_barriers_from,
             'available_to'              => $request->truck_barriers_to,
             'home_service'              => $request->home_service,
@@ -114,6 +117,7 @@ class AccountController extends Controller
             'owner_identity'            => $request->file('owner_identity') ? uploadImage($request->file('owner_identity'), 'providers/owner_identities') : null,
             'general_license'           => $request->file('general_license') ? uploadImage($request->file('general_license'), 'providers/general_licenses') : null,
             'municipal_license'         => $request->file('municipal_license') ? uploadImage($request->file('municipal_license'), 'providers/municipal_licenses') : null,
+
         ]);
 
         return new SuccessResource([

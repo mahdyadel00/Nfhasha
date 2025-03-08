@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API\User;
 
+use App\Http\Resources\API\Provider\PunctureServiceResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -38,6 +39,7 @@ class ExpressServiceResource extends JsonResource
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
             'name'                      => $this->name,
+            // 'note'                      => $services->isNotEmpty() ? $services->first()->note : null,
             'terms_condition'           => $this->terms_condition ?? null,
             'battery_image'             => $latestPunctureService ? asset('storage/' . $latestPunctureService->battery_image) : null,
             'type_battery'              => $latestPunctureService?->type_battery,

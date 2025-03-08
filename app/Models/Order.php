@@ -20,6 +20,7 @@ class Order extends Model
         'type',
         'status',
         'payment_method',
+        'payment_transaction_id',
         'from_lat',
         'from_long',
         'to_lat',

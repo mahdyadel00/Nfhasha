@@ -2,63 +2,74 @@
 
 namespace App\Services;
 
+use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 
 class HyperPayService
 {
     private $baseUrl;
     private $accessToken;
-    private $entityVisa;
-    private $entityMada;
+    private $entities;
     private $currency;
 
     public function __construct()
     {
         $this->baseUrl = config('hyperpay.base_url');
         $this->accessToken = config('hyperpay.access_token');
-        $this->entityVisa = config('hyperpay.entity_id_visa_master');
-        $this->entityMada = config('hyperpay.entity_id_mada');
         $this->currency = config('hyperpay.currency');
+
+        // دعم طرق دفع متعددة
+        $this->entities = [
+            'visa'  => config('hyperpay.entity_id_visa_master'),
+            'mada'  => config('hyperpay.entity_id_mada'),
+            'applepay' => config('hyperpay.entity_id_applepay'),
+            'stcpay'   => config('hyperpay.entity_id_stcpay'),
+        ];
     }
 
     public function initiatePayment($amount, $paymentMethod, $customerData)
     {
-        $entityId = ($paymentMethod === 'mada') ? $this->entityMada : $this->entityVisa;
-        $url = $this->baseUrl . 'v1/checkouts';
+        if (!isset($this->entities[$paymentMethod])) {
+            return ['error' => 'Unsupported payment method'];
+        }
+
+        $entityId = $this->entities[$paymentMethod];
+        $url = "{$this->baseUrl}v1/checkouts";
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->accessToken,
         ])->asForm()->post($url, [
-            'entityId'             => $entityId,
-            'amount'               => number_format($amount, 2, '.', ''),
-            'currency'             => $this->currency,
-            'paymentType'          => 'DB',
-            'customParameters[3DS2_enrolled]' => 'true',
-            'merchantTransactionId' => uniqid(),
-            'customer.email'       => $customerData['email'],
-            'billing.street1'      => $customerData['street'],
-            'billing.city'         => $customerData['city'],
-            'billing.state'        => $customerData['state'],
-            'billing.country'      => $customerData['country'],
-            'billing.postcode'     => $customerData['postcode'],
-            'customer.givenName'   => $customerData['first_name'],
-            'customer.surname'     => $customerData['last_name'],
+            'entityId'               => $entityId,
+            'amount'                 => number_format($amount, 2, '.', ''),
+            'currency'               => $this->currency,
+            'paymentType'            => 'DB',
+            'merchantTransactionId'  => uniqid(),
+            'customer.email'         => $customerData['email'] ?? null,
+            'billing.street1'        => $customerData['street'] ?? null,
+            'billing.city'           => $customerData['city'] ?? null,
+            'billing.state'          => $customerData['state'] ?? null,
+            'billing.country'        => $customerData['country'] ?? null,
+            'billing.postcode'       => $customerData['postcode'] ?? null,
+            'customer.givenName'     => $customerData['first_name'] ?? null,
+            'customer.surname'       => $customerData['last_name'] ?? null,
         ]);
 
         return $response->json();
     }
 
-    public function getPaymentStatus($checkoutId, $paymentMethod)
+    public function getPaymentStatus($paymentTransactionId, $paymentMethod)
     {
-        $entityId = ($paymentMethod === 'mada') ? $this->entityMada : $this->entityVisa;
-        $url = "{$this->baseUrl}v1/checkouts/{$checkoutId}/payment";
+        if (!isset($this->entities[$paymentMethod])) {
+            return response()->json(['error' => 'Unsupported payment method'], 400);
+        }
 
-        $response = Http::withHeaders([
+        $entityId = $this->entities[$paymentMethod];
+        $url = "{$this->baseUrl}v1/checkouts/{$paymentTransactionId}/payment";
+
+        return Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->accessToken,
         ])->get($url, [
             'entityId' => $entityId,
         ]);
-
-        return $response->json();
     }
 }

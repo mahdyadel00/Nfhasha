@@ -141,5 +141,5 @@ Route::get('type-periodic-inspections' , [MainServicesController::class , 'typeP
 Route::get('type-periodic-inspections/{id}' , [MainServicesController::class , 'typePeriodicInspection']);
 
 Route::post('/payment/initiate/{id}', [HyperPayController::class, 'initiatePayment']);
-Route::get('/payment/status/{id}', [HyperPayController::class, 'getPaymentStatus']);
+Route::get('/payment/status/{id}/{paymentMethod}', [HyperPayController::class, 'getPaymentStatus']);
 Route::post('/payment/refund/{id}', [HyperPayController::class, 'refundPayment']);
