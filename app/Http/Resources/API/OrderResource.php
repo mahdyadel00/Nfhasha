@@ -42,6 +42,7 @@ class OrderResource extends JsonResource
             'update_by'                     => $this->update_by,
             'company_profit'                => $this->company_profit,
             'total_cost'                    => $this->total_cost,
+            'note'                          => $this->note,
             'created_at'                    => $this->created_at,
             'updated_at'                    => $this->updated_at,
             'user'                          => new UserResource($this->user),

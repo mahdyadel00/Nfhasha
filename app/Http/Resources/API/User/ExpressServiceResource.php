@@ -39,7 +39,7 @@ class ExpressServiceResource extends JsonResource
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,
             'name'                      => $this->name,
-            // 'note'                      => $services->isNotEmpty() ? $services->first()->note : null,
+            'note'                      => $this->note,
             'terms_condition'           => $this->terms_condition ?? null,
             'battery_image'             => $latestPunctureService ? asset('storage/' . $latestPunctureService->battery_image) : null,
             'type_battery'              => $latestPunctureService?->type_battery,

@@ -58,6 +58,7 @@ class OrderController extends Controller
                 'total_cost'            => $expressService->price,
                 'address'               => $request->address,
                 'address_to'            => $request->address_to,
+                'notes'                 => $request->notes ?? null,
             ]);
 
             // ✅ إضافة order_id عند إنشاء الخدمة
