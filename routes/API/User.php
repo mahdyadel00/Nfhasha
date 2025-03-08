@@ -67,7 +67,7 @@ Route::group(['prefix' => 'app' , 'controller' =>AppController::class], function
     Route::get('privacy-and-policy', 'privacy');
     Route::get('about-us', 'about');
     Route::get('faq' , 'faq');
-
+    Route::get('links', 'links');
 });
 
 
