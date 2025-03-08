@@ -105,10 +105,12 @@ class ExpressServiceController extends Controller
             };
 
             // إرسال الإشعار برسالة مخصصة
-            $pusher->trigger('notifications.providers', 'new.express.service', [
-                'message'            => $message,
-                'puncture_service'   => $puncture_service,
-            ]);
+            foreach ($users as $user) {
+                $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                    'message' => $message,
+                    'order'   => $order,
+                ]);
+            }//end foreach
             if ($users->isNotEmpty()) {
                 try {
 
