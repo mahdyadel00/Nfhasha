@@ -136,6 +136,50 @@ class OrderController extends Controller
                 ]);
             }
 
+            $users = User::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->nearby($request->latitude, $request->longitude, 50)
+                ->where('role', 'provider')
+                ->get();
+
+            if ($users->isNotEmpty()) {
+                try {
+                    $pusher = new Pusher(
+                        env('PUSHER_APP_KEY'),
+                        env('PUSHER_APP_SECRET'),
+                        env('PUSHER_APP_ID'),
+                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                    );
+
+                    $message = match ($order->type) {
+                        'battery'  => '🔋 Battery order request',
+                        'towing'   => '🚛 Towing order request',
+                        'puncture' => '🛞 Puncture repair order request',
+                        default    => '🚀 New order request',
+                    };
+
+
+                    foreach ($users as $user) {
+                        $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                            'message' => $message,
+                            'order'   => $order,
+                        ]);
+                    }
+
+                    $tokens = $users->pluck('fcm_token')
+                        ->filter() // حذف القيم الفارغة (null أو "")
+                        ->unique() // إزالة التكرارات
+                        ->toArray();
+
+                    if (!empty($tokens)) {
+                        $firebaseService = new FirebaseService();
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                }
+            }
+
             DB::commit();
 
             return new SuccessResource([
@@ -228,25 +272,44 @@ class OrderController extends Controller
 
     public function cancelOrder(Request $request, $id)
     {
+        // 🔹 البحث عن الطلب الخاص بالمستخدم
         $order = Order::where('user_id', auth('sanctum')->id())->find($id);
 
+        // ✅ إذا لم يتم العثور على الطلب، إرجاع رسالة خطأ
         if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
         }
 
+        // ✅ تحديث حالة الطلب إلى "ملغي"
         $order->update([
             'status'    => 'canceled',
             'reason'    => $request->reason
         ]);
 
-        $firebaseService = new FirebaseService();
-        $firebaseService->sendNotificationToUser($order->provider->fcm_token, 'Order canceled', 'Order canceled');
+        // ✅ التحقق من وجود مزود للخدمة قبل محاولة إرسال إشعار
+        if ($order->provider && $order->provider->fcm_token) {
+            try {
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser(
+                    $order->provider->fcm_token,
+                    '🚫 Order Canceled',
+                    'The order has been canceled by the user.'
+                );
+            } catch (\Exception $e) {
+                Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+            }
+        } else {
+            Log::channel('error')->warning("No valid provider or FCM token found for order ID: {$order->id}");
+        }
+
+        // ✅ إرجاع استجابة نجاح
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
         ]);
     }
+
 
     public function rejectOrder(Request $request, $id)
     {
