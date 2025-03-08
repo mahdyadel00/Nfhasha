@@ -46,7 +46,7 @@ class UpdateProfileRequest extends FormRequest
             'car_reservations'          => 'required|boolean',
             'profile_picture'           => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
             'address'                   => 'nullable|max:255',
-            'truck_barriers'            => 'required|boolean',
+            // 'truck_barriers'            => 'required|boolean',
             'pick_up_truck_id'          => 'nullable|exists:pick_up_trucks,id',
             'truck_barriers_from'       => 'nullable|date_format:Y-m-d H:i:s',
             'truck_barriers_to'         => 'nullable|date_format:Y-m-d H:i:s',
