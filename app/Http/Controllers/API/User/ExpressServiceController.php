@@ -84,7 +84,7 @@ class ExpressServiceController extends Controller
                 'total_cost'            => $puncture_service->amount ?? $express_services->price,
                 'address'               => $request->address,
                 'address_to'            => $request->address_to,
-                'notes'                 => $request->notes ?? null,
+                'note'                  => $request->notes ?? null,
             ]);
 
             //send notification to provider
