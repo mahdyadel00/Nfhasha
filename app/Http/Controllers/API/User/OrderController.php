@@ -136,40 +136,43 @@ class OrderController extends Controller
                 ]);
             }
 
+            $serviceType = $order->type;
+
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->nearby($request->latitude, $request->longitude, 50)
                 ->where('role', 'provider')
+                ->whereHas('provider', function ($query) use ($serviceType) {
+                    $query->where($serviceType, true)
+                          ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                })
                 ->get();
 
+
+                $pusher = new Pusher(
+                    env('PUSHER_APP_KEY'),
+                    env('PUSHER_APP_SECRET'),
+                    env('PUSHER_APP_ID'),
+                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                );
+
+                $message = match ($order->type) {
+                    'battery'  => '🔋 Battery order request',
+                    'towing'   => '🚛 Towing order request',
+                    'puncture' => '🛞 Puncture repair order request',
+                    default    => '🚀 New order request',
+                };
+
+                foreach ($users as $user) {
+                    $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                        'message' => $message,
+                        'order'   => $order,
+                    ]);
+                }
             if ($users->isNotEmpty()) {
                 try {
-                    $pusher = new Pusher(
-                        env('PUSHER_APP_KEY'),
-                        env('PUSHER_APP_SECRET'),
-                        env('PUSHER_APP_ID'),
-                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                    );
 
-                    $message = match ($order->type) {
-                        'battery'  => '🔋 Battery order request',
-                        'towing'   => '🚛 Towing order request',
-                        'puncture' => '🛞 Puncture repair order request',
-                        default    => '🚀 New order request',
-                    };
-
-
-                    foreach ($users as $user) {
-                        $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                            'message' => $message,
-                            'order'   => $order,
-                        ]);
-                    }
-
-                    $tokens = $users->pluck('fcm_token')
-                        ->filter() // حذف القيم الفارغة (null أو "")
-                        ->unique() // إزالة التكرارات
-                        ->toArray();
+                    $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
 
                     if (!empty($tokens)) {
                         $firebaseService = new FirebaseService();
@@ -179,6 +182,7 @@ class OrderController extends Controller
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
             }
+
 
             DB::commit();
 
@@ -269,7 +273,6 @@ class OrderController extends Controller
             'data'      => OrderResource::collection($orders)
         ]);
     }
-
     public function cancelOrder(Request $request, $id)
     {
         // 🔹 البحث عن الطلب الخاص بالمستخدم
@@ -294,8 +297,8 @@ class OrderController extends Controller
                 $firebaseService = new FirebaseService();
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
-                    '🚫 Order Canceled',
-                    'The order has been canceled by the user.'
+                    __('messages.order_canceled_title'),
+                    __('messages.order_canceled_body')
                 );
             } catch (\Exception $e) {
                 Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -309,6 +312,7 @@ class OrderController extends Controller
             'message'   => __('messages.order_canceled_successfully')
         ]);
     }
+
 
 
     public function rejectOrder(Request $request, $id)

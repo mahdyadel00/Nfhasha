@@ -34,14 +34,21 @@ class ExpressServiceController extends Controller
         try {
             DB::beginTransaction();
 
-            $users = User::whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->nearby($request->from_latitude, $request->from_longitude, 50)
-                ->where('role', 'provider')
-                ->orderBy('distance')
-                ->get();
 
             $express_services = ExpressService::find($request->express_service_id);
+
+
+            $serviceType = $express_services->type;
+
+            $users = User::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->nearby($request->latitude, $request->longitude, 50)
+                ->where('role', 'provider')
+                ->whereHas('provider', function ($query) use ($serviceType) {
+                    $query->where($serviceType, true)
+                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                })
+                ->get();
 
             $puncture_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
@@ -80,29 +87,29 @@ class ExpressServiceController extends Controller
             ]);
 
             //send notification to provider
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
+
+            $service_type = $express_services->type;
+
+            $message = match ($service_type) {
+                'battery' => '🔋 Battery service request',
+                'towing' => '🚛 Towing service request',
+                'puncture' => '🛞 Puncture repair service request',
+                default => '🚀 New express service request',
+            };
+
+            // إرسال الإشعار برسالة مخصصة
+            $pusher->trigger('notifications.providers', 'new.express.service', [
+                'message'            => $message,
+                'puncture_service'   => $puncture_service,
+            ]);
             if ($users->isNotEmpty()) {
                 try {
-                    $pusher = new Pusher(
-                        env('PUSHER_APP_KEY'),
-                        env('PUSHER_APP_SECRET'),
-                        env('PUSHER_APP_ID'),
-                        ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                    );
-
-                    $service_type = $express_services->type;
-
-                    $message = match ($service_type) {
-                        'battery' => '🔋 Battery service request',
-                        'towing' => '🚛 Towing service request',
-                        'puncture' => '🛞 Puncture repair service request',
-                        default => '🚀 New express service request',
-                    };
-
-                    // إرسال الإشعار برسالة مخصصة
-                    $pusher->trigger('notifications.providers', 'new.express.service', [
-                        'message'            => $message,
-                        'puncture_service'   => $puncture_service,
-                    ]);
 
 
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();

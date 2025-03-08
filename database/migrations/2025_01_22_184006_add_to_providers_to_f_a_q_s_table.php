@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('f_a_q_s', function (Blueprint $table) {
-            $table->boolean('to_providers')->default(false);
+            if (!Schema::hasColumn('f_a_q_s', 'to_providers')) {
+                $table->boolean('to_providers')->default(false);
+            }
         });
     }
+
 
     /**
      * Reverse the migrations.

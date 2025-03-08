@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('latitude');
             $table->string('longitude');
             $table->boolean('is_working');
-            $table->string('image')->nullable();
+            $table->text('image')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
         });

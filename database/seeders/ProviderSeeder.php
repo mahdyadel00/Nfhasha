@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Provider;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ProviderSeeder extends Seeder
@@ -22,12 +21,15 @@ class ProviderSeeder extends Seeder
             'plumber'                   => true,
             'electrical'                => true,
             'puncture'                  => true,
+            'tow_truck'                 => true,
             'battery'                   => true,
+            'fuel'                      => true,
             'pickup'                    => true,
             'open_locks'                => true,
-            'full_examination'          => true,
-            'periodic_examination'      => true,
-            'truck_barriers'            => true,
+            'periodic_inspections'          => true,
+            'comprehensive_inspections'      => true,
+            'maintenance'                   => true,
+            'car_reservations'            => true,
             'available_from'            => '2025-01-01 08:00:00',
             'available_to'              => '2025-01-01 17:00:00',
             'home_service'              => true,

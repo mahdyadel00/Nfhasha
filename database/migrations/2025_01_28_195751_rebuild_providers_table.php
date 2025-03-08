@@ -26,12 +26,15 @@ return new class extends Migration
             $table->boolean('plumber')->default(false);
             $table->boolean('electrical')->default(false);
             $table->boolean('puncture')->default(false);
+            $table->boolean('tow_truck')->default(false);
             $table->boolean('battery')->default(false);
+            $table->boolean('fuel')->default(false);
             $table->boolean('pickup')->default(false);
             $table->boolean('open_locks')->default(false);
-            $table->boolean('full_examination')->default(false);
-            $table->boolean('periodic_examination')->default(false);
-            $table->boolean('truck_barriers')->default(false);
+            $table->boolean('periodic_inspections')->default(false);
+            $table->boolean('comprehensive_inspections')->default(false);
+            $table->boolean('maintenance')->default(false);
+            $table->boolean('car_reservations')->default(false);
             $table->foreignIdFor(PickUpTruck::class)->nullable()->constrained();
             $table->dateTime('available_from')->nullable();
             $table->dateTime('available_to')->nullable();
