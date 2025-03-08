@@ -37,14 +37,10 @@ class LoginController extends Controller
                     );
                 }
 
-                return apiResponse(
-                    200,
-                    __('messages.logged_in_successfully'),
-                    [
-                        'token' => $token,
-                        'user'  => $user
-                    ]
-                );
+                return new SuccessResource([
+                    'token' => $token,
+                    'data' => UserResource::make(auth()->user())
+                ]);
             } else {
                 return apiResponse(403, __('messages.invalid_credentials'));
             }
