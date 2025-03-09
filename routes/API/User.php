@@ -86,6 +86,7 @@ Route::get('periodic-examination/{city}'  , [OrderController::class , 'cyPeriodi
 
 Route::prefix('orders')->controller(OrderController::class)->group(function () {
     Route::post('periodic-examination', 'createOrder');
+    Route::post('update-periodic-examination/{id}', 'updatePeriodicInspection');
     Route::post('payment/{order}' , 'payment');
     Route::get('' , 'index');
 });

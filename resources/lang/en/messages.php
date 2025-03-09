@@ -75,4 +75,5 @@ return
     'fcm_token_updated_successfully'                =>  'FCM token updated successfully',
     'invalid_phone'                                 =>  'Invalid phone number',
     'message_sent'                                  =>  'Message sent successfully',
+    'periodic_inspection_updated_successfully'      =>  'Periodic inspection updated successfully',
 ];

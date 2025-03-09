@@ -75,5 +75,6 @@ return
     'fcm_token_updated_successfully'            => 'تم تحديث رمز FCM بنجاح',
     'invalid_phone'                             => 'رقم الهاتف غير صالح',
     'message_sent'                              => 'تم إرسال الرسالة بنجاح',
+    'periodic_inspection_updated_successfully'  => 'تم تحديث الفحص الدوري بنجاح',
 
 ];
