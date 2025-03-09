@@ -149,6 +149,7 @@ class OrderController extends Controller
                 })
                 ->get();
 
+                $providerIds = $users->pluck('id')->toArray();
 
 
                 $pusher = new Pusher(
@@ -167,10 +168,12 @@ class OrderController extends Controller
 
                 foreach ($users as $user) {
                     $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                        'message' => $message,
-                        'order'   => $order,
+                        'message'       => $message,
+                        'order'         => $order,
+                        'Provider_ids'  => $providerIds, // ✅ إرسال قائمة الـ IDs
                     ]);
                 }
+
             if ($users->isNotEmpty()) {
                 try {
 
@@ -184,8 +187,6 @@ class OrderController extends Controller
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
             }
-
-
             DB::commit();
 
             return new SuccessResource([
@@ -238,6 +239,8 @@ class OrderController extends Controller
             })
             ->get();
 
+            $providerIds = $users->pluck('id')->toArray();
+
         // ✅ إعادة إرسال إشعار Pusher
         $pusher = new Pusher(
             env('PUSHER_APP_KEY'),
@@ -250,8 +253,9 @@ class OrderController extends Controller
 
         foreach ($users as $user) {
             $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                'message' => $message,
-                'order'   => $order,
+                'message'       => $message,
+                'order'         => $order,
+                'Provider_ids'  => $providerIds,
             ]);
         }
 

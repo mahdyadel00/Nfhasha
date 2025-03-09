@@ -50,6 +50,8 @@ class ExpressServiceController extends Controller
                 })
                 ->get();
 
+            $providerIds = $users->pluck('id')->toArray();
+
             $puncture_service = PunctureService::create([
                 'express_service_id'    => $request->express_service_id,
                 'user_id'               => auth()->id(),
@@ -107,10 +109,11 @@ class ExpressServiceController extends Controller
             // إرسال الإشعار برسالة مخصصة
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                    'message' => $message,
-                    'order'   => $order,
+                    'message'       => $message,
+                    'order'         => $order,
+                    'Provider_ids'  => $providerIds,
                 ]);
-            }//end foreach
+            } //end foreach
             if ($users->isNotEmpty()) {
                 try {
 
