@@ -31,7 +31,7 @@ class OrderResource extends JsonResource
             'from_lat'                      => $this->from_lat,
             'from_long'                     => $this->from_long,
             'address_to'                    => $this->address_to,
-            'reasons'                       => json_decode($this->reason, true),
+            'reason'                        => json_decode($this->reason, true),
             'images'                        => collect(json_decode($this->images, true) ?? [])
                                             ->map(fn($path) => asset('storage/' . $path)),
             'to_lat'                        => $this->to_lat,
