@@ -17,13 +17,14 @@ use App\Models\Maintenance;
 use App\Models\Order;
 use App\Models\PeriodicInspections;
 use App\Models\Provider;
+use App\Models\ProviderNotification;
 use App\Models\User;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Pusher\Pusher;
 use Illuminate\Support\Facades\Storage;
+use Pusher\Pusher;
 
 
 class OrderController extends Controller
@@ -145,11 +146,20 @@ class OrderController extends Controller
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                        ->where('is_active', true);
                 })
-                ->get();
-
+                ->get();;
             $providerIds = $users->pluck('id')->toArray();
+            //create notification
+            foreach ($providerIds as $providerId) {
+                ProviderNotification::create([
+                    'provider_id'   => $providerId,
+                    'user_id'       => auth()->id(),
+                    'order_id'      => $order->id,
+                    'message'       => '🚀 New order request',
+                    'service_type'  => $order->type,
+                ]);
+            }
 
 
             $pusher = new Pusher(
@@ -200,17 +210,15 @@ class OrderController extends Controller
         }
     }
 
-
     public function updatePeriodicInspection(Request $request, $orderId)
     {
         try {
             DB::beginTransaction();
 
-            // 🔹 جلب الطلب المرتبط بالفحص الدوري
             $order = Order::where('id', $orderId)
                 ->where('type', 'periodic_inspections')
                 ->where('status', 'rejected')
-                ->firstOrFail();
+                ->first();
 
             if (!$order) {
                 return new ErrorResource(__('messages.order_not_found'));
@@ -229,11 +237,7 @@ class OrderController extends Controller
             $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
 
             $periodicInspection->update([
-                'inspection_type_id' => $request->inspection_type_id ?? $periodicInspection->inspection_type_id,
-                'address'            => $request->address ?? $periodicInspection->address,
-                'latitude'           => $request->latitude ?? $periodicInspection->latitude,
-                'longitude'          => $request->longitude ?? $periodicInspection->longitude,
-                'status'             => 'pending', // ✅ إعادة الحالة إلى "pending"
+                'status'             => 'pending',
             ]);
 
             // 🔹 تحديث حالة الطلب أيضًا إلى "pending"
@@ -242,17 +246,30 @@ class OrderController extends Controller
             // 🔹 البحث عن مزودي الخدمة القريبين مرة أخرى وإرسال الإشعارات
             $serviceType = $order->type;
 
+
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->nearby($request->latitude, $request->longitude, 50)
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                        ->where('is_active', true);
                 })
                 ->get();
 
             $providerIds = $users->pluck('id')->toArray();
+
+            //create notification
+            foreach ($providerIds as $providerId) {
+                ProviderNotification::create([
+                    'provider_id'   => $providerId,
+                    'user_id'       => auth()->id(),
+                    'order_id'      => $orderId,
+                    'message'       => '🚀 New order request',
+                    'service_type'  => $order->type,
+                ]);
+            }
+
 
             // ✅ إعادة إرسال إشعار Pusher
             $pusher = new Pusher(

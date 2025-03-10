@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 
 class HyperPayService
@@ -52,6 +51,8 @@ class HyperPayService
             'billing.postcode'       => $customerData['postcode'] ?? null,
             'customer.givenName'     => $customerData['first_name'] ?? null,
             'customer.surname'       => $customerData['last_name'] ?? null,
+            'testMode'                  => 'EXTERNAL',
+            'customParameters[3DS2_enrolled]' => 'true',
         ]);
 
         return $response->json();

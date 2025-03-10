@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('provider_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignIdFor(app(User::class))->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->text('message');
             $table->string('service_type');
             $table->timestamps();

@@ -10,6 +10,7 @@ use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\User\ExpressServiceResource;
 use App\Models\ExpressService;
 use App\Models\Order;
+use App\Models\ProviderNotification;
 use App\Models\PunctureService;
 use App\Models\User;
 use App\Services\FirebaseService;
@@ -105,6 +106,17 @@ class ExpressServiceController extends Controller
                 'puncture' => '🛞 Puncture repair service request',
                 default => '🚀 New express service request',
             };
+
+            //create notification
+            foreach ($providerIds as $providerId) {
+                ProviderNotification::create([
+                    'provider_id'   => $providerId,
+                    'user_id'       => auth()->id(),
+                    'order_id'      => $order->id,
+                    'message'       => '🚀 New order request',
+                    'service_type'  => $order->type,
+                ]);
+            }
 
             // إرسال الإشعار برسالة مخصصة
             foreach ($users as $user) {

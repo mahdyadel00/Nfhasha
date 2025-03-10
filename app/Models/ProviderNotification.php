@@ -12,6 +12,7 @@ class ProviderNotification extends Model
     protected $fillable = [
         'provider_id',
         'user_id',
+        'order_id',
         'message',
         'service_type',
     ];
@@ -25,5 +26,10 @@ class ProviderNotification extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

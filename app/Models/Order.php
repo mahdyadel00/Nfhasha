@@ -105,4 +105,8 @@ class Order extends Model
     }
 
 
+    public function notifications()
+    {
+        return $this->hasMany(ProviderNotification::class);
+    }
 }
