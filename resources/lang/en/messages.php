@@ -76,4 +76,5 @@ return
     'invalid_phone'                                 =>  'Invalid phone number',
     'message_sent'                                  =>  'Message sent successfully',
     'periodic_inspection_updated_successfully'      =>  'Periodic inspection updated successfully',
+    'order_already_paid'                            =>  'Order already paid',
 ];

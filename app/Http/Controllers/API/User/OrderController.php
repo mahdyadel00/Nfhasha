@@ -212,6 +212,19 @@ class OrderController extends Controller
             ->where('status', 'rejected')
             ->firstOrFail();
 
+            if(!$order){
+                return new ErrorResource(__('messages.order_not_found'));
+            }
+
+            if($order->type != 'periodic_inspections'){
+                return new ErrorResource(__('messages.order_not_found'));
+            }
+
+            if ($order->status == 'paid' || $order->status == 'completed' || $order->status == 'canceled') {
+                return new ErrorResource(__('messages.order_already_paid'));
+            }
+
+
         // 🔹 تحديث بيانات الفحص الدوري فقط
         $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
 
