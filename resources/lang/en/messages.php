@@ -77,4 +77,8 @@ return
     'message_sent'                                  =>  'Message sent successfully',
     'periodic_inspection_updated_successfully'      =>  'Periodic inspection updated successfully',
     'order_already_paid'                            =>  'Order already paid',
+    'service_offers'                                =>  'Service Offers',
+    'coupon'                                        =>  'Coupon',
+    'invalid_or_expired_coupon'                     =>  'Invalid or expired coupon',
+    'coupon_code'                                   =>  'Coupon Code',
 ];

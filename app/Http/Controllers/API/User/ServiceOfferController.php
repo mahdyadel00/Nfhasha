@@ -12,7 +12,7 @@ class ServiceOfferController extends Controller
 {
     public function index(){
 
-        $service_offers = ServiceOffer::get();
+        $service_offers = ServiceOffer::paginate(config('app.paginate'));
 
         return new SuccessResource([
             'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.service_offers')]) ,

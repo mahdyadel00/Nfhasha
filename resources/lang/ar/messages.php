@@ -77,5 +77,6 @@ return
     'message_sent'                              => 'تم إرسال الرسالة بنجاح',
     'periodic_inspection_updated_successfully'  => 'تم تحديث الفحص الدوري بنجاح',
     'order_already_paid'                        => 'تم دفع الطلب بالفعل',
+    'service_offers'                            => 'عروض الخدمات',
 
 ];

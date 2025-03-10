@@ -145,34 +145,34 @@ class OrderController extends Controller
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
-                          ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
                 })
                 ->get();
 
-                $providerIds = $users->pluck('id')->toArray();
+            $providerIds = $users->pluck('id')->toArray();
 
 
-                $pusher = new Pusher(
-                    env('PUSHER_APP_KEY'),
-                    env('PUSHER_APP_SECRET'),
-                    env('PUSHER_APP_ID'),
-                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                );
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
 
-                $message = match ($order->type) {
-                    'battery'  => '🔋 Battery order request',
-                    'towing'   => '🚛 Towing order request',
-                    'puncture' => '🛞 Puncture repair order request',
-                    default    => '🚀 New order request',
-                };
+            $message = match ($order->type) {
+                'battery'  => '🔋 Battery order request',
+                'towing'   => '🚛 Towing order request',
+                'puncture' => '🛞 Puncture repair order request',
+                default    => '🚀 New order request',
+            };
 
-                foreach ($users as $user) {
-                    $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                        'message'       => $message,
-                        'order'         => $order,
-                        'Provider_ids'  => $providerIds, // ✅ إرسال قائمة الـ IDs
-                    ]);
-                }
+            foreach ($users as $user) {
+                $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                    'message'       => $message,
+                    'order'         => $order,
+                    'Provider_ids'  => $providerIds, // ✅ إرسال قائمة الـ IDs
+                ]);
+            }
 
             if ($users->isNotEmpty()) {
                 try {
@@ -202,21 +202,21 @@ class OrderController extends Controller
 
 
     public function updatePeriodicInspection(Request $request, $orderId)
-{
-    try {
-        DB::beginTransaction();
+    {
+        try {
+            DB::beginTransaction();
 
-        // 🔹 جلب الطلب المرتبط بالفحص الدوري
-        $order = Order::where('id', $orderId)
-            ->where('type', 'periodic_inspections')
-            ->where('status', 'rejected')
-            ->firstOrFail();
+            // 🔹 جلب الطلب المرتبط بالفحص الدوري
+            $order = Order::where('id', $orderId)
+                ->where('type', 'periodic_inspections')
+                ->where('status', 'rejected')
+                ->firstOrFail();
 
-            if(!$order){
+            if (!$order) {
                 return new ErrorResource(__('messages.order_not_found'));
             }
 
-            if($order->type != 'periodic_inspections'){
+            if ($order->type != 'periodic_inspections') {
                 return new ErrorResource(__('messages.order_not_found'));
             }
 
@@ -225,82 +225,79 @@ class OrderController extends Controller
             }
 
 
-        // 🔹 تحديث بيانات الفحص الدوري فقط
-        $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
+            // 🔹 تحديث بيانات الفحص الدوري فقط
+            $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
 
-        $periodicInspection->update([
-            'inspection_type_id' => $request->inspection_type_id ?? $periodicInspection->inspection_type_id,
-            'address'            => $request->address ?? $periodicInspection->address,
-            'latitude'           => $request->latitude ?? $periodicInspection->latitude,
-            'longitude'          => $request->longitude ?? $periodicInspection->longitude,
-            'status'             => 'pending', // ✅ إعادة الحالة إلى "pending"
-        ]);
+            $periodicInspection->update([
+                'inspection_type_id' => $request->inspection_type_id ?? $periodicInspection->inspection_type_id,
+                'address'            => $request->address ?? $periodicInspection->address,
+                'latitude'           => $request->latitude ?? $periodicInspection->latitude,
+                'longitude'          => $request->longitude ?? $periodicInspection->longitude,
+                'status'             => 'pending', // ✅ إعادة الحالة إلى "pending"
+            ]);
 
-        // 🔹 تحديث حالة الطلب أيضًا إلى "pending"
-        $order->update(['status' => 'pending']);
+            // 🔹 تحديث حالة الطلب أيضًا إلى "pending"
+            $order->update(['status' => 'pending']);
 
-        // 🔹 البحث عن مزودي الخدمة القريبين مرة أخرى وإرسال الإشعارات
-        $serviceType = $order->type;
+            // 🔹 البحث عن مزودي الخدمة القريبين مرة أخرى وإرسال الإشعارات
+            $serviceType = $order->type;
 
-        $users = User::whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->nearby($request->latitude, $request->longitude, 50)
-            ->where('role', 'provider')
-            ->whereHas('provider', function ($query) use ($serviceType) {
-                $query->where($serviceType, true)
-                      ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
-            })
-            ->get();
+            $users = User::whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->nearby($request->latitude, $request->longitude, 50)
+                ->where('role', 'provider')
+                ->whereHas('provider', function ($query) use ($serviceType) {
+                    $query->where($serviceType, true)
+                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                })
+                ->get();
 
             $providerIds = $users->pluck('id')->toArray();
 
-        // ✅ إعادة إرسال إشعار Pusher
-        $pusher = new Pusher(
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-        );
+            // ✅ إعادة إرسال إشعار Pusher
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
 
-        $message = '🔄 Periodic inspection request updated';
+            $message = '🔄 Periodic inspection request updated';
 
-        foreach ($users as $user) {
-            $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                'message'       => $message,
-                'order'         => $order,
-                'Provider_ids'  => $providerIds,
-            ]);
-        }
-
-        // ✅ إعادة إرسال إشعارات Firebase
-        if ($users->isNotEmpty()) {
-            try {
-                $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
-
-                if (!empty($tokens)) {
-                    $firebaseService = new FirebaseService();
-                    $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
-                }
-            } catch (\Exception $e) {
-                Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+            foreach ($users as $user) {
+                $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                    'message'       => $message,
+                    'order'         => $order,
+                    'Provider_ids'  => $providerIds,
+                ]);
             }
+
+            // ✅ إعادة إرسال إشعارات Firebase
+            if ($users->isNotEmpty()) {
+                try {
+                    $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
+
+                    if (!empty($tokens)) {
+                        $firebaseService = new FirebaseService();
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                }
+            }
+
+            DB::commit();
+
+            return new SuccessResource([
+                'message' => __('messages.periodic_inspection_updated_successfully'),
+                'data'    => $orderId
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::channel('error')->error('Error updating periodic inspection: ' . $e->getMessage());
+            return new ErrorResource($e->getMessage());
         }
-
-        DB::commit();
-
-        return new SuccessResource([
-            'message' => __('messages.periodic_inspection_updated_successfully'),
-            'data'    => $orderId
-        ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::channel('error')->error('Error updating periodic inspection: ' . $e->getMessage());
-        return new ErrorResource($e->getMessage());
     }
-}
-
-
-
 
     public function payment($order)
     {
