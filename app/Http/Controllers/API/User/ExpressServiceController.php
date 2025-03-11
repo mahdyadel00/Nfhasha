@@ -43,7 +43,7 @@ class ExpressServiceController extends Controller
 
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->nearby($request->latitude, $request->longitude, 50)
+                ->nearby($request->from_latitude, $request->from_longitude, 50)
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
