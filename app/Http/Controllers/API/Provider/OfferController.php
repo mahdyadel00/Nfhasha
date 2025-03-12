@@ -119,28 +119,38 @@ class OfferController extends Controller
             $orderIds = $provider_notifications->pluck('order_id')->toArray();
 
             $orders = Order::whereIn('id', $orderIds)
-            ->whereNotIn('status', ['accepted', 'completed'])
-            ->where(function ($query) use ($provider) {
-                $query->where('status', 'pending')
-                    ->orWhere(function ($query) use ($provider) {
-                        $query->where('status', 'sent')
-                            ->where('provider_id', $provider->id);
-                    });
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+                ->whereNotIn('status', ['accepted', 'completed'])
+                ->where(function ($query) use ($provider) {
+                    $query->where('status', 'pending')
+                        ->orWhere(function ($query) use ($provider) {
+                            $query->where('status', 'sent')
+                                ->where('provider_id', $provider->id);
+                        });
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
             // dd($orders);
 
             DB::commit();
 
             // ✅ ✅ إذا كانت القائمة فارغة، إرجاع 200 مع قائمة فارغة بدلاً من خطأ
+            // return response()->json([
+            //     'success' => true,
+            //     'data' => OrderResource::collection($orders->map(function ($order) {
+            //         $isSentByMe = $order->provider_id == auth()->id();
+            //         $order->is_sent_by_me = $isSentByMe;
+            //         return $order;
+            //     })),
+            // ], 200);
             return response()->json([
                 'success' => true,
-                'data' => OrderResource::collection($orders->map(function ($order) {
-                    $isSentByMe = $order->provider_id == auth()->id();
-                    $order->is_sent_by_me = $isSentByMe;
-                    return $order;
-                })),
+                'data' => OrderResource::collection(
+                    $orders->load('offers')->map(function ($order) {
+                        $isSentByMe = $order->provider_id == auth()->id();
+                        $order->is_sent_by_me = $isSentByMe;
+                        return $order;
+                    })
+                ),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
