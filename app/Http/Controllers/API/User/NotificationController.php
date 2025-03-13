@@ -122,6 +122,7 @@ class NotificationController extends Controller
                 //create notification
                 ProviderNotification::create([
                     'user_id'       => $order->user_id,
+                    'order_id'      => $order->id,
                     'provider_id'   => $offer->provider_id,
                     'service_type'  => $order->type,
                     'message'       => 'Offer accepted',
