@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API\User;
+
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderOfferResource;
@@ -30,7 +31,6 @@ class NotificationController extends Controller
             'message'   => 'Notifications found successfully',
             'data'      => OrderOfferResource::collection($offers),
         ]);
-
     }
 
     public function show($order_id)
@@ -45,6 +45,20 @@ class NotificationController extends Controller
         }
 
         return new ErrorResource('No offers found for this order');
+    }
+
+    public function showOffer($offer_id)
+    {
+        $offer = OrderOffer::find($offer_id);
+
+        if ($offer) {
+            return new SuccessResource([
+                'message'   => 'Notification found successfully',
+                'data'      => new OrderOfferResource($offer),
+            ]);
+        }
+
+        return new ErrorResource('No notification found');
     }
 
 
@@ -90,51 +104,50 @@ class NotificationController extends Controller
 
     public function acceptOffer($id)
     {
-            $offer = OrderOffer::find($id);
+        $offer = OrderOffer::find($id);
 
-            if ($offer) {
-                $order = Order::find($offer->order_id);
-                $order->update([
-                    'status'        => 'accepted',
-                    'provider_id'   => $offer->provider_id,
-                    'total_cost'    => $offer->amount,
-                ]);
+        if ($offer) {
+            $order = Order::find($offer->order_id);
+            $order->update([
+                'status'        => 'accepted',
+                'provider_id'   => $offer->provider_id,
+                'total_cost'    => $offer->amount,
+            ]);
 
-                $offer->update([
-                    'status' => 'accepted',
-                ]);
+            $offer->update([
+                'status' => 'accepted',
+            ]);
 
-                //send notification to provider
-                $pusher = new Pusher(
-                    env('PUSHER_APP_KEY'),
-                    env('PUSHER_APP_SECRET'),
-                    env('PUSHER_APP_ID'),
-                    ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-                );
+            //send notification to provider
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
 
-                $pusher->trigger('notifications.providers', 'sent.offer', [
-                    'message'       => 'Offer accepted',
-                    'user_id'       => $order->user_id,
-                    'order_id'      => $order->id,
-                    'provider_id'   => $offer->provider_id,
-                ]);
+            $pusher->trigger('notifications.providers', 'sent.offer', [
+                'message'       => 'Offer accepted',
+                'user_id'       => $order->user_id,
+                'order_id'      => $order->id,
+                'provider_id'   => $offer->provider_id,
+            ]);
 
-                //create notification
-                ProviderNotification::create([
-                    'user_id'       => $order->user_id,
-                    'order_id'      => $order->id,
-                    'provider_id'   => $offer->provider_id,
-                    'service_type'  => $order->type,
-                    'message'       => 'Offer accepted',
-                ]);
+            //create notification
+            ProviderNotification::create([
+                'user_id'       => $order->user_id,
+                'order_id'      => $order->id,
+                'provider_id'   => $offer->provider_id,
+                'service_type'  => $order->type,
+                'message'       => 'Offer accepted',
+            ]);
 
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer accepted', 'Offer accepted');
+            $firebaseService = new FirebaseService();
+            $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer accepted', 'Offer accepted');
 
-                return new SuccessResource('Offer accepted successfully');
-            }
+            return new SuccessResource('Offer accepted successfully');
+        }
 
         return new ErrorResource('No notification found');
     }
-
 }
