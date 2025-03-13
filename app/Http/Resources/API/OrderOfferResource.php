@@ -15,15 +15,15 @@ class OrderOfferResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return
-        [
-            'id'                            => $this->id,
-            'status'                        => $this->status,
-            'amount'                        => $this->amount,
-            // 'provider'                      => new ProviderResource($this->provider),
-            // 'order'                         => new OrderResource($this->order),
-            'created_at'                    => $this->created_at,
-            'updated_at'                    => $this->updated_at,
+        return [
+            'id'         => $this->id,
+            'status'     => $this->status,
+            'amount'     => $this->amount,
+            'provider'   => $this->whenLoaded('provider', fn() => new ProviderResource($this->provider)),
+            'order'      => $this->whenLoaded('order', fn() => new OrderResource($this->order)),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
+
     }
 }
