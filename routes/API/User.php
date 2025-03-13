@@ -104,7 +104,7 @@ Route::get('express-service/{id}' , [ExpressServiceController::class , 'show']);
 //get all notifications
 Route::get('notifications' , [NotificationController::class , 'index']);
 Route::get('notification/{order_id}' , [NotificationController::class , 'show']);
-Route::get('notification/{offer_id}' , [NotificationController::class , 'showOffer']);
+Route::get('notification-offer/{offer_id}' , [NotificationController::class , 'showOffer']);
 Route::post('accept-offer/{id}' , [NotificationController::class , 'acceptOffer']);
 Route::post('reject-offer/{id}' , [NotificationController::class , 'rejectOffer']);
 

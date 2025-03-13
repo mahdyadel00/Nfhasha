@@ -20,8 +20,8 @@ class OrderOfferResource extends JsonResource
             'id'                            => $this->id,
             'status'                        => $this->status,
             'amount'                        => $this->amount,
-            'provider'                      => new ProviderResource($this->provider),
-            'order'                         => new OrderResource($this->order),
+            // 'provider'                      => new ProviderResource($this->provider),
+            // 'order'                         => new OrderResource($this->order),
             'created_at'                    => $this->created_at,
             'updated_at'                    => $this->updated_at,
         ];
