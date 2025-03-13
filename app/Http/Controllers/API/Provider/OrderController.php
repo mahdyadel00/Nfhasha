@@ -131,8 +131,6 @@ class OrderController extends Controller
 
         }
 
-
-
         if ($order->type == 'periodic_inspections') {
             //creat array for image
             $image = [];
@@ -151,6 +149,7 @@ class OrderController extends Controller
         //create notification
         ProviderNotification::create([
             'user_id'       => $order->user_id,
+            'order_id'       => $order->id,
             'provider_id'   => auth()->id(),
             'service_type'  => $order->type,
             'message'       => __('messages.tracking_my_order')
