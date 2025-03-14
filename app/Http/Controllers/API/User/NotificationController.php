@@ -32,8 +32,7 @@ class NotificationController extends Controller
             return new ErrorResource('No orders found');
         }
 
-        $offers = OrderOffer::with(['order', 'provider'])
-            ->where('order_id', $order->id)
+        $offers = OrderOffer::where('order_id', $order->id)
             ->get();
 
         return new SuccessResource([
@@ -44,8 +43,7 @@ class NotificationController extends Controller
 
     public function show($order_id)
     {
-        $offers = OrderOffer::with(['order', 'provider'])
-            ->where('order_id', $order_id)
+        $offers = OrderOffer::where('order_id', $order_id)
             ->get();
 
         if ($offers->isNotEmpty()) {
