@@ -12,6 +12,7 @@ use App\Models\ProviderNotification;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Pusher\Pusher;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -75,14 +76,17 @@ class NotificationController extends Controller
 
     public function rejectOffer(Request $request, $id)
     {
-        $offer  = OrderOffer::find($id);
+        $offer = OrderOffer::find($id);
 
-        if ($offer) {
-            $offer->update([
-                'status' => 'rejected',
-            ]);
+        if (!$offer) {
+            return new ErrorResource('Offer not found');
+        }
 
-            //send notification to provider
+        // تحديث حالة العرض إلى "مرفوض"
+        $offer->update(['status' => 'rejected']);
+
+        try {
+            // إرسال إشعار عبر Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -97,7 +101,7 @@ class NotificationController extends Controller
                 'provider_id'   => $offer->provider_id,
             ]);
 
-            //create notification
+            // إنشاء إشعار للمزود
             ProviderNotification::create([
                 'user_id'       => auth()->id(),
                 'provider_id'   => $offer->provider_id,
@@ -105,13 +109,18 @@ class NotificationController extends Controller
                 'message'       => 'Offer rejected',
             ]);
 
-            $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer rejected', 'Offer rejected');
-
-            return new SuccessResource('Offer rejected successfully');
+            // إرسال إشعار عبر Firebase إذا كان لدى المزود `fcm_token`
+            if (!empty($offer->provider->fcm_token)) {
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer rejected', 'Offer rejected');
+            }
+        } catch (\Exception $e) {
+            Log::channel('error')->error("Notification Failed: " . $e->getMessage());
         }
-        return new ErrorResource('No notification found');
+
+        return new SuccessResource('Offer rejected successfully');
     }
+
 
     public function acceptOffer($id)
     {
@@ -153,10 +162,20 @@ class NotificationController extends Controller
                 'message'       => 'Offer accepted',
             ]);
 
-            $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer accepted', 'Offer accepted');
+            if (!empty($offer->provider->fcm_token)) {
+                try {
+                    $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();
 
-            return new SuccessResource('Offer accepted successfully');
+                    if (!empty($tokens)) {
+                        $firebaseService = new FirebaseService();
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, 'Offer accepted', 'Offer accepted');
+                    }
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Offer not found'], 404);
         }
 
         return new ErrorResource('No notification found');
