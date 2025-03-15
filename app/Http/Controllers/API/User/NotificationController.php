@@ -119,63 +119,60 @@ class NotificationController extends Controller
         return new SuccessResource('Offer rejected successfully');
     }
 
-
     public function acceptOffer($id)
     {
         $offer = OrderOffer::find($id);
 
-        if ($offer) {
-            $order = Order::find($offer->order_id);
-            $order->update([
-                'status'        => 'accepted',
-                'provider_id'   => $offer->provider_id,
-                'total_cost'    => $offer->amount,
-            ]);
-
-            $offer->update([
-                'status' => 'accepted',
-            ]);
-
-            //send notification to provider
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-            );
-
-            $pusher->trigger('notifications.providers', 'sent.offer', [
-                'message'       => 'Offer accepted',
-                'user_id'       => $order->user_id,
-                'order_id'      => $order->id,
-                'provider_id'   => $offer->provider_id,
-            ]);
-
-            //create notification
-            ProviderNotification::create([
-                'user_id'       => $order->user_id,
-                'order_id'      => $order->id,
-                'provider_id'   => $offer->provider_id,
-                'service_type'  => $order->type,
-                'message'       => 'Offer accepted',
-            ]);
-
-            if (!empty($offer->provider->fcm_token)) {
-                try {
-                    $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();
-
-                    if (!empty($tokens)) {
-                        $firebaseService = new FirebaseService();
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, 'Offer accepted', 'Offer accepted');
-                    }
-                } catch (\Exception $e) {
-                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
-                }
-            }
-        } else {
+        if (!$offer) {
             return response()->json(['message' => 'Offer not found'], 404);
         }
 
-        return new ErrorResource('No notification found');
+        $order = Order::find($offer->order_id);
+        $order->update([
+            'status'        => 'accepted',
+            'provider_id'   => $offer->provider_id,
+            'total_cost'    => $offer->amount,
+        ]);
+
+        $offer->update(['status' => 'accepted']);
+
+        // إرسال إشعار عبر Pusher
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        );
+
+        $pusher->trigger('notifications.providers', 'sent.offer', [
+            'message'       => 'Offer accepted',
+            'user_id'       => $order->user_id,
+            'order_id'      => $order->id,
+            'provider_id'   => $offer->provider_id,
+        ]);
+
+        // إنشاء إشعار في قاعدة البيانات
+        ProviderNotification::create([
+            'user_id'       => $order->user_id,
+            'order_id'      => $order->id,
+            'provider_id'   => $offer->provider_id,
+            'service_type'  => $order->type,
+            'message'       => 'Offer accepted',
+        ]);
+
+        // إرسال إشعار عبر Firebase
+        if (!empty($offer->provider->fcm_token)) {
+            try {
+                $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();
+                if (!empty($tokens)) {
+                    $firebaseService = new FirebaseService();
+                    $firebaseService->sendNotificationToMultipleUsers($tokens, 'Offer accepted', 'Offer accepted');
+                }
+            } catch (\Exception $e) {
+                Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'Offer accepted successfully']);
     }
 }

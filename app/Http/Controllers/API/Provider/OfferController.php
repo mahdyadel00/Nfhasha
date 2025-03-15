@@ -297,17 +297,28 @@ class OfferController extends Controller
     {
         try {
             DB::beginTransaction();
-            $order = Order::where('id', $id)->where('status', 'pending')
-                ->orWhere('status', 'sent')->first();
-            if ($order) {
-                $order->update([
-                    'status'        => 'pending',
-                    'provider_id'   => null,
-                    'reason'        => $request->reason,
-                ]);
+
+            // تحسين الاستعلام مع استخدام الأقواس لتجنب جلب طلب غير صحيح
+            $order = Order::where('id', $id)
+                ->where(function ($query) {
+                    $query->where('status', 'pending')
+                        ->orWhere('status', 'sent');
+                })->first();
+
+            // التحقق مما إذا كان الطلب موجودًا قبل المتابعة
+            if (!$order) {
+                return new ErrorResource(['message' => 'Order not found']);
             }
+
+            $order->update([
+                'status'      => 'pending',
+                'provider_id' => null,
+                'reason'      => $request->reason,
+            ]);
+
             DB::commit();
 
+            // إرسال إشعار باستخدام Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -321,8 +332,11 @@ class OfferController extends Controller
                 'provider'  => auth()->user(),
             ]);
 
-            $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected');
+            // إرسال إشعار FCM فقط إذا كان لدى المستخدم `fcm_token`
+            if (!empty($order->user->fcm_token)) {
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected');
+            }
 
             return new SuccessResource([
                 'message' => 'Offer rejected successfully',
@@ -330,7 +344,7 @@ class OfferController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error('Error in OfferController@rejectOffer: ' . $e->getMessage());
-            return new ErrorResource(['message' => $e->getMessage(),]);
+            return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
 }

@@ -233,17 +233,14 @@ class OrderController extends Controller
             }
 
 
-            // 🔹 تحديث بيانات الفحص الدوري فقط
             $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
 
             $periodicInspection->update([
                 'status'             => 'pending',
             ]);
 
-            // 🔹 تحديث حالة الطلب أيضًا إلى "pending"
             $order->update(['status' => 'pending']);
 
-            // 🔹 البحث عن مزودي الخدمة القريبين مرة أخرى وإرسال الإشعارات
             $serviceType = $order->type;
 
 
