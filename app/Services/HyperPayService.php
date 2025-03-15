@@ -51,7 +51,7 @@ class HyperPayService
             'billing.postcode'       => $customerData['postcode'] ?? null,
             'customer.givenName'     => $customerData['first_name'] ?? null,
             'customer.surname'       => $customerData['last_name'] ?? null,
-            'testMode'                  => 'EXTERNAL',
+            'testMode'               => 'EXTERNAL',
             'customParameters[3DS2_enrolled]' => 'true',
         ]);
 
