@@ -40,6 +40,9 @@ class HyperPayController extends Controller
             $order->payment_method = 'wallet';
             $order->save();
 
+            // حذف جميع العروض المرتبطة بالطلب
+            $order->offers()->delete();
+
             return response()->json(['message' => 'Payment successful via wallet']);
         }
 
@@ -77,7 +80,6 @@ class HyperPayController extends Controller
             'url' => "https://eu-test.oppwa.com/v1/paymentWidgets.js?checkoutId={$paymentData['id']}",
         ]);
     }
-
     public function getPaymentStatus($paymentTransactionId, $paymentMethod)
     {
         $order = Order::where('payment_transaction_id', $paymentTransactionId)->first();

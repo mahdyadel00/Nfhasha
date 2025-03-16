@@ -14,31 +14,31 @@ class ChatController extends Controller
     {
         $order = Order::where('status', 'accepted')->find($id);
 
-        if(!$order) {
+        if (!$order) {
             return new ErrorResource([
                 'message' => __('messages.order_not_found')
             ]);
         }
 
-        if(!in_array(auth()->id(), [$order->user_id, $order->provider_id])) {
+        if (!in_array(auth()->id(), [$order->user_id, $order->provider_id])) {
             return new ErrorResource([
                 'message' => __('messages.unauthorized')
             ]);
         }
 
-        if(!$order->provider_id) {
+        if (!$order->provider_id) {
             return new ErrorResource([
                 'message' => __('messages.provider_not_assigned')
             ]);
         }
 
-        if(!$order->user_id) {
+        if (!$order->user_id) {
             return new ErrorResource([
                 'message' => __('messages.user_not_assigned')
             ]);
         }
 
-        if(!$order->status == 'accepted') {
+        if ($order->status !== 'accepted') {
             return new ErrorResource([
                 'message' => __('messages.order_not_accepted')
             ]);
@@ -46,14 +46,31 @@ class ChatController extends Controller
 
         $otherUserId = ($order->user_id == auth()->id()) ? $order->provider_id : $order->user_id;
 
-        $chat = Chat::firstOrCreate([
-            'order_id'      => $order->id,
-            'user_id'       => auth()->id(),
-            'provider_id'   => $otherUserId,
+        // البحث عن شات موجود مسبقًا
+        $chat = Chat::where('order_id', $order->id)
+            ->where(function ($query) use ($otherUserId) {
+                $query->where('user_id', auth()->id())
+                    ->where('provider_id', $otherUserId);
+            })->orWhere(function ($query) use ($otherUserId) {
+                $query->where('user_id', $otherUserId)
+                    ->where('provider_id', auth()->id());
+            })->first();
+
+        // إذا كان موجودًا، نرجعه بدون إنشاء جديد
+        if ($chat) {
+            return response()->json($chat);
+        }
+
+        // إنشاء شات جديد في حالة عدم وجوده
+        $chat = Chat::create([
+            'order_id'    => $order->id,
+            'user_id'     => auth()->id(),
+            'provider_id' => $otherUserId,
         ]);
 
         return response()->json($chat);
     }
+
 
 
     public function chats($id)
