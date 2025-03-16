@@ -44,17 +44,8 @@ class ChatController extends Controller
             ]);
         }
 
-        $otherUserId = ($order->user_id == auth()->id()) ? $order->provider_id : $order->user_id;
-
-        // البحث عن شات موجود مسبقًا
-        $chat = Chat::where('order_id', $order->id)
-            ->where(function ($query) use ($otherUserId) {
-                $query->where('user_id', auth()->id())
-                    ->where('provider_id', $otherUserId);
-            })->orWhere(function ($query) use ($otherUserId) {
-                $query->where('user_id', $otherUserId)
-                    ->where('provider_id', auth()->id());
-            })->first();
+        // البحث عن الشات بنفس order_id فقط
+        $chat = Chat::where('order_id', $order->id)->first();
 
         // إذا كان موجودًا، نرجعه بدون إنشاء جديد
         if ($chat) {
@@ -65,13 +56,11 @@ class ChatController extends Controller
         $chat = Chat::create([
             'order_id'    => $order->id,
             'user_id'     => auth()->id(),
-            'provider_id' => $otherUserId,
+            'provider_id' => ($order->user_id == auth()->id()) ? $order->provider_id : $order->user_id,
         ]);
 
         return response()->json($chat);
     }
-
-
 
     public function chats($id)
     {
