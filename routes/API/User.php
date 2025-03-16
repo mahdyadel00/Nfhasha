@@ -75,6 +75,7 @@ Route::group(['prefix' => 'wallet' , 'controller' => WalletController::class] , 
     Route::get('', 'index');
     Route::post('deposit', 'deposit');
     Route::post('withdraw', 'withdraw');
+    
 });
 
 

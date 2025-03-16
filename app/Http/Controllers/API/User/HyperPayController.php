@@ -16,15 +16,34 @@ class HyperPayController extends Controller
     {
         $this->hyperPayService = $hyperPayService;
     }
-
     public function initiatePayment(Request $request, $id)
     {
         $order = Order::findOrFail($id);
+        $user = auth()->user();
 
         $request->validate([
-            'paymentMethod' => 'required|in:visa,mada',
+            'paymentMethod' => 'required|in:visa,mada,wallet',
         ]);
 
+        // الدفع عبر المحفظة
+        if ($request->paymentMethod === 'wallet') {
+            if ($user->balance < $order->total_cost) {
+                return response()->json(['error' => 'Insufficient wallet balance'], 400);
+            }
+
+            // خصم المبلغ من المحفظة
+            $user->balance -= $order->total_cost;
+            $user->save();
+
+            // تحديث حالة الطلب
+            $order->status = 'completed';
+            $order->payment_method = 'wallet';
+            $order->save();
+
+            return response()->json(['message' => 'Payment successful via wallet']);
+        }
+
+        // الدفع عبر HyperPay
         $order->payment_method = $request->paymentMethod;
         $order->status = 'pending';
         $order->save();
@@ -57,8 +76,6 @@ class HyperPayController extends Controller
             'message' => 'Redirect to payment page',
             'url' => "https://eu-test.oppwa.com/v1/paymentWidgets.js?checkoutId={$paymentData['id']}",
         ]);
-
-
     }
 
     public function getPaymentStatus($paymentTransactionId, $paymentMethod)

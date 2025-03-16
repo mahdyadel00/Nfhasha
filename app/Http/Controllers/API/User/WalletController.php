@@ -14,7 +14,7 @@ class WalletController extends Controller
 
         $transactions = auth()->user()->walletTransactions()->latest()->get();
 
-        return apiResponse(200, __('messages.data_returned_successfully' , ['attr' => __('messages.wallet')]), [
+        return apiResponse(200, __('messages.data_returned_successfully', ['attr' => __('messages.wallet')]), [
             'balance'       => $balance,
             'transactions'  => TransactionsRequest::collection($transactions)
         ]);
@@ -32,13 +32,13 @@ class WalletController extends Controller
 
         $user->increment('balance', $request->amount);
         $user->walletTransactions()->create([
-            
+
             'amount'    => $request->amount,
             'type'      => 'deposit',
             'notes'     => $request->notes
         ]);
 
-        return apiResponse(200, __('manage.created_successfully' , ['attr' => __('messages.deposit')]));
+        return apiResponse(200, __('manage.created_successfully', ['attr' => __('messages.deposit')]));
     }
 
     public function withdraw(Request $request)
@@ -65,6 +65,6 @@ class WalletController extends Controller
             'notes' => $request->notes
         ]);
 
-        return apiResponse(200, __('manage.created_successfully' , ['attr' => __('messages.withdraw')]));
+        return apiResponse(200, __('manage.created_successfully', ['attr' => __('messages.withdraw')]));
     }
 }
