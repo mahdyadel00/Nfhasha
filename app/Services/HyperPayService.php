@@ -17,12 +17,11 @@ class HyperPayService
         $this->accessToken = config('hyperpay.access_token');
         $this->currency = config('hyperpay.currency');
 
-        // دعم طرق دفع متعددة
         $this->entities = [
-            'visa'  => config('hyperpay.entity_id_visa_master'),
-            'mada'  => config('hyperpay.entity_id_mada'),
-            'applepay' => config('hyperpay.entity_id_applepay'),
-            'stcpay'   => config('hyperpay.entity_id_stcpay'),
+            'visa'          => config('hyperpay.entity_id_visa_master'),
+            'mastercard'    => config('hyperpay.entity_id_visa_master'),
+            'mada'          => config('hyperpay.entity_id_mada'),
+            'applepay'      => config('hyperpay.entity_id_apple_pay'),
         ];
     }
 
@@ -35,9 +34,7 @@ class HyperPayService
         $entityId = $this->entities[$paymentMethod];
         $url = "{$this->baseUrl}v1/checkouts";
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
-        ])->asForm()->post($url, [
+        $postData = [
             'entityId'               => $entityId,
             'amount'                 => number_format($amount, 2, '.', ''),
             'currency'               => $this->currency,
@@ -53,10 +50,22 @@ class HyperPayService
             'customer.surname'       => $customerData['last_name'] ?? null,
             'testMode'               => 'EXTERNAL',
             'customParameters[3DS2_enrolled]' => 'true',
-        ]);
+        ];
+
+        // إضافة Apple Pay كمعاملة منفصلة
+        if ($paymentMethod === 'applepay') {
+            $postData['paymentBrand'] = 'APPLEPAY';
+            $postData['shopperResultUrl'] = route('payment.applepay.callback');
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->accessToken,
+        ])->timeout(30)->asForm()->post($url, $postData);
+
 
         return $response->json();
     }
+
 
     public function getPaymentStatus($paymentTransactionId, $paymentMethod)
     {

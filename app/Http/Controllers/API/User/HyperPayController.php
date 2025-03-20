@@ -22,7 +22,7 @@ class HyperPayController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'paymentMethod' => 'required|in:visa,mada,wallet',
+            'paymentMethod' => 'required|in:visa,mastercard,mada,applepay,wallet,cash',
         ]);
 
         // الدفع عبر المحفظة
@@ -47,8 +47,8 @@ class HyperPayController extends Controller
         }
 
         // الدفع عبر HyperPay
-        $order->payment_method = $request->paymentMethod;
-        $order->status = 'pending';
+        $order->payment_method = ucfirst($request->paymentMethod);
+        $order->status = 'completed';
         $order->save();
 
         $customerData = [
@@ -138,5 +138,9 @@ class HyperPayController extends Controller
         $order->save();
 
         return response()->json(['message' => 'Refund successful', 'data' => $refundResponse]);
+    }
+    public function applePayCallback(Request $request)
+    {
+        return response()->json(['message' => 'Apple Pay callback received', 'data' => $request->all()]);
     }
 }

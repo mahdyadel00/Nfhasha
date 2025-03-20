@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->foreignId('pick_up_truck_id')->nullable()->constrained('pick_up_trucks');
             $table->string('type', 100);
             $table->enum('status', ['pending', 'accepted', 'rejected', 'completed', 'canceled' , 'sent' , 'refunded' , 'paid'])->default('pending');
-            $table->enum('payment_method', ['Online', 'Cash', 'Wallet'])->nullable();
+            $table->enum('payment_method', ['Online', 'Cash', 'Wallet', 'Visa', 'Mastercard', 'Mada', 'ApplePay'])->nullable();
             $table->string('from_lat', 92)->nullable();
             $table->string('from_long', 92)->nullable();
             $table->string('to_lat', 92)->nullable();
