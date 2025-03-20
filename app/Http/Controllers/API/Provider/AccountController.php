@@ -88,7 +88,10 @@ class AccountController extends Controller
         }
         if ($request->hasFile('profile_picture')) {
             $user->profile_picture = uploadImage($request->profile_picture, 'avatars');
+            $user->save();
         }
+
+        // $user->update($request->except('profile_picture'));
 
 
 
