@@ -15,19 +15,18 @@ class ExpressServiceResource extends JsonResource
         parent::__construct($resource);
         $this->orderId = $orderId; // ✅ حفظ `order_id`
     }
-
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
+        $this->loadMissing('carReservations'); // تحميل العلاقة إن لم تكن مُحمّلة
+
         $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
         $getUserReservation = function ($relation) use ($request) {
-            return $this->relationLoaded($relation) // تجنب تنفيذ استعلام إضافي
-                ? $this->$relation()
-                    ->where('user_id', $request->user()->id)
-                    ->where('express_service_id', $this->id)
-                    ->where('order_id', $this->orderId)
-                    ->first()
-                : null;
+            return $this->$relation()
+                ->where('user_id', $request->user()->id)
+                ->where('express_service_id', $this->id)
+                ->where('order_id', $this->orderId)
+                ->first();
         };
 
         return [
@@ -43,11 +42,10 @@ class ExpressServiceResource extends JsonResource
             'terms_condition'           => $this->terms_condition ?? null,
             'battery_image'             => $latestPunctureService ? asset('storage/' . $latestPunctureService->battery_image) : null,
             'type_battery'              => $latestPunctureService?->type_battery,
-            'car_reservation'           => $this->whenLoaded('carReservations', fn() => CarReservationsResource::make($getUserReservation('carReservations'))),
-            'comprehensiveInspections'  => $this->whenLoaded('comprehensiveInspections', fn() => ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections'))),
-            'maintenance'               => $this->whenLoaded('maintenance', fn() => MaintenanceResource::make($getUserReservation('maintenance'))),
-            'periodicInspections'       => $this->whenLoaded('periodicInspections', fn() => PeriodicInspectionsResource::make($getUserReservation('periodicInspections'))),
+            'car_reservation'           => CarReservationsResource::make($getUserReservation('carReservations')),
+            'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections')),
+            'maintenance'               => MaintenanceResource::make($getUserReservation('maintenance')),
+            'periodicInspections'       => PeriodicInspectionsResource::make($getUserReservation('periodicInspections')),
         ];
     }
-
 }
