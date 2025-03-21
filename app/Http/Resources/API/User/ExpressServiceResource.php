@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\API\User;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
@@ -40,7 +39,7 @@ class ExpressServiceResource extends JsonResource
             'name'                      => $this->name,
             'note'                      => $this->note,
             'terms_condition'           => $this->terms_condition ?? null,
-            'battery_image'             => $latestPunctureService ? asset('storage/' . $latestPunctureService->battery_image) : null,
+            'battery_image'             => $latestPunctureService ? asset('storage/express_services/' . basename($latestPunctureService->battery_image)) : null,
             'type_battery'              => $latestPunctureService?->type_battery,
             'car_reservation'           => CarReservationsResource::make($getUserReservation('carReservations')),
             'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections')),

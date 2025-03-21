@@ -65,7 +65,7 @@ class ExpressServiceController extends Controller
                 'to_latitude'           => $request->to_latitude ?? null,
                 'to_longitude'          => $request->to_longitude ?? null,
                 'type_battery'          => $request->type_battery ?? null,
-                'battery_image'         => $request->battery_image ? $request->battery_image->store('express_services') : null,
+                'battery_image' => $request->battery_image ? $request->battery_image->store('public/express_services') : null,
                 'notes'                 => $request->notes ?? null,
                 'amount'                => $request->amount ?? $express_services->price,
                 'status'                => 'pending',
