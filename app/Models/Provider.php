@@ -11,6 +11,26 @@ class Provider extends Model
 
     protected $guarded = [];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('counts', function ($query) {
+            $query->withCount([
+                'ratings',
+                'orders as completed_orders_count' => function ($query) {
+                    $query->where('status', 'completed');
+                }
+            ]);
+        });
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
     public function district()
     {
         return $this->belongsTo(District::class);
@@ -42,11 +62,7 @@ class Provider extends Model
     }
 
     public function ratings()
-{
-    return $this->hasManyThrough(OrderRate::class, User::class, 'id', 'provider_id', 'user_id', 'id');
-}
-
-
-
-
+    {
+        return $this->hasManyThrough(OrderRate::class, User::class, 'id', 'provider_id', 'user_id', 'id');
+    }
 }

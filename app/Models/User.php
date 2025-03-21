@@ -146,8 +146,9 @@ class User extends Authenticatable implements FilamentUser
     //Orders
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'user_id'); // تأكد أن العمود الصحيح هو `user_id`
     }
+
 
     //Puncture Services
     public function punctureServices()
