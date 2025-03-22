@@ -35,7 +35,6 @@ return new class extends Migration {
             $table->string('note')->nullable();
             $table->string('address')->nullable();
             $table->string('address_to')->nullable();
-            // $table->string('reason')->nullable();
             $table->text('reason')->nullable();
             $table->timestamps();
         });
