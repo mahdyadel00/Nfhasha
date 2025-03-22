@@ -11,10 +11,22 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
+use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $recordTitleAttribute = 'id';
@@ -25,9 +37,9 @@ class OrderResource extends Resource
     }
 
     public static function getNavigationGroup(): string
-{
-    return app()->getLocale() === 'en' ? 'Order Management' : 'إدارة الطلبات';
-}
+    {
+        return app()->getLocale() === 'en' ? 'Order Management' : 'إدارة الطلبات';
+    }
 
 
 
@@ -96,68 +108,63 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->label(__('ID'))
-                    ->sortable(),
-
-                TextColumn::make('user.name')
-                    ->label(__('User Name'))
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('provider.name')
-                    ->label(__('Provider Name'))
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('status')
-                    ->label(__('Status'))
-                    ->sortable(),
-
-                TextColumn::make('payment_method')
-                    ->label(__('Payment Method'))
-                    ->sortable(),
-
-                TextColumn::make('total_cost')
-                    ->label(__('Total Cost'))
-                    ->sortable(),
+                TextColumn::make('id')->label(__('رقم الطلب'))->sortable(),
+                TextColumn::make('provider.name')->label(__('اسم المزود'))->sortable()->searchable(),
+                TextColumn::make('user.name')->label(__('اسم المستخدم'))->sortable()->searchable(),
+                TextColumn::make('expressService.name')->label(__('الخدمة السريعة'))->sortable(),
+                TextColumn::make('city.name')->label(__('المدينة'))->sortable(),
+                TextColumn::make('pickUpTruck.name')->label(__('شاحنة النقل'))->sortable(),
+                BadgeColumn::make('status')
+                    ->label(__('الحالة'))
+                    ->colors([
+                        'pending' => 'warning',
+                        'accepted' => 'success',
+                        'rejected' => 'danger',
+                        'completed' => 'primary',
+                        'canceled' => 'gray',
+                        'sent' => 'info',
+                        'refunded' => 'purple',
+                        'paid' => 'green',
+                    ]),
+                TextColumn::make('payment_method')->label(__('طريقة الدفع'))->sortable(),
+                TextColumn::make('from_lat')->label(__('إحداثيات الانطلاق (خط العرض)'))->copyable(),
+                TextColumn::make('from_long')->label(__('إحداثيات الانطلاق (خط الطول)'))->copyable(),
+                TextColumn::make('to_lat')->label(__('إحداثيات الوجهة (خط العرض)'))->copyable(),
+                TextColumn::make('to_long')->label(__('إحداثيات الوجهة (خط الطول)'))->copyable(),
+                TextColumn::make('total_cost')->label(__('التكلفة الإجمالية'))->sortable()->money('SAR'),
+                TextColumn::make('note')->label(__('ملاحظات'))->limit(30),
+                TextColumn::make('address')->label(__('عنوان الاستلام'))->limit(30),
+                TextColumn::make('address_to')->label(__('عنوان الوجهة'))->limit(30),
+                TextColumn::make('reason')
+                    ->label(__('Reason'))
+                    ->formatStateUsing(fn($state) => is_array($state) ? implode(', ', $state) : $state)
+                    ->limit(50)
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label(__('Status'))
+                    ->label(__('حالة الطلب'))
                     ->options([
-                        'pending'    => __('Pending'),
-                        'accepted'   => __('Accepted'),
-                        'rejected'   => __('Rejected'),
-                        'completed'  => __('Completed'),
-                        'canceled'   => __('Canceled'),
-                        'sent'       => __('Sent'),
-                        'refunded'   => __('Refunded'),
-                        'paid'       => __('Paid'),
-                    ]),
-
-                SelectFilter::make('payment_method')
-                    ->label(__('Payment Method'))
-                    ->options([
-                        'Online'     => __('Online'),
-                        'Cash'       => __('Cash'),
-                        'Wallet'     => __('Wallet'),
-                        'Visa'       => __('Visa'),
-                        'Mastercard' => __('Mastercard'),
-                        'Mada'       => __('Mada'),
-                        'ApplePay'   => __('Apple Pay'),
+                        'pending' => __('معلق'),
+                        'accepted' => __('مقبول'),
+                        'rejected' => __('مرفوض'),
+                        'completed' => __('مكتمل'),
+                        'canceled' => __('ملغي'),
+                        'sent' => __('تم الإرسال'),
+                        'refunded' => __('تم الاسترداد'),
+                        'paid' => __('مدفوع'),
                     ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->modalHeading(__('Delete Confirmation'))
-                    ->modalDescription(__('Are you sure you want to delete this order?')),
+                Tables\Actions\DeleteAction::make()->label(__('حذف')),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()->label(__('حذف المحدد')),
+                ]),
             ]);
     }
+
+
 
     public static function getRelations(): array
     {
