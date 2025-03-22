@@ -81,4 +81,5 @@ return
     'coupon'                                        =>  'Coupon',
     'invalid_or_expired_coupon'                     =>  'Invalid or expired coupon',
     'coupon_code'                                   =>  'Coupon Code',
+    'provider_not_assigned'                         => 'Provider Not Assigned',
 ];

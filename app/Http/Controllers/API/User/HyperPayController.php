@@ -76,8 +76,8 @@ class HyperPayController extends Controller
         $order->save();
 
         return response()->json([
-            'message' => 'Redirect to payment page',
-            'url' => "https://eu-test.oppwa.com/v1/paymentWidgets.js?checkoutId={$paymentData['id']}",
+            'message'   => 'Redirect to payment page',
+            'data'      => $order->payment_transaction_id
         ]);
     }
     public function getPaymentStatus($paymentTransactionId, $paymentMethod)

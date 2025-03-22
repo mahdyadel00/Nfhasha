@@ -78,5 +78,6 @@ return
     'periodic_inspection_updated_successfully'  => 'تم تحديث الفحص الدوري بنجاح',
     'order_already_paid'                        => 'تم دفع الطلب بالفعل',
     'service_offers'                            => 'عروض الخدمات',
+    'provider_not_assigned'                     => 'لم يتم تعيين مزود الخدمة',
 
 ];
