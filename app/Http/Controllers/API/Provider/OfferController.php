@@ -201,7 +201,7 @@ class OfferController extends Controller
                 'provider_id'   => auth()->id(),
             ]);
 
-            if ($order->type == 'periodic_inspections' && $order->status == 'rejected') {
+            if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
                 OrderProvider::create([
                     'provider_id'   => auth()->id(),
                     'order_id'      => $order->id,
