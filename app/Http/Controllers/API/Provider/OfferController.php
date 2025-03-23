@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\API\Provider;
 
+use Pusher\Pusher;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use App\Models\OrderProvider;
+use App\Services\FirebaseService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\ProviderNotification;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
-use App\Models\Order;
-use App\Models\ProviderNotification;
-use App\Services\FirebaseService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Pusher\Pusher;
 
 class OfferController extends Controller
 {
@@ -200,9 +201,12 @@ class OfferController extends Controller
                 'provider_id'   => auth()->id(),
             ]);
 
+            OrderProvider::create([
+                'provider_id'   => auth()->id(),
+                'order_id'      => $order->id,
+                'status'        => 'assigned',
+            ]);
             DB::commit();
-
-            //            event(new \App\Events\OfferCreated('Offer accepted', [auth()->id()], $order));
 
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),

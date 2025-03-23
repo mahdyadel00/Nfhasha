@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\API\User;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\API\ErrorResource;
-use App\Http\Resources\API\OrderOfferResource;
-use App\Http\Resources\API\SuccessResource;
+use Pusher\Pusher;
 use App\Models\Order;
 use App\Models\OrderOffer;
-use App\Models\ProviderNotification;
-use App\Services\FirebaseService;
 use Illuminate\Http\Request;
-use Pusher\Pusher;
+use App\Models\OrderProvider;
+use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use App\Models\ProviderNotification;
+use App\Http\Resources\API\ErrorResource;
+use App\Http\Resources\API\SuccessResource;
+use App\Http\Resources\API\OrderOfferResource;
 
 class NotificationController extends Controller
 {
@@ -135,6 +136,12 @@ class NotificationController extends Controller
         ]);
 
         $offer->update(['status' => 'accepted']);
+
+        OrderProvider::create([
+            'provider_id'   => auth()->id(),
+            'order_id'      => $order->id,
+            'status'        => 'assigned',
+        ]);
 
         // إرسال إشعار عبر Pusher
         $pusher = new Pusher(

@@ -357,7 +357,7 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::where('user_id', auth('sanctum')->id())->find($id);
+        $order = Order::with('providers')->where('user_id', auth('sanctum')->id())->find($id);
 
         if (!$order) {
             return new SuccessResource([

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+
 class Order extends Model
 {
     use HasFactory;
@@ -53,7 +54,7 @@ class Order extends Model
 
     public function userVehicle()
     {
-        return $this->belongsTo(UserVehicle::class , 'user_vehicle_id');
+        return $this->belongsTo(UserVehicle::class, 'user_vehicle_id');
     }
 
     public function expressService()
@@ -78,10 +79,10 @@ class Order extends Model
     }
 
 
-    public function provider()
-    {
-        return $this->belongsTo(User::class , 'provider_id');
-    }
+    // public function provider()
+    // {
+    //     return $this->belongsTo(User::class, 'provider_id');
+    // }
 
 
     public function rates()
@@ -108,5 +109,19 @@ class Order extends Model
     public function notifications()
     {
         return $this->hasMany(ProviderNotification::class);
+    }
+
+    // العلاقة مع مزود واحد مخزن في جدول `orders`
+    public function provider()
+    {
+        return $this->belongsTo(User::class, 'provider_id');
+    }
+
+    // العلاقة مع جميع المزودين المخزنين في `order_providers`
+    public function providers()
+    {
+        return $this->belongsToMany(User::class, 'order_providers', 'order_id', 'provider_id')
+            ->withPivot('status')
+            ->withTimestamps();
     }
 }
