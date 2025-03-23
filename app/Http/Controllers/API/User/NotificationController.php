@@ -137,11 +137,13 @@ class NotificationController extends Controller
 
         $offer->update(['status' => 'accepted']);
 
-        OrderProvider::create([
-            'provider_id'   => auth()->id(),
-            'order_id'      => $order->id,
-            'status'        => 'assigned',
-        ]);
+        if ($order->type == 'periodic_inspections' && $order->status == 'rejected') {
+            OrderProvider::create([
+                'provider_id'   => auth()->id(),
+                'order_id'      => $order->id,
+                'status'        => 'assigned',
+            ]);
+        }
 
         // إرسال إشعار عبر Pusher
         $pusher = new Pusher(

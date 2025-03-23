@@ -201,11 +201,13 @@ class OfferController extends Controller
                 'provider_id'   => auth()->id(),
             ]);
 
-            OrderProvider::create([
-                'provider_id'   => auth()->id(),
-                'order_id'      => $order->id,
-                'status'        => 'assigned',
-            ]);
+            if ($order->type == 'periodic_inspections' && $order->status == 'rejected') {
+                OrderProvider::create([
+                    'provider_id'   => auth()->id(),
+                    'order_id'      => $order->id,
+                    'status'        => 'assigned',
+                ]);
+            }
             DB::commit();
 
             $pusher = new Pusher(
