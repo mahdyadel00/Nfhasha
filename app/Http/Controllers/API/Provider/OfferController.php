@@ -196,11 +196,6 @@ class OfferController extends Controller
                 return new ErrorResource(['message' => 'Offer already accepted']);
             }
 
-            $order->update([
-                'status'        => 'accepted',
-                'provider_id'   => auth()->id(),
-            ]);
-
             if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
                 OrderProvider::create([
                     'provider_id'   => auth()->id(),
@@ -208,6 +203,11 @@ class OfferController extends Controller
                     'status'        => 'assigned',
                 ]);
             }
+
+            $order->update([
+                'status'        => 'accepted',
+                'provider_id'   => auth()->id(),
+            ]);
             DB::commit();
 
             $pusher = new Pusher(

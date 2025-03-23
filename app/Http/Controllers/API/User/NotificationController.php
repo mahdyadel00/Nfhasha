@@ -135,7 +135,6 @@ class NotificationController extends Controller
             'total_cost'    => $offer->amount,
         ]);
 
-        $offer->update(['status' => 'accepted']);
 
         if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
             OrderProvider::create([
@@ -144,6 +143,7 @@ class NotificationController extends Controller
                 'status'        => 'assigned',
             ]);
         }
+        $offer->update(['status' => 'accepted']);
 
         // إرسال إشعار عبر Pusher
         $pusher = new Pusher(
