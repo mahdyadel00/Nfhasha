@@ -82,7 +82,7 @@ class NotificationController extends Controller
         }
 
         // تحديث حالة العرض إلى "مرفوض"
-        $offer->update(['status' => 'rejected']);
+        $offer->update(['status' => 'cancelled']);
 
         try {
             // إرسال إشعار عبر Pusher
