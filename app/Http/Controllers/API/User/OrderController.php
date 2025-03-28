@@ -215,8 +215,11 @@ class OrderController extends Controller
 
             $order = Order::where('id', $orderId)
                 ->where('type', 'periodic_inspections')
-                ->where('status', 'rejected')
+                ->whereHas('tracking', function ($query) {
+                    $query->where('status', 'rejected'); 
+                })
                 ->first();
+
 
             if (!$order) {
                 return new ErrorResource(__('messages.order_not_found'));
