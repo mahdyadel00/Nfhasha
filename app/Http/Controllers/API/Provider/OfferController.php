@@ -14,6 +14,7 @@ use App\Models\ProviderNotification;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
+use App\Models\OrderOffer;
 
 class OfferController extends Controller
 {
@@ -104,52 +105,52 @@ class OfferController extends Controller
     //         return new ErrorResource(['message' => $e->getMessage()]);
     //     }
     // }
-
-
     public function offers()
     {
         try {
-            DB::beginTransaction();
-
             $provider = auth()->user();
-            $latitude = $provider->latitude;
-            $longitude = $provider->longitude;
+            $providerId = $provider->id;
 
-            $provider_notifications = ProviderNotification::where('provider_id', $provider->id)->get();
-            $serviceTypes = $provider_notifications->pluck('service_type')->toArray();
-            $orderIds = $provider_notifications->pluck('order_id')->toArray();
+            // جلب الإشعارات المتعلقة بالمزود
+            $orderIds = ProviderNotification::where('provider_id', $providerId)
+                ->pluck('order_id')
+                ->toArray();
 
+            // جلب الطلبات المرتبطة بالمزود مع تصفية العروض المرفوضة مباشرةً
             $orders = Order::whereIn('id', $orderIds)
                 ->whereNotIn('status', ['accepted', 'completed'])
-                ->where(function ($query) use ($provider) {
+                ->where(function ($query) use ($providerId) {
                     $query->where('status', 'pending')
-                        ->orWhere(function ($query) use ($provider) {
+                        ->orWhere(function ($query) use ($providerId) {
                             $query->where('status', 'sent')
-                                ->where('provider_id', $provider->id);
+                                ->where('provider_id', $providerId);
                         });
                 })
-                ->orderBy('created_at', 'desc')
-                ->get();
-            // dd($orders);
+                ->whereDoesntHave('offers', function ($query) {
+                    $query->where('provider_id', auth()->id())->where('status', 'rejected');
+                })
 
-            DB::commit();
+                ->orderByDesc('created_at')
+                ->get();
+
 
             return response()->json([
                 'success' => true,
                 'data' => OrderResource::collection(
-                    $orders->load('offers')->map(function ($order) {
-                        $isSentByMe = $order->provider_id == auth()->id();
-                        $order->is_sent_by_me = $isSentByMe;
+                    $orders->map(function ($order) use ($providerId) {
+                        $order->is_sent_by_me = $order->provider_id == $providerId;
                         return $order;
                     })
                 ),
             ], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
+
+
+
 
     public function offer($id)
     {
@@ -302,7 +303,24 @@ class OfferController extends Controller
                 })->first();
 
             if (!$order) {
-                return new ErrorResource(['message' => 'Order not found']);
+                return new ErrorResource(['message' => __('messages.order_not_found')]);
+            }
+
+            $order_offer = OrderOffer::updateOrCreate([
+                'order_id'      => $order->id,
+                'provider_id'   => auth()->id(),
+                'status'        => 'rejected',
+                'amount'        => $order->total_cost,
+            ]);
+
+            if (!$order_offer) {
+                return new ErrorResource(['message' => __('messages.offer_not_found')]);
+            }
+
+            if ($order->status == 'pending') {
+                $order->update([
+                    'status'      => 'rejected',
+                ]);
             }
 
             $order->update([
