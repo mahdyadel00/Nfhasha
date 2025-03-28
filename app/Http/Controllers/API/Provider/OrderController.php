@@ -160,7 +160,7 @@ class OrderController extends Controller
         );
 
         $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.location', [
-            'message'   => 'Provider location',
+            'message'   => __('messages.tracking_my_order'),
             'order'     => $order,
             'provider'  => auth()->user(),
             'order_tracking'                => [

@@ -44,7 +44,6 @@ class OrderController extends Controller
 
             $expressService = ExpressService::find($request->service_id);
 
-            // ✅ إنشاء الطلب أولًا قبل إضافة أي حجز
             $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
@@ -62,7 +61,6 @@ class OrderController extends Controller
                 'note'                  => $request->note ?? null,
             ]);
 
-            // ✅ إضافة order_id عند إنشاء الخدمة
             if ($expressService->type == 'car_reservations') {
                 $inspection_side_array = is_array($request->inspection_side)
                     ? $request->inspection_side
@@ -71,7 +69,7 @@ class OrderController extends Controller
                 $inspection_side_string = implode(',', $inspection_side_array);
 
                 CarReservations::create([
-                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'order_id'              => $order->id,
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
@@ -91,7 +89,7 @@ class OrderController extends Controller
                 }
 
                 Maintenance::create([
-                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'order_id'              => $order->id,
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
@@ -109,7 +107,7 @@ class OrderController extends Controller
 
             if ($expressService->type == 'comprehensive_inspections') {
                 ComprehensiveInspections::create([
-                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'order_id'              => $order->id,
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
@@ -124,7 +122,7 @@ class OrderController extends Controller
 
             if ($expressService->type == 'periodic_inspections') {
                 PeriodicInspections::create([
-                    'order_id'              => $order->id, // ✅ إضافة order_id
+                    'order_id'              => $order->id,
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
@@ -156,7 +154,7 @@ class OrderController extends Controller
                     'provider_id'   => $providerId,
                     'user_id'       => auth()->id(),
                     'order_id'      => $order->id,
-                    'message'       => '🚀 New order request',
+                    'message'       => __('messages.new_order'),
                     'service_type'  => $order->type,
                 ]);
             }
@@ -170,17 +168,17 @@ class OrderController extends Controller
             );
 
             $message = match ($order->type) {
-                'battery'  => '🔋 Battery order request',
-                'towing'   => '🚛 Towing order request',
-                'puncture' => '🛞 Puncture repair order request',
-                default    => '🚀 New order request',
+                'battery'  => __('messages.battery_order_request'),
+                'towing'   => __('messages.towing_order_request'),
+                'puncture' => __('messages.puncture_order_request'),
+                default    => __('messages.new_order_request'),
             };
 
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
                     'message'       => $message,
                     'order'         => $order,
-                    'Provider_ids'  => $providerIds, // ✅ إرسال قائمة الـ IDs
+                    'Provider_ids'  => $providerIds,
                 ]);
             }
 
@@ -268,7 +266,6 @@ class OrderController extends Controller
             }
 
 
-            // ✅ إعادة إرسال إشعار Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -276,7 +273,7 @@ class OrderController extends Controller
                 ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
             );
 
-            $message = '🔄 Periodic inspection request updated';
+            $message = __('messages.periodic_inspection_updated_successfully');
 
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
@@ -286,7 +283,6 @@ class OrderController extends Controller
                 ]);
             }
 
-            // ✅ إعادة إرسال إشعارات Firebase
             if ($users->isNotEmpty()) {
                 try {
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
@@ -390,23 +386,19 @@ class OrderController extends Controller
     }
     public function cancelOrder(Request $request, $id)
     {
-        // 🔹 البحث عن الطلب الخاص بالمستخدم
         $order = Order::where('user_id', auth('sanctum')->id())->find($id);
 
-        // ✅ إذا لم يتم العثور على الطلب، إرجاع رسالة خطأ
         if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
         }
 
-        // ✅ تحديث حالة الطلب إلى "ملغي"
         $order->update([
             'status'    => 'canceled',
             'reason'    => $request->reason
         ]);
 
-        // ✅ التحقق من وجود مزود للخدمة قبل محاولة إرسال إشعار
         if ($order->provider && $order->provider->fcm_token) {
             try {
                 $firebaseService = new FirebaseService();
@@ -422,7 +414,6 @@ class OrderController extends Controller
             Log::channel('error')->warning("No valid provider or FCM token found for order ID: {$order->id}");
         }
 
-        // ✅ إرجاع استجابة نجاح
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
         ]);
@@ -450,7 +441,6 @@ class OrderController extends Controller
 
             $imagePaths = [];
 
-            // ✅ تأكد أن مجلد التخزين متاح
             if (!Storage::exists('public/order_rejections')) {
                 Storage::makeDirectory('public/order_rejections', 0775, true);
             }
@@ -470,7 +460,6 @@ class OrderController extends Controller
                 'images' => count($imagePaths) > 0 ? json_encode($imagePaths) : null,
             ]);
 
-            // ✅ إرسال إشعار عبر FCM إذا كان هناك `fcm_token`
             if (!empty($order->provider->fcm_token)) {
                 $firebaseService = new FirebaseService();
                 $firebaseService->sendNotificationToUser(

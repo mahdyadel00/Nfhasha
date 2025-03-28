@@ -93,6 +93,18 @@ return
         'maximum_price' => 'الحد الأعلى للسعر',
         'are_you_sure_delete' => 'لا يمكن التراجع عن هذا الإجراء.',
         'delete_warning_unapproved' => '⚠️ هذا العنصر لم يتم الموافقة عليه بعد، هل أنت متأكد من أنك تريد حذفه؟',
+        'tracking_my_order' => 'تتبع طلبي',
+        'order_status' => 'حالة الطلب',
+        'offer_accepted' => 'تم قبول العرض',
+        'offer_rejected' => 'تم رفض العرض',
+        'offer_sent' => 'تم إرسال العرض',
+        'offer_completed' => 'تم إكمال العرض',
+        'battery_order_request' => 'طلب بطارية',
+        'battery_order_request_accepted' => 'تم قبول طلب البطارية',
+        'towing_order_request' => 'طلب سحب',
+        'puncture_order_request' => 'طلب تغيير إطار',
+        'new_order_request' => 'طلب جديد',
+
 
 
     ];

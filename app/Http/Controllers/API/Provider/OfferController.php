@@ -134,15 +134,6 @@ class OfferController extends Controller
 
             DB::commit();
 
-            // ✅ ✅ إذا كانت القائمة فارغة، إرجاع 200 مع قائمة فارغة بدلاً من خطأ
-            // return response()->json([
-            //     'success' => true,
-            //     'data' => OrderResource::collection($orders->map(function ($order) {
-            //         $isSentByMe = $order->provider_id == auth()->id();
-            //         $order->is_sent_by_me = $isSentByMe;
-            //         return $order;
-            //     })),
-            // ], 200);
             return response()->json([
                 'success' => true,
                 'data' => OrderResource::collection(
@@ -218,17 +209,17 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message'   => 'Offer accepted',
+                'message'   => __('messages.offer_accepted'),
                 'order'     => $order,
                 'provider'  => auth()->user(),
             ]);
             $firebaseService = new FirebaseService();
             $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer accepted', 'Your offer has been accepted');
-            return new SuccessResource(['message' => 'Offer accepted successfully']);
+            return new SuccessResource(['message' => __('messages.offer_accepted')]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error('Error in OfferController@acceptOffer: ' . $e->getMessage());
-            return new ErrorResource(['message' => 'Something went wrong, please try again later']);
+            return new ErrorResource(['message' => __('messages.some_error')]);
         }
     }
 
@@ -278,7 +269,7 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message'   => 'Offer sent',
+                'message'   => __('messages.offer_sent'),
                 'offer'     => $order->offers()->latest()->first(),
                 'provider'  => auth()->user(),
             ]);
@@ -289,7 +280,7 @@ class OfferController extends Controller
             DB::commit();
 
             return new SuccessResource([
-                'message' => 'Offer sent successfully',
+                'message' => __('messages.offer_sent'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -304,14 +295,12 @@ class OfferController extends Controller
         try {
             DB::beginTransaction();
 
-            // تحسين الاستعلام مع استخدام الأقواس لتجنب جلب طلب غير صحيح
             $order = Order::where('id', $id)
                 ->where(function ($query) {
                     $query->where('status', 'pending')
                         ->orWhere('status', 'sent');
                 })->first();
 
-            // التحقق مما إذا كان الطلب موجودًا قبل المتابعة
             if (!$order) {
                 return new ErrorResource(['message' => 'Order not found']);
             }
@@ -324,7 +313,6 @@ class OfferController extends Controller
 
             DB::commit();
 
-            // إرسال إشعار باستخدام Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -333,12 +321,11 @@ class OfferController extends Controller
             );
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message'   => 'Offer rejected',
+                'message'   => __('messages.offer_rejected'),
                 'order'     => $order,
                 'provider'  => auth()->user(),
             ]);
 
-            // إرسال إشعار FCM فقط إذا كان لدى المستخدم `fcm_token`
             if (!empty($order->user->fcm_token)) {
                 $firebaseService = new FirebaseService();
                 $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected');

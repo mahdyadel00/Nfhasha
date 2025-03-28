@@ -95,4 +95,17 @@ return
         'translations' => 'Translations',
         'minimum_price' => 'Minimum Price',
         'maximum_price' => 'Maximum Price',
+        'tracking_my_order' => 'Tracking My Order',
+        'offer_accepted' => 'Offer Accepted',
+        'offer_rejected' => 'Offer Rejected',
+        'offer_sent' => 'Offer Sent',
+        'offer_completed' => 'Offer Completed',
+        'offer' => 'Offer',
+        'offers' => 'Offers',
+        'battery_order_request' => 'Battery Order Request',
+        'battery_order_request_accepted' => 'Battery Order Request Accepted',
+        'towing_order_request' => 'Towing Order Request',
+        'puncture_order_request' => 'Puncture Order Request',
+        'new_order_request' => 'New Order Request',
+
     ];

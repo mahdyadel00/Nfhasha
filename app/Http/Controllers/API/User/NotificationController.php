@@ -92,7 +92,7 @@ class NotificationController extends Controller
             );
 
             $pusher->trigger('notifications.providers', 'sent.offer', [
-                'message'       => 'Offer rejected',
+                'message'       => __('notifications.offer_rejected'),
                 'user_id'       => auth()->id(),
                 'order_id'      => $offer->order_id,
                 'provider_id'   => $offer->provider_id,
@@ -102,18 +102,18 @@ class NotificationController extends Controller
                 'user_id'       => auth()->id(),
                 'provider_id'   => $offer->provider_id,
                 'service_type'  => $offer->order->type,
-                'message'       => 'Offer rejected',
+                'message'       => __('notifications.offer_rejected'),
             ]);
 
             if (!empty($offer->provider->fcm_token)) {
                 $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer rejected', 'Offer rejected');
+                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, __('messages.offer_rejected'), __('messages.offer_rejected'));
             }
         } catch (\Exception $e) {
             Log::channel('error')->error("Notification Failed: " . $e->getMessage());
         }
 
-        return new SuccessResource('Offer rejected successfully');
+        return new SuccessResource(__('notifications.offer_rejected'));
     }
 
     public function acceptOffer($id)
@@ -149,7 +149,7 @@ class NotificationController extends Controller
         );
 
         $pusher->trigger('notifications.providers', 'sent.offer', [
-            'message'       => 'Offer accepted',
+            'message'       => __('messages.offer_accepted'),
             'user_id'       => $order->user_id,
             'order_id'      => $order->id,
             'provider_id'   => $offer->provider_id,
@@ -160,7 +160,7 @@ class NotificationController extends Controller
             'order_id'      => $order->id,
             'provider_id'   => $offer->provider_id,
             'service_type'  => $order->type,
-            'message'       => 'Offer accepted',
+            'message'       => __('messages.offer_accepted'),
         ]);
 
         if (!empty($offer->provider->fcm_token)) {
@@ -168,7 +168,7 @@ class NotificationController extends Controller
                 $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();
                 if (!empty($tokens)) {
                     $firebaseService = new FirebaseService();
-                    $firebaseService->sendNotificationToMultipleUsers($tokens, 'Offer accepted', 'Offer accepted');
+                    $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.offer_accepted'), __('messages.offer_accepted'));
                 }
             } catch (\Exception $e) {
                 Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
