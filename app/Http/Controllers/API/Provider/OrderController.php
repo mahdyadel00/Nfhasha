@@ -31,17 +31,16 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::where('provider_id' , auth('sanctum')->id())->find($id);
+        $order = Order::where('provider_id', auth('sanctum')->id())->find($id);
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
         }
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
             'data'     => new OrderResource($order)
         ]);
     }
@@ -49,28 +48,27 @@ class OrderController extends Controller
 
     public function ordersByStatus(Request $request)
     {
-        $orders = Order::where('provider_id' , auth('sanctum')->id())
+        $orders = Order::where('provider_id', auth('sanctum')->id())
             //when status array
-            ->when($request->status , function ($query) use ($request) {
-                return $query->whereIn('status' , $request->status);
+            ->when($request->status, function ($query) use ($request) {
+                return $query->whereIn('status', $request->status);
             })
-            ->when($request->type , function ($query) use ($request) {
-                return $query->where('type' , $request->type);
+            ->when($request->type, function ($query) use ($request) {
+                return $query->where('type', $request->type);
             })
             ->paginate(config('app.pagination'));
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.orders')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
             'data'    => OrderResource::collection($orders)
         ]);
     }
 
-    public function changeOrderStatus(Request $request , $id)
+    public function changeOrderStatus(Request $request, $id)
     {
-        $order = Order::where('provider_id' , auth('sanctum')->id())->find($id);
+        $order = Order::where('provider_id', auth('sanctum')->id())->find($id);
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
@@ -88,20 +86,19 @@ class OrderController extends Controller
         ]);
     }
 
-    public function orderTracking(Request $request , $id)
+    public function orderTracking(Request $request, $id)
     {
-        $order = Order::where('provider_id' , auth('sanctum')->id())
-            ->where('status' , '!=', 'pending')
-            ->where('status' , '!=', 'canceled')
-            ->where('status' , '!=', 'completed')
-            ->where('status' , '!=', 'rejected')
-            ->where('status' ,  'accepted')
+        $order = Order::where('provider_id', auth('sanctum')->id())
+            ->where('status', '!=', 'pending')
+            ->where('status', '!=', 'canceled')
+            ->where('status', '!=', 'completed')
+            ->where('status', '!=', 'rejected')
+            ->where('status',  'accepted')
             ->find($id);
 
         $user = auth('sanctum')->user();
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
@@ -117,18 +114,17 @@ class OrderController extends Controller
             'longitude' => $request->longitude
         ]);
 
-        $tracking_order = OrderTracking::where('order_id' , $order->id)->first();
+        $tracking_order = OrderTracking::where('order_id', $order->id)->first();
 
-        if($tracking_order){
+        if ($tracking_order) {
             $tracking_order->update([
                 'status'  => $request->status,
             ]);
-        }else{
+        } else {
             OrderTracking::create([
                 'order_id'    => $order->id,
                 'status'      => $request->status,
             ]);
-
         }
 
         if ($order->type == 'periodic_inspections') {
@@ -167,20 +163,24 @@ class OrderController extends Controller
             'message'   => 'Provider location',
             'order'     => $order,
             'provider'  => auth()->user(),
+            'order_tracking'                => [
+                'status'                    => $request->status,
+                'inspection_reject_reason'  => $request->reason,
+                'inspection_reject_image'   => $image,
+            ],
             'latitude'  => $request->latitude,
             'longitude' => $request->longitude
         ]);
 
 
-        if(!$order)
-        {
+        if (!$order) {
             return new SuccessResource([
                 'message'   => __('messages.order_not_found')
             ]);
         }
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully' , ['attr' => __('messages.order_tracking')]) ,
+            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order_tracking')]),
         ]);
     }
 }
