@@ -126,22 +126,24 @@ class   PickUpTruckResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->modalHeading(__('messages.delete_confirmation'))
-                    ->modalDescription(function ($record) {
-                        return !$record->is_approved
-                            ? __('messages.delete_warning_unapproved')
-                            : __('messages.delete_confirmation');
-                    })
-                    ->modalButton(__('messages.delete_success'))
-                    ->before(function ($record) {
-                        if (!$record->is_approved) {
-                            session()->flash('warning', __('messages.delete_warning_unapproved'));
-                        }
-                    })
-                    ->action(function ($record) {
-                        $record->delete();
-                    })
+                ->requiresConfirmation()
+                ->modalHeading(__('messages.delete_confirmation'))
+                ->modalDescription(__('messages.delete_warning'))
+                ->modalButton(__('messages.delete_success'))
+                ->before(function ($record) {
+                    if ($record->providers()->count() > 0) {
+                        session()->flash('warning', __('messages.delete_warning_related'));
+                    }
+                })
+                ->action(function ($record) {
+                    // حذف جميع البيانات المرتبطة
+                    $record->providers()->delete();
+
+                    // حذف الشاحنة
+                    $record->delete();
+
+                    session()->flash('success', __('messages.delete_success_message'));
+                }),
             ]);
     }
 
