@@ -141,7 +141,6 @@ class NotificationController extends Controller
         }
         $offer->update(['status' => 'accepted']);
 
-        // إرسال إشعار عبر Pusher
         $pusher = new Pusher(
             env('PUSHER_APP_KEY'),
             env('PUSHER_APP_SECRET'),
@@ -156,7 +155,6 @@ class NotificationController extends Controller
             'provider_id'   => $offer->provider_id,
         ]);
 
-        // إنشاء إشعار في قاعدة البيانات
         ProviderNotification::create([
             'user_id'       => $order->user_id,
             'order_id'      => $order->id,
@@ -165,7 +163,6 @@ class NotificationController extends Controller
             'message'       => 'Offer accepted',
         ]);
 
-        // إرسال إشعار عبر Firebase
         if (!empty($offer->provider->fcm_token)) {
             try {
                 $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();

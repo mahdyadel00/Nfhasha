@@ -17,7 +17,11 @@ class OrderTrackingResource extends JsonResource
         return [
             'id'                            => $this->id,
             'status'                        => $this->status,
-            // 'order'                         => new OrderResource($this->order),
+            'inspection_reject_reason'      => $this->order->expressService->periodicInspections->inspection_reject_reason,
+            'inspection_reject_images'      => collect(json_decode($this->order->expressService->periodicInspections->inspection_reject_image, true) ?? [])
+                ->map(fn($path) => asset('storage/' . $path)),
+            'created_at'                    => $this->created_at,
+            'updated_at'                    => $this->updated_at,
         ];
 
     }
