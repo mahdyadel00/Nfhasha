@@ -104,6 +104,7 @@ return
         'towing_order_request' => 'طلب سحب',
         'puncture_order_request' => 'طلب تغيير إطار',
         'new_order_request' => 'طلب جديد',
+        'delete_warning' => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟',
 
 
 
