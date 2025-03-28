@@ -54,7 +54,7 @@ class OrderResource extends JsonResource
             'userVehicle'                   => new VehiclesResource($this->userVehicle),
             'city'                          => new CityResource($this->city),
             'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
-            'order_tracking'                => new OrderTrackingResource($this->tracking),
+            'order_tracking' => $this->tracking ? new OrderTrackingResource($this->tracking) : null,
             'rate'                          => RateResource::collection($this->rates),
             'offers'                        => $this->whenLoaded('offers', function () {
                 return OrderOfferResource::collection(
