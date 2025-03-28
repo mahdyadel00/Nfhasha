@@ -50,9 +50,8 @@ class FirebaseService
     /**
      * إرسال إشعار لمستخدم واحد
      */
-    public function sendNotificationToUser($token, $title, $body)
+    public function sendNotificationToUser($token, $title, $body, array $data = [])
     {
-        // التحقق من أن التوكن ليس فارغًا أو قصيرًا جدًا (غير صالح)
         if (empty($token) || strlen($token) < 20) {
             return [
                 'success' => false,
@@ -64,17 +63,17 @@ class FirebaseService
             "token" => $token,
             "notification" => [
                 "title" => $title,
-                "body" => $body,
+                "body"  => $body,
             ],
+            "data" => $data, // البيانات الإضافية (order_id, type)
         ]);
     }
 
     /**
      * إرسال إشعار لمجموعة من المستخدمين
      */
-    public function sendNotificationToMultipleUsers(array $tokens, $title, $body)
+    public function sendNotificationToMultipleUsers(array $tokens, $title, $body, array $data = [])
     {
-
         if (empty($tokens)) {
             throw new \Exception("❌ لم يتم تمرير أي FCM Token!");
         }
@@ -82,11 +81,12 @@ class FirebaseService
         $responses = [];
 
         foreach ($tokens as $token) {
-            $responses[] = $this->sendNotificationToUser($token, $title, $body);
+            $responses[] = $this->sendNotificationToUser($token, $title, $body, $data);
         }
 
         return $responses;
     }
+
 
     /**
      * دالة مساعدة لإرسال الطلب إلى Firebase

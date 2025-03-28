@@ -184,17 +184,24 @@ class OrderController extends Controller
 
             if ($users->isNotEmpty()) {
                 try {
-
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
 
                     if (!empty($tokens)) {
                         $firebaseService = new FirebaseService();
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+
+                        // البيانات الإضافية للإشعار
+                        $extraData = [
+                            'order_id' => $order->id, // يجب تمرير $order عند استدعاء هذا الكود
+                            'type'     => 'order',
+                        ];
+
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
             }
+
             DB::commit();
 
             return new SuccessResource([
@@ -216,7 +223,7 @@ class OrderController extends Controller
             $order = Order::where('id', $orderId)
                 ->where('type', 'periodic_inspections')
                 ->whereHas('tracking', function ($query) {
-                    $query->where('status', 'rejected'); 
+                    $query->where('status', 'rejected');
                 })
                 ->first();
 
