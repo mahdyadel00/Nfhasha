@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PickUpTruckResource\Pages;
-use App\Filament\Resources\PickUpTruckResource\RelationManagers;
 use App\Models\PickUpTruck;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class   PickUpTruckResource extends Resource
 {
@@ -81,7 +79,8 @@ class   PickUpTruckResource extends Resource
 
                 Tables\Columns\TextColumn::make('name')
                     ->label(app()->getLocale() === 'en' ? 'Name' : 'الاسم')
-                    ->getStateUsing(fn ($record) => $record->translate(app()->getLocale())->name ?? '-')
+                    ->getStateUsing(fn($record) => optional($record->translate(app()->getLocale()))->name ?? '-')
+
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('price')
@@ -126,12 +125,23 @@ class   PickUpTruckResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading(__('messages.delete_confirmation'))
+                    ->modalDescription(function ($record) {
+                        return !$record->is_approved
+                            ? __('messages.delete_warning_unapproved')
+                            : __('messages.delete_confirmation');
+                    })
+                    ->modalButton(__('messages.delete_success'))
+                    ->before(function ($record) {
+                        if (!$record->is_approved) {
+                            session()->flash('warning', __('messages.delete_warning_unapproved'));
+                        }
+                    })
+                    ->action(function ($record) {
+                        $record->delete();
+                    })
             ]);
     }
 

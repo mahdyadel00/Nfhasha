@@ -81,11 +81,9 @@ class NotificationController extends Controller
             return new ErrorResource('Offer not found');
         }
 
-        // تحديث حالة العرض إلى "مرفوض"
-        $offer->update(['status' => 'cancelled']);
+        $offer->update(['status' => 'rejected']);
 
         try {
-            // إرسال إشعار عبر Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -100,7 +98,6 @@ class NotificationController extends Controller
                 'provider_id'   => $offer->provider_id,
             ]);
 
-            // إنشاء إشعار للمزود
             ProviderNotification::create([
                 'user_id'       => auth()->id(),
                 'provider_id'   => $offer->provider_id,
@@ -108,7 +105,6 @@ class NotificationController extends Controller
                 'message'       => 'Offer rejected',
             ]);
 
-            // إرسال إشعار عبر Firebase إذا كان لدى المزود `fcm_token`
             if (!empty($offer->provider->fcm_token)) {
                 $firebaseService = new FirebaseService();
                 $firebaseService->sendNotificationToUser($offer->provider->fcm_token, 'Offer rejected', 'Offer rejected');
