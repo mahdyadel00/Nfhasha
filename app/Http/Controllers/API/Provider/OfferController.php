@@ -290,9 +290,9 @@ class OfferController extends Controller
 
             $firebaseService = new FirebaseService();
 
-            // البيانات الإضافية
+            // البيانات الإضافية مع تحويل القيم إلى نصوص
             $extraData = [
-                'order_id' => $order->id,
+                'order_id' => (string) $order->id,  // تحويل `order_id` إلى نص
                 'type'     => 'order',
             ];
 
@@ -300,9 +300,8 @@ class OfferController extends Controller
                 $order->user->fcm_token,
                 'Offer sent',
                 'You have received an offer',
-                $extraData // تمرير البيانات الإضافية
+                $extraData
             );
-
 
             DB::commit();
 
@@ -315,7 +314,6 @@ class OfferController extends Controller
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
-
 
     public function rejectOffer(Request $request, $id)
     {

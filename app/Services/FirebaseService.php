@@ -59,13 +59,16 @@ class FirebaseService
             ];
         }
 
+        // تحويل جميع القيم في `data` إلى نصوص
+        $data = array_map('strval', $data);
+
         return $this->sendNotificationRequest([
             "token" => $token,
             "notification" => [
                 "title" => $title,
                 "body"  => $body,
             ],
-            "data" => $data, // البيانات الإضافية (order_id, type)
+            "data" => $data,
         ]);
     }
 
