@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use GuzzleHttp\Client;
 
 class HyperPayService
 {
@@ -72,7 +71,7 @@ class HyperPayService
         try {
             $paymentMethod = strtolower($paymentMethod);
             if (!isset($this->entities[$paymentMethod])) {
-                return response()->json(['error' => 'Unsupported payment method'], 400);
+                return Http::response(['error' => 'Unsupported payment method'], 400);
             }
 
             $entityId = $this->entities[$paymentMethod];
@@ -82,15 +81,11 @@ class HyperPayService
                 'Authorization' => 'Bearer ' . $this->accessToken,
             ])->get($url, ['entityId' => $entityId]);
 
-            if (!$response->successful()) {
-                \Log::error('HyperPay API Error', ['response' => $response->body()]);
-                return response()->json(['error' => 'Failed to retrieve payment status', 'details' => $response->body()], 500);
-            }
+            return $response; // 🔹 إعادة `Http::Response` مباشرةً
 
-            return $response->json();
         } catch (\Exception $e) {
             \Log::error('HyperPay API Exception', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Unexpected error occurred', 'exception' => $e->getMessage()], 500);
+            return Http::response(['error' => 'Unexpected error occurred', 'exception' => $e->getMessage()], 500);
         }
     }
 }
