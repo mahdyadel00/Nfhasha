@@ -147,4 +147,6 @@ Route::post('/payment/initiate/{id}', [HyperPayController::class, 'initiatePayme
 Route::get('/payment/status/{id}/{paymentMethod}', [HyperPayController::class, 'getPaymentStatus']);
 Route::post('/payment/refund/{id}', [HyperPayController::class, 'refundPayment']);
 Route::post('/payment/applepay/callback', [HyperPayController::class, 'applePayCallback'])->name('payment.applepay.callback');
+//checkout id
+Route::get('/payment/checkout/{id}', [HyperPayController::class, 'getCheckoutId']);
 

@@ -143,4 +143,44 @@ class HyperPayController extends Controller
     {
         return response()->json(['message' => 'Apple Pay callback received', 'data' => $request->all()]);
     }
+
+
+    public function getCheckoutId($checkoutId)
+    {
+        $order = Order::where('payment_transaction_id', $checkoutId)->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        // جلب حالة الدفع من HyperPay
+        $response = $this->hyperPayService->getPaymentStatus($checkoutId, $order->payment_method);
+
+        if ($response->failed()) {
+            return response()->json(['error' => 'Failed to retrieve payment status', 'details' => $response->body()], 500);
+        }
+
+        $responseData = $response->json();
+        $resultCode = $responseData['result']['code'] ?? null;
+
+        if (!$resultCode) {
+            return response()->json(['error' => 'Invalid response from HyperPay'], 500);
+        }
+
+        // تحديث حالة الطلب بناءً على كود الاستجابة
+        if ($resultCode === '000.100.110') {
+            $order->update(['status' => 'paid']);
+        } elseif ($resultCode === '000.200.000') {
+            $order->update(['status' => 'pending']);
+        } else {
+            $order->update(['status' => 'failed']);
+        }
+
+        return response()->json([
+            'message'               => __('message.payment_status_retrieved_successfully'),
+            'order_status'          => $order->status,
+            'hyperpay_result_code'  => $resultCode
+        ]);
+    }
+
 }
