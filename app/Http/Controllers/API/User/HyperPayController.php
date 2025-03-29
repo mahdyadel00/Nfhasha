@@ -157,19 +157,22 @@ class HyperPayController extends Controller
     public function getCheckoutId($checkoutId)
     {
         $order = Order::where('payment_transaction_id', $checkoutId)->first();
+        if ($order && $order->created_at->diffInMinutes(now()) > 30) {
+            return response()->json(['error' => __('messages.checkout_id_expired')], 400);
+        }
+
 
         if (!$order) {
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // استدعاء HyperPay API للحصول على حالة الدفع
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $order->payment_method);
 
-        // ✅ التحقق من نوع الاستجابة
         if (!$response instanceof \Illuminate\Http\Client\Response) {
             \Log::error('Unexpected response type from HyperPay API', ['response' => $response]);
             return response()->json(['error' => 'Unexpected response type'], 500);
         }
+
 
         // ✅ التحقق مما إذا كان الطلب فشل
         if ($response->failed()) {
@@ -208,6 +211,4 @@ class HyperPayController extends Controller
             'hyperpay_result_code'  => $resultCode
         ]);
     }
-
-
 }

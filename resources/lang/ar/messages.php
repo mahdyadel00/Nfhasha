@@ -105,6 +105,7 @@ return
         'puncture_order_request' => 'طلب تغيير إطار',
         'new_order_request' => 'طلب جديد',
         'delete_warning' => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟',
+        'checkout_id_expired' => 'معرف الدفع منتهي الصلاحية',
 
 
 

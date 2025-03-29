@@ -3,16 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
@@ -109,7 +105,7 @@ class UserResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('balance')
-                    ->label(app()->getLocale() === 'en' ? 'Balance' : 'الرصيد')
+                    ->label(app()->getLocale() === 'en' ? 'Balance' : 'المحفظه')
                     ->sortable()
                     ->suffix(app()->getLocale() === 'en' ? ' SAR' : ' ريال'),
 

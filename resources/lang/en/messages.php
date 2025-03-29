@@ -108,4 +108,5 @@ return
         'puncture_order_request' => 'Puncture Order Request',
         'new_order_request' => 'New Order Request',
         'delete_warning' => 'This action cannot be undone. Are you sure you want to delete this item?',
+        'checkout_id_expired' => 'Checkout ID expired',
     ];
