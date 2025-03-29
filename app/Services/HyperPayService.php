@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 class HyperPayService
 {
@@ -66,20 +67,30 @@ class HyperPayService
         return $response->json();
     }
 
-
-    public function getPaymentStatus($paymentTransactionId, $paymentMethod)
+    public function getPaymentStatus($checkoutId, $paymentMethod)
     {
-        if (!isset($this->entities[$paymentMethod])) {
-            return response()->json(['error' => 'Unsupported payment method'], 400);
+        try {
+            $paymentMethod = strtolower($paymentMethod);
+            if (!isset($this->entities[$paymentMethod])) {
+                return response()->json(['error' => 'Unsupported payment method'], 400);
+            }
+
+            $entityId = $this->entities[$paymentMethod];
+            $url = "{$this->baseUrl}v1/checkouts/{$checkoutId}/payment";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->accessToken,
+            ])->get($url, ['entityId' => $entityId]);
+
+            if (!$response->successful()) {
+                \Log::error('HyperPay API Error', ['response' => $response->body()]);
+                return response()->json(['error' => 'Failed to retrieve payment status', 'details' => $response->body()], 500);
+            }
+
+            return $response->json();
+        } catch (\Exception $e) {
+            \Log::error('HyperPay API Exception', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Unexpected error occurred', 'exception' => $e->getMessage()], 500);
         }
-
-        $entityId = $this->entities[$paymentMethod];
-        $url = "{$this->baseUrl}v1/checkouts/{$paymentTransactionId}/payment";
-
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->accessToken,
-        ])->get($url, [
-            'entityId' => $entityId,
-        ]);
     }
 }

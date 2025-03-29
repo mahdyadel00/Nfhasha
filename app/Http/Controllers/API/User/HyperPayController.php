@@ -90,13 +90,22 @@ class HyperPayController extends Controller
 
         $response = $this->hyperPayService->getPaymentStatus($paymentTransactionId, $paymentMethod);
 
+        // ✅ تأكد أن الاستجابة من نوع `Http Response`
+        if (!$response instanceof \Illuminate\Http\Client\Response) {
+            return response()->json(['error' => 'Unexpected response type'], 500);
+        }
+
+        // ✅ التحقق من فشل الطلب
         if ($response->failed()) {
-            return response()->json(['error' => 'Failed to get payment status', 'details' => $response->body()], 500);
+            return response()->json([
+                'error' => 'Failed to get payment status',
+                'details' => $response->body()
+            ], 500);
         }
 
         $responseData = $response->json();
 
-        // تحديث حالة الطلب بناءً على كود الاستجابة
+        // ✅ تحديث حالة الطلب بناءً على `resultCode`
         $resultCode = $responseData['result']['code'] ?? null;
         if ($resultCode === '000.100.110') {
             $order->update(['status' => 'paid']);
@@ -111,6 +120,7 @@ class HyperPayController extends Controller
             'response' => $responseData
         ]);
     }
+
 
     public function refundPayment(Request $request, $orderId)
     {
@@ -144,7 +154,6 @@ class HyperPayController extends Controller
         return response()->json(['message' => 'Apple Pay callback received', 'data' => $request->all()]);
     }
 
-
     public function getCheckoutId($checkoutId)
     {
         $order = Order::where('payment_transaction_id', $checkoutId)->first();
@@ -153,34 +162,52 @@ class HyperPayController extends Controller
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        // جلب حالة الدفع من HyperPay
+        // استدعاء HyperPay API للحصول على حالة الدفع
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $order->payment_method);
 
-        if ($response->failed()) {
-            return response()->json(['error' => 'Failed to retrieve payment status', 'details' => $response->body()], 500);
+        // ✅ التحقق من نوع الاستجابة
+        if (!$response instanceof \Illuminate\Http\Client\Response) {
+            \Log::error('Unexpected response type from HyperPay API', ['response' => $response]);
+            return response()->json(['error' => 'Unexpected response type'], 500);
         }
 
+        // ✅ التحقق مما إذا كان الطلب فشل
+        if ($response->failed()) {
+            \Log::error('Failed to retrieve payment status from HyperPay', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to retrieve payment status',
+                'details' => $response->body()
+            ], 500);
+        }
+
+        // ✅ استخراج البيانات من الاستجابة
         $responseData = $response->json();
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
+            \Log::error('Invalid response from HyperPay', ['response' => $responseData]);
             return response()->json(['error' => 'Invalid response from HyperPay'], 500);
         }
 
-        // تحديث حالة الطلب بناءً على كود الاستجابة
-        if ($resultCode === '000.100.110') {
-            $order->update(['status' => 'paid']);
-        } elseif ($resultCode === '000.200.000') {
-            $order->update(['status' => 'pending']);
-        } else {
-            $order->update(['status' => 'failed']);
-        }
+        // ✅ تحديث حالة الطلب بناءً على كود النتيجة
+        $status = match ($resultCode) {
+            '000.100.110' => 'paid',     // تمت عملية الدفع بنجاح
+            '000.200.000' => 'pending',  // الدفع قيد الانتظار
+            default => 'failed',         // فشل الدفع
+        };
+
+        $order->update(['status' => $status]);
 
         return response()->json([
-            'message'               => __('message.payment_status_retrieved_successfully'),
+            'message'               => __('messages.payment_status_retrieved_successfully'),
             'order_status'          => $order->status,
             'hyperpay_result_code'  => $resultCode
         ]);
     }
+
 
 }
