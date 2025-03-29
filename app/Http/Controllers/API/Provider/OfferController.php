@@ -215,7 +215,20 @@ class OfferController extends Controller
                 'provider'  => auth()->user(),
             ]);
             $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer accepted', 'Your offer has been accepted');
+
+            // البيانات الإضافية
+            $extraData = [
+                'order_id' => $order->id,
+                'type'     => 'order',
+            ];
+
+            $firebaseService->sendNotificationToUser(
+                $order->user->fcm_token,
+                'Offer accepted',
+                'Your offer has been accepted',
+                $extraData // تمرير البيانات الإضافية
+            );
+
             return new SuccessResource(['message' => __('messages.offer_accepted')]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -276,7 +289,20 @@ class OfferController extends Controller
             ]);
 
             $firebaseService = new FirebaseService();
-            $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer sent', 'You have received an offer');
+
+            // البيانات الإضافية
+            $extraData = [
+                'order_id' => $order->id,
+                'type'     => 'order',
+            ];
+
+            $firebaseService->sendNotificationToUser(
+                $order->user->fcm_token,
+                'Offer sent',
+                'You have received an offer',
+                $extraData // تمرير البيانات الإضافية
+            );
+
 
             DB::commit();
 
@@ -346,8 +372,21 @@ class OfferController extends Controller
 
             if (!empty($order->user->fcm_token)) {
                 $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected');
+
+                // البيانات الإضافية
+                $extraData = [
+                    'order_id' => $order->id,
+                    'type'     => 'order',
+                ];
+
+                $firebaseService->sendNotificationToUser(
+                    $order->user->fcm_token,
+                    'Offer rejected',
+                    'Your offer has been rejected',
+                    $extraData // تمرير البيانات الإضافية
+                );
             }
+
 
             return new SuccessResource([
                 'message' => 'Offer rejected successfully',

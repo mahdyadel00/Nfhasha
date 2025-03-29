@@ -299,12 +299,20 @@ class OrderController extends Controller
 
                     if (!empty($tokens)) {
                         $firebaseService = new FirebaseService();
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+
+                        // البيانات الإضافية للإشعار
+                        $extraData = [
+                            'order_id' => $order->id, // يجب تمرير $order عند استدعاء هذا الكود
+                            'type'     => 'order',
+                        ];
+
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
                 }
             }
+
 
             DB::commit();
 
@@ -412,10 +420,18 @@ class OrderController extends Controller
         if ($order->provider && $order->provider->fcm_token) {
             try {
                 $firebaseService = new FirebaseService();
+
+                // البيانات الإضافية
+                $extraData = [
+                    'order_id' => $order->id,
+                    'type'     => 'order',
+                ];
+
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
                     __('messages.order_canceled_title'),
-                    __('messages.order_canceled_body')
+                    __('messages.order_canceled_body'),
+                    $extraData // تمرير البيانات الإضافية
                 );
             } catch (\Exception $e) {
                 Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -423,6 +439,7 @@ class OrderController extends Controller
         } else {
             Log::channel('error')->warning("No valid provider or FCM token found for order ID: {$order->id}");
         }
+
 
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
@@ -472,10 +489,18 @@ class OrderController extends Controller
 
             if (!empty($order->provider->fcm_token)) {
                 $firebaseService = new FirebaseService();
+
+                // البيانات الإضافية
+                $extraData = [
+                    'order_id' => $order->id,
+                    'type'     => 'order',
+                ];
+
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
                     'Order Rejected',
-                    'Your order has been rejected. Check the reasons and images in your app.'
+                    'Your order has been rejected. Check the reasons and images in your app.',
+                    $extraData // تمرير البيانات الإضافية
                 );
             } else {
                 Log::warning('❌ No valid FCM token found for provider ID: ' . $order->provider->id);

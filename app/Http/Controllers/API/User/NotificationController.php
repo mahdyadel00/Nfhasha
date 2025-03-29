@@ -106,8 +106,24 @@ class NotificationController extends Controller
             ]);
 
             if (!empty($offer->provider->fcm_token)) {
-                $firebaseService = new FirebaseService();
-                $firebaseService->sendNotificationToUser($offer->provider->fcm_token, __('messages.offer_rejected'), __('messages.offer_rejected'));
+                try {
+                    $firebaseService = new FirebaseService();
+
+                    // البيانات الإضافية
+                    $extraData = [
+                        'offer_id' => $offer->id,
+                        'type'     => 'offer',
+                    ];
+
+                    $firebaseService->sendNotificationToUser(
+                        $offer->provider->fcm_token,
+                        __('messages.offer_rejected'),
+                        __('messages.offer_rejected'),
+                        $extraData // تمرير البيانات الإضافية
+                    );
+                } catch (\Exception $e) {
+                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                }
             }
         } catch (\Exception $e) {
             Log::channel('error')->error("Notification Failed: " . $e->getMessage());
@@ -166,14 +182,28 @@ class NotificationController extends Controller
         if (!empty($offer->provider->fcm_token)) {
             try {
                 $tokens = collect([$offer->provider->fcm_token])->filter()->unique()->toArray();
+
                 if (!empty($tokens)) {
                     $firebaseService = new FirebaseService();
-                    $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.offer_accepted'), __('messages.offer_accepted'));
+
+                    // البيانات الإضافية
+                    $extraData = [
+                        'offer_id' => $offer->id,
+                        'type'     => 'offer',
+                    ];
+
+                    $firebaseService->sendNotificationToMultipleUsers(
+                        $tokens,
+                        __('messages.offer_accepted'),
+                        __('messages.offer_accepted'),
+                        $extraData // تمرير البيانات الإضافية
+                    );
                 }
             } catch (\Exception $e) {
                 Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
             }
         }
+
 
         return response()->json(['message' => 'Offer accepted successfully']);
     }
