@@ -28,7 +28,7 @@ class ServiceOfferResouce extends JsonResource
             'created_at_humanly'            => $this->created_at->diffForHumans(),
             'updated_at'                    => $this->updated_at->format('Y-m-d H:i:s'),
             'updated_at_humanly'            => $this->updated_at->diffForHumans(),
-            'service'                       => new ExpressServiceResource($this->service),
+            // 'service'                       => new ExpressServiceResource($this->service),
 
         ];
     }

@@ -146,7 +146,7 @@ class OrderController extends Controller
                     $query->where($serviceType, true)
                         ->where('is_active', true);
                 })
-                ->get();;
+                ->get();
             $providerIds = $users->pluck('id')->toArray();
             //create notification
             foreach ($providerIds as $providerId) {

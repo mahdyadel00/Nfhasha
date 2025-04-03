@@ -101,10 +101,10 @@ class ExpressServiceController extends Controller
             $service_type = $express_services->type;
 
             $message = match ($service_type) {
-                'battery' => '🔋 Battery service request',
-                'towing' => '🚛 Towing service request',
-                'puncture' => '🛞 Puncture repair service request',
-                default => '🚀 New express service request',
+                'battery'   => __('messages.battery_service_request'),
+                'towing'    => __('messages.towing_service_request'),
+                'puncture'  => __('messages.puncture_service_request'),
+                'default'   => __('messages.express_service_request'),
             };
 
             //create notification
@@ -113,7 +113,7 @@ class ExpressServiceController extends Controller
                     'provider_id'   => $providerId,
                     'user_id'       => auth()->id(),
                     'order_id'      => $order->id,
-                    'message'       => '🚀 New order request',
+                    'message'       => __($message),
                     'service_type'  => $order->type,
                 ]);
             }
