@@ -54,40 +54,40 @@ class ExpressServiceController extends Controller
             $providerIds = $users->pluck('id')->toArray();
 
             $puncture_service = PunctureService::create([
-                'express_service_id'    => $request->express_service_id,
-                'user_id'               => auth()->id(),
-                'user_vehicle_id'       => $request->user_vehicle_id ?? null,
-                'pick_up_truck_id'      => $request->pick_up_truck_id ?? null,
-                'address'               => $request->address,
-                'distanition'           => $request->distanition ?? null,
-                'from_latitude'         => $request->from_latitude,
-                'from_longitude'        => $request->from_longitude,
-                'to_latitude'           => $request->to_latitude ?? null,
-                'to_longitude'          => $request->to_longitude ?? null,
-                'type_battery'          => $request->type_battery ?? null,
+                'express_service_id' => $request->express_service_id,
+                'user_id' => auth()->id(),
+                'user_vehicle_id' => $request->user_vehicle_id ?? null,
+                'pick_up_truck_id' => $request->pick_up_truck_id ?? null,
+                'address' => $request->address,
+                'distanition' => $request->distanition ?? null,
+                'from_latitude' => $request->from_latitude,
+                'from_longitude' => $request->from_longitude,
+                'to_latitude' => $request->to_latitude ?? null,
+                'to_longitude' => $request->to_longitude ?? null,
+                'type_battery' => $request->type_battery ?? null,
                 'battery_image' => $request->battery_image ? $request->battery_image->store('public/express_services') : null,
-                'notes'                 => $request->notes ?? null,
-                'amount'                => $request->amount ?? $express_services->price,
-                'status'                => 'pending',
+                'notes' => $request->notes ?? null,
+                'amount' => $request->amount ?? $express_services->price,
+                'status' => 'pending',
             ]);
 
             //create order
             $order = Order::create([
-                'user_id'               => auth()->id(),
-                'express_service_id'    => $request->express_service_id,
-                'user_vehicle_id'       => $request->user_vehicle_id ?? null,
-                'pick_up_truck_id'      => $request->pick_up_truck_id ?? null,
-                'status'                => 'pending',
-                'from_lat'              => $request->from_latitude,
-                'from_long'             => $request->from_longitude,
-                'to_lat'                => $request->to_latitude ?? null,
-                'to_long'               => $request->to_longitude ?? null,
-                'type'                  => $express_services->type,
-                'payment_method'        => $request->payment_method ?? 'cash',
-                'total_cost'            => $puncture_service->amount ?? $express_services->price,
-                'address'               => $request->address,
-                'address_to'            => $request->address_to,
-                'note'                  => $request->notes ?? null,
+                'user_id' => auth()->id(),
+                'express_service_id' => $request->express_service_id,
+                'user_vehicle_id' => $request->user_vehicle_id ?? null,
+                'pick_up_truck_id' => $request->pick_up_truck_id ?? null,
+                'status' => 'pending',
+                'from_lat' => $request->from_latitude,
+                'from_long' => $request->from_longitude,
+                'to_lat' => $request->to_latitude ?? null,
+                'to_long' => $request->to_longitude ?? null,
+                'type' => $express_services->type,
+                'payment_method' => $request->payment_method ?? 'cash',
+                'total_cost' => $puncture_service->amount ?? $express_services->price,
+                'address' => $request->address,
+                'address_to' => $request->address_to,
+                'note' => $request->notes ?? null,
             ]);
 
             //send notification to provider
@@ -101,29 +101,34 @@ class ExpressServiceController extends Controller
             $service_type = $express_services->type;
 
             $message = match ($service_type) {
-                'battery'   => __('messages.battery_service_request'),
-                'towing'    => __('messages.towing_service_request'),
-                'puncture'  => __('messages.puncture_service_request'),
-                'default'   => __('messages.express_service_request'),
+                'battery' => __('messages.battery_service_request'),
+                'puncture' => __('messages.puncture_service_request'),
+                'fuel' => __('messages.fuel_service_request'),
+                'open_locks' => __('messages.open_locks_service_request'),
+                'tow_truck' => __('messages.tow_truck_service_request'),
+                'periodic_inspections' => __('messages.periodic_inspection_service_request'),
+                'comprehensive_inspections' => __('messages.comprehensive_inspection_service_request'),
+                'maintenance' => __('messages.maintenance_service_request'),
+                'car_reservations' => __('messages.car_reservations_service_request'),
+                'default' => __('messages.express_service_request'),
             };
 
             //create notification
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
-                    'provider_id'   => $providerId,
-                    'user_id'       => auth()->id(),
-                    'order_id'      => $order->id,
-                    'message'       => __($message),
-                    'service_type'  => $order->type,
+                    'provider_id' => $providerId,
+                    'user_id' => auth()->id(),
+                    'order_id' => $order->id,
+                    'message' => __($message),
+                    'service_type' => $order->type,
                 ]);
             }
 
-            // إرسال الإشعار برسالة مخصصة
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                    'message'       => $message,
-                    'order'         => $order,
-                    'Provider_ids'  => $providerIds,
+                    'message' => $message,
+                    'order' => $order,
+                    'Provider_ids' => $providerIds,
                 ]);
             } //end foreach
             if ($users->isNotEmpty()) {
@@ -144,8 +149,8 @@ class ExpressServiceController extends Controller
             DB::commit();
 
             return new SuccessResource([
-                'message'   => __('messages.express_service_created'),
-                'data'      => $order->id,
+                'message' => __('messages.express_service_created'),
+                'data' => $order->id,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
