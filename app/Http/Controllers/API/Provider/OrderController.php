@@ -35,13 +35,13 @@ class OrderController extends Controller
 
         if (!$order) {
             return new SuccessResource([
-                'message'   => __('messages.order_not_found')
+                'message' => __('messages.order_not_found')
             ]);
         }
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
-            'data'     => new OrderResource($order)
+            'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
+            'data' => new OrderResource($order)
         ]);
     }
 
@@ -59,8 +59,8 @@ class OrderController extends Controller
             ->paginate(config('app.pagination'));
 
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
-            'data'    => OrderResource::collection($orders)
+            'message' => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
+            'data' => OrderResource::collection($orders)
         ]);
     }
 
@@ -70,19 +70,19 @@ class OrderController extends Controller
 
         if (!$order) {
             return new SuccessResource([
-                'message'   => __('messages.order_not_found')
+                'message' => __('messages.order_not_found')
             ]);
         }
 
         $order->update([
-            'status'    => $request->status
+            'status' => $request->status
         ]);
 
         $firebaseService = new FirebaseService();
         $firebaseService->sendNotificationToUser($order->user->fcm_token, 'تغيير حالة الطلب', 'تم تغيير حالة الطلب الخاص بك');
 
         return new SuccessResource([
-            'message'   => __('messages.order_status_changed')
+            'message' => __('messages.order_status_changed')
         ]);
     }
 
@@ -93,14 +93,14 @@ class OrderController extends Controller
             ->where('status', '!=', 'canceled')
             ->where('status', '!=', 'completed')
             ->where('status', '!=', 'rejected')
-            ->where('status',  'accepted')
+            ->where('status', 'accepted')
             ->find($id);
 
         $user = auth('sanctum')->user();
 
         if (!$order) {
             return new SuccessResource([
-                'message'   => __('messages.order_not_found')
+                'message' => __('messages.order_not_found')
             ]);
         }
 
@@ -109,8 +109,9 @@ class OrderController extends Controller
                 'message' => __('messages.invalid_order_status')
             ]);
         }
+
         $user->update([
-            'latitude'  => $request->latitude,
+            'latitude' => $request->latitude,
             'longitude' => $request->longitude
         ]);
 
@@ -118,39 +119,39 @@ class OrderController extends Controller
 
         if ($tracking_order) {
             $tracking_order->update([
-                'status'  => $request->status,
+                'status' => $request->status,
             ]);
         } else {
             OrderTracking::create([
-                'order_id'    => $order->id,
-                'status'      => $request->status,
+                'order_id' => $order->id,
+                'status' => $request->status,
             ]);
         }
 
+        // تعريف المتغير لتجنب undefined error
+        $image = [];
+
         if ($order->type == 'periodic_inspections') {
-            //creat array for image
-            $image = [];
             if ($request->hasFile('inspection_reject_image')) {
                 foreach ($request->file('inspection_reject_image') as $file) {
                     $image[] = uploadImage($file, 'periodic_inspections');
                 }
             }
+
             $order->expressService->periodicInspections->update([
-                'status'                    => $request->status,
-                'inspection_reject_reason'  => $request->reason,
-                'inspection_reject_image'   => json_encode($image),
+                'status' => $request->status,
+                'inspection_reject_reason' => $request->reason,
+                'inspection_reject_image' => json_encode($image),
             ]);
         }
 
-        //create notification
         ProviderNotification::create([
-            'user_id'       => $order->user_id,
-            'order_id'       => $order->id,
-            'provider_id'   => auth()->id(),
-            'service_type'  => $order->type,
-            'message'       => __('messages.tracking_my_order')
+            'user_id' => $order->user_id,
+            'order_id' => $order->id,
+            'provider_id' => auth()->id(),
+            'service_type' => $order->type,
+            'message' => __('messages.tracking_my_order')
         ]);
-
 
         $pusher = new Pusher(
             env('PUSHER_APP_KEY'),
@@ -160,27 +161,21 @@ class OrderController extends Controller
         );
 
         $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.location', [
-            'message'   => __('messages.tracking_my_order'),
-            'order'     => $order,
-            'provider'  => auth()->user(),
-            'order_tracking'                => [
-                'status'                    => $request->status,
-                'inspection_reject_reason'  => $request->reason,
-                'inspection_reject_image'   => $image,
+            'message' => __('messages.tracking_my_order'),
+            'order' => $order,
+            'provider' => auth()->user(),
+            'order_tracking' => [
+                'status' => $request->status,
+                'inspection_reject_reason' => $request->reason,
+                'inspection_reject_image' => $image,
             ],
-            'latitude'  => $request->latitude,
+            'latitude' => $request->latitude,
             'longitude' => $request->longitude
         ]);
 
-
-        if (!$order) {
-            return new SuccessResource([
-                'message'   => __('messages.order_not_found')
-            ]);
-        }
-
         return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order_tracking')]),
+            'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order_tracking')]),
         ]);
     }
+
 }
