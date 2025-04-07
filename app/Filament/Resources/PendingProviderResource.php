@@ -62,77 +62,51 @@ class PendingProviderResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('is_active' , false))
-            ->schema([
-                //
-            ]);
+        return $form->schema([
+            // ضيف هنا العناصر اللي محتاجها في الفورم لو فيه
+        ]);
     }
 
 
-
-public static function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            TextColumn::make('user.name')
-                ->label(__('Provider Name'))
-                ->sortable()
-                ->searchable(),
-
-            TextColumn::make('city.name')
-                ->label(__('City'))
-                ->sortable()
-                ->searchable(),
-
-            TextColumn::make('district.name')
-                ->label(__('District'))
-                ->sortable()
-                ->searchable(),
-
-            TextColumn::make('type')
-                ->label(__('Type'))
-                ->formatStateUsing(fn ($state) => $state === 'center' ? __('Center') : __('Individual'))
-                ->sortable(),
-
-            BooleanColumn::make('mechanical')->label(__('Mechanical')),
-            BooleanColumn::make('plumber')->label(__('Plumber')),
-            BooleanColumn::make('electrical')->label(__('Electrical')),
-            BooleanColumn::make('puncture')->label(__('Puncture')),
-            BooleanColumn::make('battery')->label(__('Battery')),
-            BooleanColumn::make('pickup')->label(__('Pickup Service')),
-            BooleanColumn::make('is_active')
-                ->label(__('Active'))
-                ->sortable(),
-
-        ])
-        ->filters([
-            //
-        ])
-        ->actions([
-            ViewAction::make('View Documents')
-                ->label(__('View Documents'))
-                ->icon('heroicon-o-document'),
-                // ->url(fn (Provider $provider) => route('admin.providers.documents', $provider->id)),
-
-            Action::make('Approve')
-                ->icon('heroicon-o-check-circle')
-                ->color('success')
-                ->label(__('Approve'))
-                ->modalHeading(__('Approve Provider'))
-                ->modalDescription(__('Are you sure you want to approve this provider?'))
-                ->modalSubmitActionLabel(__('Approve'))
-                ->modalCancelActionLabel(__('Cancel'))
-                ->requiresConfirmation()
-                ->action(fn (Provider $provider) => $provider->update(['is_active' => true])),
-        ])
-        ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-            ]),
-        ]);
-}
-
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->modifyQueryUsing(fn(Builder $query) => $query->where('is_active', false))
+            ->columns([
+                TextColumn::make('user.name')->label(__('Provider Name'))->sortable()->searchable(),
+                TextColumn::make('city.name')->label(__('City'))->sortable()->searchable(),
+                TextColumn::make('district.name')->label(__('District'))->sortable()->searchable(),
+                TextColumn::make('type')
+                    ->label(__('Type'))
+                    ->formatStateUsing(fn($state) => $state === 'center' ? __('Center') : __('Individual'))
+                    ->sortable(),
+                BooleanColumn::make('mechanical')->label(__('Mechanical')),
+                BooleanColumn::make('plumber')->label(__('Plumber')),
+                BooleanColumn::make('electrical')->label(__('Electrical')),
+                BooleanColumn::make('puncture')->label(__('Puncture')),
+                BooleanColumn::make('battery')->label(__('Battery')),
+                BooleanColumn::make('pickup')->label(__('Pickup Service')),
+                BooleanColumn::make('is_active')->label(__('Active'))->sortable(),
+            ])
+            ->actions([
+                ViewAction::make('View Documents')->label(__('View Documents'))->icon('heroicon-o-document'),
+                Action::make('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->label(__('Approve'))
+                    ->modalHeading(__('Approve Provider'))
+                    ->modalDescription(__('Are you sure you want to approve this provider?'))
+                    ->modalSubmitActionLabel(__('Approve'))
+                    ->modalCancelActionLabel(__('Cancel'))
+                    ->requiresConfirmation()
+                    ->action(fn(Provider $provider) => $provider->update(['is_active' => true])),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
 
     public static function getRelations(): array
     {
