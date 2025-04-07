@@ -71,7 +71,6 @@ class PendingProviderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('is_active', false))
             ->columns([
                 TextColumn::make('user.name')->label(__('Provider Name'))->sortable()->searchable(),
                 TextColumn::make('city.name')->label(__('City'))->sortable()->searchable(),
