@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class City extends Model implements \Astrotomic\Translatable\Contracts\Translatable
 {
-    use HasFactory , Translatable;
+    use HasFactory, Translatable;
     public $translatedAttributes = ['name'];
 
     protected $guarded = [];

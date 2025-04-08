@@ -45,10 +45,10 @@ class HomeSliderResource extends Resource
         return $form
             ->schema([
                 FileUpload::make('cover')
-                ->label(app()->getLocale() === 'en' ? 'Cover' : 'صورة الغلاف')
-                ->directory('home_sliders')
-                ->required()
-                ->image(),
+                    ->label(app()->getLocale() === 'en' ? 'Cover' : 'صورة الغلاف')
+                    ->directory('home_sliders')
+                    ->required()
+                    ->image(),
             ]);
     }
 
@@ -84,9 +84,9 @@ class HomeSliderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'     => Pages\ListHomeSliders::route('/'),
-            'create'    => Pages\CreateHomeSlider::route('/create'),
-            'edit'      => Pages\EditHomeSlider::route('/{record}/edit'),
+            'index' => Pages\ListHomeSliders::route('/'),
+            'create' => Pages\CreateHomeSlider::route('/create'),
+            'edit' => Pages\EditHomeSlider::route('/{record}/edit'),
         ];
     }
 }

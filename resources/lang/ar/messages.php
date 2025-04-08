@@ -119,6 +119,24 @@ return
         'service_request' => 'طلب خدمة',
         'service_request_accepted' => 'تم قبول طلب الخدمة',
         'service_request_rejected' => 'تم رفض طلب الخدمة',
+        "provider_name" => "اسم المزود",
+        "City" => "المدينة",
+        "District" => "الحي",
+        "Type" => "النوع",
+        "Center" => "مركز",
+        "Individual" => "فردي",
+        "Mechanical" => "ميكانيكي",
+        "Plumber" => "سباك",
+        "Electrical" => "كهربائي",
+        "Puncture" => "بنشر",
+        "Battery" => "بطارية",
+        "Pickup Service" => "خدمة سحب",
+        "Active" => "نشط",
+        "View Documents" => "عرض المستندات",
+        "Approve" => "موافقة",
+        "Approve Provider" => "تأكيد الموافقة",
+        "Are you sure you want to approve this provider?" => "هل أنت متأكد أنك تريد الموافقة على هذا المزود؟",
+        "Cancel" => "إلغاء"
 
 
     ];

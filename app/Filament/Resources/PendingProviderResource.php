@@ -72,31 +72,54 @@ class PendingProviderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')->label(__('Provider Name'))->sortable()->searchable(),
-                TextColumn::make('city.name')->label(__('City'))->sortable()->searchable(),
-                TextColumn::make('district.name')->label(__('District'))->sortable()->searchable(),
+                TextColumn::make('user.name')
+                    ->label(__('messages.provider_name'))
+                    ->searchable(),
+
+                TextColumn::make('city.name')
+                    ->label(__('messages.city')),
+
+                TextColumn::make('district.name')
+                    ->label(__('messages.district')),
+
                 TextColumn::make('type')
-                    ->label(__('Type'))
-                    ->formatStateUsing(fn($state) => $state === 'center' ? __('Center') : __('Individual'))
-                    ->sortable(),
-                BooleanColumn::make('mechanical')->label(__('Mechanical')),
-                BooleanColumn::make('plumber')->label(__('Plumber')),
-                BooleanColumn::make('electrical')->label(__('Electrical')),
-                BooleanColumn::make('puncture')->label(__('Puncture')),
-                BooleanColumn::make('battery')->label(__('Battery')),
-                BooleanColumn::make('pickup')->label(__('Pickup Service')),
-                BooleanColumn::make('is_active')->label(__('Active'))->sortable(),
+                    ->label(__('messages.type'))
+                    ->formatStateUsing(fn($state) => $state === 'center' ? __('center') : __('individual')),
+
+                BooleanColumn::make('mechanical')
+                    ->label(__('messages.mechanical')),
+
+                BooleanColumn::make('plumber')
+                    ->label(__('messages.plumber')),
+
+                BooleanColumn::make('electrical')
+                    ->label(__('messages.electrical')),
+
+                BooleanColumn::make('puncture')
+                    ->label(__('messages.puncture')),
+
+                BooleanColumn::make('battery')
+                    ->label(__('messages.battery')),
+
+                BooleanColumn::make('pickup')
+                    ->label(__('messages.pickup_service')),
+
+                BooleanColumn::make('is_active')
+                    ->label(__('messages.active')),
             ])
             ->actions([
-                ViewAction::make('View Documents')->label(__('View Documents'))->icon('heroicon-o-document'),
-                Action::make('Approve')
+                ViewAction::make('view_documents')
+                    ->label(__('messages.view_documents'))
+                    ->icon('heroicon-o-document'),
+
+                Action::make('approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->label(__('Approve'))
-                    ->modalHeading(__('Approve Provider'))
-                    ->modalDescription(__('Are you sure you want to approve this provider?'))
-                    ->modalSubmitActionLabel(__('Approve'))
-                    ->modalCancelActionLabel(__('Cancel'))
+                    ->label(__('messages.approve'))
+                    ->modalHeading(__('approve_provider'))
+                    ->modalDescription(__('approve_confirmation'))
+                    ->modalSubmitActionLabel(__('approve'))
+                    ->modalCancelActionLabel(__('cancel'))
                     ->requiresConfirmation()
                     ->action(fn(Provider $provider) => $provider->update(['is_active' => true])),
             ])

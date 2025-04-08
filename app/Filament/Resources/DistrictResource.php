@@ -55,7 +55,7 @@ class DistrictResource extends Resource
                     ->default(true)
                     ->columnSpan(1)
                     ->helperText(app()->getLocale() === 'en' ? 'Is this district active?' : 'هل هذا الحي مفعّل؟')
-                    ,
+                ,
 
                 Forms\Components\Section::make(app()->getLocale() === 'en' ? 'Translations' : 'الترجمات')
                     ->schema([
@@ -64,14 +64,14 @@ class DistrictResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->helperText(app()->getLocale() === 'en' ? 'Enter the name in Arabic' : 'أدخل الاسم باللغة العربية')
-                            ,
+                        ,
 
                         Forms\Components\TextInput::make('name:en')
                             ->label(app()->getLocale() === 'en' ? 'Name in English' : 'الاسم بالإنجليزية')
                             ->required()
                             ->maxLength(255)
                             ->helperText(app()->getLocale() === 'en' ? 'Enter the name in English' : 'أدخل الاسم باللغة الإنجليزية')
-                            ,
+                        ,
                     ])
                     ->columnSpan(2),
             ])

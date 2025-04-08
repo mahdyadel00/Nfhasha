@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CityResource extends Resource
 {
@@ -23,14 +22,12 @@ class CityResource extends Resource
 
     protected static ?string $activeNavigationIcon = 'heroicon-o-chevron-double-right';
 
-
-
     public static function getNavigationLabel(): string
     {
         return app()->getLocale() === 'en' ? 'Cities' : 'المدن';
     }
 
-    public static function getpluralLabel(): string
+    public static function getPluralLabel(): string
     {
         return app()->getLocale() === 'en' ? 'Cities' : 'المدن';
     }
@@ -44,7 +41,6 @@ class CityResource extends Resource
     {
         return app()->getLocale() === 'en' ? 'City' : 'مدينة';
     }
-
 
     public static function form(Form $form): Form
     {
@@ -69,8 +65,6 @@ class CityResource extends Resource
             ]);
     }
 
-
-
     public static function table(Table $table): Table
     {
         return $table
@@ -82,13 +76,12 @@ class CityResource extends Resource
                     ->label(app()->getLocale() === 'en' ? 'Districts' : 'الأحياء')
                     ->counts('districts'),
 
-                Tables\Columns\TextColumn::make('name:ar')
-                    ->label(app()->getLocale() === 'en' ? 'Name in Arabic' : 'الاسم بالعربية')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('name:en')
-                    ->label(app()->getLocale() === 'en' ? 'Name in English' : 'الاسم بالإنجليزية')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label(app()->getLocale() === 'en' ? 'Name' : 'الاسم')
+                    ->formatStateUsing(fn($state, $record) => $record->translate(app()->getLocale())?->name)
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereTranslationLike('name', "%{$search}%", app()->getLocale());
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('is_active')
@@ -97,17 +90,30 @@ class CityResource extends Resource
                         true => 'مفعّلة',
                         false => 'غير مفعّلة',
                     ]),
+
+                Tables\Filters\Filter::make('search_by_name')
+                    ->label(app()->getLocale() === 'en' ? 'Search by Name' : 'البحث بالاسم')
+                    ->form([
+                        Forms\Components\TextInput::make('name')
+                            ->label(app()->getLocale() === 'en' ? 'Name' : 'الاسم')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['name'])) {
+                            $query->whereTranslationLike('name', "%{$data['name']}%", app()->getLocale());
+                        }
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                ->before(function($record)
-                {
-                    if ($record->districts()->exists()) {
-                        throw new \Exception('لا يمكن حذف هذه المدينة لأنها تحتوي على أحياء مرتبطة بها.');
-                    }
-                    $record->translations()->delete();
-                })
+                    ->before(function ($record) {
+                        if ($record->districts()->exists()) {
+                            throw new \Exception('لا يمكن حذف هذه المدينة لأنها تحتوي على أحياء مرتبطة بها.');
+                        }
+                        $record->translations()->delete();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -116,10 +122,11 @@ class CityResource extends Resource
             ]);
     }
 
+
     public static function getRelations(): array
     {
         return [
-            //
+            // يمكن إضافة العلاقات هنا
         ];
     }
 
@@ -131,5 +138,4 @@ class CityResource extends Resource
             'edit' => Pages\EditCity::route('/{record}/edit'),
         ];
     }
-
 }
