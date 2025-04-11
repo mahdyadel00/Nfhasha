@@ -133,13 +133,18 @@ class ExpressServiceController extends Controller
             } //end foreach
             if ($users->isNotEmpty()) {
                 try {
-
-
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
 
                     if (!empty($tokens)) {
                         $firebaseService = new FirebaseService();
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message);
+
+                        $extraData = [
+                            'order_id' => $order->id,
+                            'type'     => 'order',
+                            'sound'    => 'notify_sound.mp3',
+                        ];
+
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());

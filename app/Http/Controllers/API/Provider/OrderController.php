@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\API\Provider;
 
+use Pusher\Pusher;
+use App\Models\User;
+use App\Models\Order;
+use Illuminate\Http\Request;
+use App\Models\OrderTracking;
+use App\Services\FirebaseService;
 use App\Http\Controllers\Controller;
+use App\Models\ProviderNotification;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
-use App\Models\Order;
-use App\Models\OrderTracking;
-use App\Models\ProviderNotification;
-use App\Services\FirebaseService;
-use Illuminate\Http\Request;
-use Pusher\Pusher;
 
 class OrderController extends Controller
 {
@@ -78,8 +79,36 @@ class OrderController extends Controller
             'status' => $request->status
         ]);
 
-        $firebaseService = new FirebaseService();
-        $firebaseService->sendNotificationToUser($order->user->fcm_token, 'تغيير حالة الطلب', 'تم تغيير حالة الطلب الخاص بك');
+        $users = User::whereHas('orders', function ($q) use ($order) {
+            $q->where('id', $order->id);
+        })->get();
+
+        if ($users->isNotEmpty()) {
+            try {
+                $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
+
+                if (!empty($tokens)) {
+                    $firebaseService = new FirebaseService();
+
+                    $extraData = [
+                        'order_id' => $order->id,
+                        'type'     => 'order',
+                        'sound'    => 'notify_sound.mp3',
+                    ];
+
+                    $message = 'تم تغيير حالة الطلب الخاص بك';
+
+                    $firebaseService->sendNotificationToMultipleUsers(
+                        $tokens,
+                        'تغيير حالة الطلب',
+                        $message,
+                        $extraData
+                    );
+                }
+            } catch (\Exception $e) {
+                Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+            }
+        }
 
         return new SuccessResource([
             'message' => __('messages.order_status_changed')
