@@ -39,15 +39,6 @@ Route::post('fcm-token' , [AccountController::class , 'fcmToken']);
 //get all express services
 Route::get('express-services' , [AppController::class , 'expressServices']);
 
-
-
-// Route::group(['prefix' => 'wallet' , 'controller' => WalletController::class] , function () {
-//     Route::get('', 'index');
-//     Route::post('deposit', 'deposit');
-//     Route::post('withdraw', 'withdraw');
-// });
-
-
 Route::post('contact-us' , ContactUsController::class)->name('contact-us');
 
 // get all offers

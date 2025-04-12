@@ -100,7 +100,7 @@ class HyperPayController extends Controller
         } elseif ($request->status === 'failed') {
             $order->status = 'failed';
         } else {
-            return ErrorResource::badRequest('Invalid status');
+            return new ErrorResource('Invalid status');
         }
         $order->save();
 
