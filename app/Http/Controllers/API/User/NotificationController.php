@@ -196,7 +196,7 @@ class NotificationController extends Controller
                         $tokens,
                         __('messages.offer_accepted'),
                         __('messages.offer_accepted'),
-                        $extraData // تمرير البيانات الإضافية
+                        $extraData 
                     );
                 }
             } catch (\Exception $e) {

@@ -18,7 +18,7 @@ class OrderController extends Controller
     public function myOrders()
     {
         $orders = Order::where('provider_id', auth('sanctum')->id())
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->with('offers')
             ->paginate(config('app.pagination'));
 
