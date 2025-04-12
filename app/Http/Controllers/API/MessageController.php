@@ -58,19 +58,19 @@ class MessageController extends Controller
                 'created_at'    => $message->created_at,
             ]);
         } catch (\Exception $e) {
-            // في حالة حدوث خطأ أثناء الاتصال بـ Pusher
             return response()->json([
                 'message' => 'Failed to send message via Pusher.',
                 'error'   => $e->getMessage(),
             ], 500);
         }
 
-        // إرسال إشعار إلى المستخدم
         if (!empty($order->provider->fcm_token)) {
             try {
                 $firebaseService = new FirebaseService();
 
-                // البيانات الإضافية
+                $title = __('messages.new_message');
+                $body = $message->message;
+
                 $extraData = [
                     'order_id' => $order->id,
                     'type'     => 'message',
@@ -78,18 +78,18 @@ class MessageController extends Controller
 
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
-                    __('messages.new_message'),
-                    __('messages.new_message'),
-                    $extraData // تمرير البيانات الإضافية
+                    $title,
+                    $body,   
+                    $extraData
                 );
             } catch (\Exception $e) {
-                // في حالة حدوث خطأ أثناء إرسال الإشعار
                 return response()->json([
-                    'message' => 'Failed to send notification.',
+                    'message' => __('Failed to send notification.'),
                     'error'   => $e->getMessage(),
                 ], 500);
             }
         }
+
 
         // إرسال رد بنجاح
         return response()->json(['message' => __('messages.message_sent')]);
