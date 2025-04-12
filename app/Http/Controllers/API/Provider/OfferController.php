@@ -206,7 +206,7 @@ class OfferController extends Controller
 
             $firebaseService->sendNotificationToUser(
                 $order->user->fcm_token,
-                'Offer sent',
+                __('messages.offer_sent'),
                 __('messages.you_have_received_offer'),
                 $extraData
             );
