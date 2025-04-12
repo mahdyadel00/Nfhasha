@@ -139,6 +139,7 @@ return
         "Cancel" => "إلغاء",
         'you_have_received_offer' => 'لقد تلقيت عرضًا جديدًا',
         'you_have_received_offer_from' => 'لقد تلقيت عرضًا جديدًا من',
+        'new_message' => 'رسالة جديدة',
 
 
     ];

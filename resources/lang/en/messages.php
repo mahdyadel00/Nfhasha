@@ -140,4 +140,5 @@ return
         'approve_confirmation' => 'هل أنت متأكد أنك تريد الموافقة على هذا المزود؟',
         'cancel' => 'إلغاء',
         'you_have_received_offer' => 'You have received an offer',
+        'new_message' => 'New message',
     ];
