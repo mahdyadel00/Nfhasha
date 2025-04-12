@@ -165,7 +165,8 @@ class NotificationController extends Controller
             env('PUSHER_APP_ID'),
             ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
         );
-        $pusher->trigger('notifications.providers' . $offer->provider_id, 'sent.offer', [
+
+        $pusher->trigger('notifications.providers', 'sent.offer', [
             'message'       => __('messages.offer_accepted'),
             'user_id'       => $order->user_id,
             'order_id'      => $order->id,
