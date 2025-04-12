@@ -65,19 +65,27 @@ class MessageController extends Controller
             ], 500);
         }
 
-        // إرسال إشعار إلى الـ Firebase (إذا كان موجودًا)
+        // إرسال إشعار إلى المستخدم
         if (!empty($order->provider->fcm_token)) {
             try {
                 $firebaseService = new FirebaseService();
+
+                // البيانات الإضافية
+                $extraData = [
+                    'order_id' => $order->id,
+                    'type'     => 'message',
+                ];
+
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
-                    'New message from ' . $order->user->name,
-                    $message->message
+                    __('messages.new_message'),
+                    __('messages.new_message'),
+                    $extraData // تمرير البيانات الإضافية
                 );
             } catch (\Exception $e) {
-                // في حالة فشل إرسال الإشعار
+                // في حالة حدوث خطأ أثناء إرسال الإشعار
                 return response()->json([
-                    'message' => 'Failed to send Firebase notification.',
+                    'message' => 'Failed to send notification.',
                     'error'   => $e->getMessage(),
                 ], 500);
             }
