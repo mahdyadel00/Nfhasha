@@ -495,7 +495,7 @@ class OrderController extends Controller
                     $order->provider->fcm_token,
                     __('messages.order_rejected'),
                     __('messages.order_rejected_message', ['reason' => $request->reason]),
-                    $extraData // تمرير البيانات الإضافية
+                    $extraData
                 );
             } else {
                 Log::warning('❌ No valid FCM token found for provider ID: ' . $order->provider->id);
