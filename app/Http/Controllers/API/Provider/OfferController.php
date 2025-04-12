@@ -28,7 +28,7 @@ class OfferController extends Controller
                 ->pluck('order_id')
                 ->toArray();
 
-            $orders = Order::whereIn('id', $orderIds)
+            $orders = Order::with('offers')->whereIn('id', $orderIds)
                 ->whereNotIn('status', ['accepted', 'completed'])
                 ->where(function ($query) use ($providerId) {
                     $query->where('status', 'pending')
@@ -59,9 +59,6 @@ class OfferController extends Controller
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
-
-
-
 
     public function offer($id)
     {
