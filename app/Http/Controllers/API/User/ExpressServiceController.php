@@ -144,7 +144,7 @@ class ExpressServiceController extends Controller
                             'sound'    => 'notify_sound.mp3',
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, 'New Order', $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
