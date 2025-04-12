@@ -140,11 +140,11 @@ class ExpressServiceController extends Controller
 
                         $extraData = [
                             'order_id' => $order->id,
-                            'type'     => 'order',
+                            'type'     => __('messages.express_service'),
                             'sound'    => 'notify_sound.mp3',
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, 'New Order', $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());

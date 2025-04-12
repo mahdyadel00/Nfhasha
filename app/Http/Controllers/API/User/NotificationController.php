@@ -112,13 +112,15 @@ class NotificationController extends Controller
                     // البيانات الإضافية
                     $extraData = [
                         'offer_id' => $offer->id,
-                        'type'     => 'offer',
+                        'type'     => __('messages.rejected_offer'),
                     ];
 
                     $firebaseService->sendNotificationToUser(
                         $offer->provider->fcm_token,
                         __('messages.offer_rejected'),
-                        __('messages.offer_rejected'),
+                        __('messages.offer_rejected_message' ,[
+                            'amount'   => $offer->amount,
+                        ]),
                         $extraData // تمرير البيانات الإضافية
                     );
                 } catch (\Exception $e) {
@@ -189,14 +191,16 @@ class NotificationController extends Controller
                     // البيانات الإضافية
                     $extraData = [
                         'offer_id' => $offer->id,
-                        'type'     => 'offer',
+                        'type'     => __('messages.offer_accepted'),
                     ];
 
                     $firebaseService->sendNotificationToMultipleUsers(
                         $tokens,
                         __('messages.offer_accepted'),
-                        __('messages.offer_accepted'),
-                        $extraData 
+                        __('messages.offer_accepted_message', [
+                            'amount'   => $offer->amount,
+                        ]),
+                        $extraData
                     );
                 }
             } catch (\Exception $e) {

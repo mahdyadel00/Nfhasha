@@ -192,11 +192,11 @@ class OrderController extends Controller
                         // البيانات الإضافية للإشعار
                         $extraData = [
                             'order_id' => $order->id, // يجب تمرير $order عند استدعاء هذا الكود
-                            'type'     => 'order',
+                            'type'     => __('messages.new_order'),
                             'sound'    => 'notify_sound.mp3',
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -297,11 +297,11 @@ class OrderController extends Controller
 
                         $extraData = [
                             'order_id' => $order->id,
-                            'type' => 'order',
+                            'type' => __('messages.periodic_inspection'),
                             'sound' => 'notify_sound.mp3',
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, $message, $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.periodic_inspection'), $message, $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -419,14 +419,14 @@ class OrderController extends Controller
                 // البيانات الإضافية
                 $extraData = [
                     'order_id' => $order->id,
-                    'type'     => 'order',
+                    'type'     => __('messages.order_canceled'),
                     'sound'    => 'notify_sound.mp3',
                 ];
 
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
-                    __('messages.order_canceled_title'),
-                    __('messages.order_canceled_body'),
+                    __('messages.order_canceled'),
+                    __('messages.order_canceled_message', ['reason' => $order->reason]),
                     $extraData // تمرير البيانات الإضافية
                 );
             } catch (\Exception $e) {
@@ -487,14 +487,14 @@ class OrderController extends Controller
                 // البيانات الإضافية
                 $extraData = [
                     'order_id' => $order->id,
-                    'type'     => 'order',
+                    'type'     => __('messages.order_rejected'),
                     'sound'    => 'notify_sound.mp3',
                 ];
 
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
-                    'Order Rejected',
-                    'Your order has been rejected. Check the reasons and images in your app.',
+                    __('messages.order_rejected'),
+                    __('messages.order_rejected_message', ['reason' => $request->reason]),
                     $extraData // تمرير البيانات الإضافية
                 );
             } else {

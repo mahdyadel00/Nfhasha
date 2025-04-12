@@ -140,6 +140,13 @@ return
         'you_have_received_offer' => 'لقد تلقيت عرضًا جديدًا',
         'you_have_received_offer_from' => 'لقد تلقيت عرضًا جديدًا من',
         'new_message' => 'رسالة جديدة',
+        'periodic_inspection' => 'فحص دوري',
+        'order_rejected' => 'تم رفض الطلب',
+        'order_rejected_message' => 'لقد تم رفض طلبك من قبل المزود',
+        'order_canceled' => 'تم إلغاء الطلب',
+        'order_canceled_message' => 'لقد تم إلغاء طلبك من قبل المزود',
+        'rejected_offer' => 'عرض مرفوض',
+        'offer_accepted_message' => 'لقد تم قبول عرضك من قبل المزود',
 
 
     ];

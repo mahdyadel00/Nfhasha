@@ -141,4 +141,11 @@ return
         'cancel' => 'إلغاء',
         'you_have_received_offer' => 'You have received an offer',
         'new_message' => 'New message',
+        'periodic_inspection' => 'Periodic Inspection',
+        'order_rejected' => 'Order Rejected',
+        'order_rejected_message' => 'Your order has been rejected by the provider',
+        'order_canceled' => 'Order Canceled',
+        'order_canceled_message' => 'Your order has been canceled by the provider',
+        'rejected_offer' => 'Offer Rejected',
+        'offer_accepted_message' => 'Your offer has been accepted',
     ];
