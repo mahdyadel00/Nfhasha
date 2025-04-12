@@ -50,6 +50,7 @@ class OrderController extends Controller
     public function ordersByStatus(Request $request)
     {
         $orders = Order::where('provider_id', auth('sanctum')->id())
+            ->orderBy('created_at', 'desc')
             //when status array
             ->when($request->status, function ($query) use ($request) {
                 return $query->whereIn('status', $request->status);
@@ -206,5 +207,4 @@ class OrderController extends Controller
             'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order_tracking')]),
         ]);
     }
-
 }
