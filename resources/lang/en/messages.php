@@ -139,4 +139,5 @@ return
         'approve_provider' => 'تأكيد الموافقة',
         'approve_confirmation' => 'هل أنت متأكد أنك تريد الموافقة على هذا المزود؟',
         'cancel' => 'إلغاء',
+        'you_have_received_offer' => 'You have received an offer',
     ];

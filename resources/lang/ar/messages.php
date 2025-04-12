@@ -102,14 +102,14 @@ return
         'battery_order_request' => 'طلب بطارية',
         'battery_order_request_accepted' => 'تم قبول طلب البطارية',
         'towing_order_request' => 'طلب سحب',
-        'puncture_order_request' => 'طلب تغيير إطار',
+        'puncture_order_request' => 'طلب خدمة بنشر',
         'new_order_request' => 'طلب جديد',
         'delete_warning' => 'هل أنت متأكد أنك تريد حذف هذا العنصر؟',
         'checkout_id_expired' => 'معرف الدفع منتهي الصلاحية',
         'fuel_service_request' => 'طلب خدمة وقود',
         'car_reservations_service_request' => 'طلب حجز سيارة',
         'open_locks_service_request' => 'طلب فتح أقفال السيارة',
-        'puncture_service_request' => 'طلب تغيير إطار',
+        'puncture_service_request' => 'طلب خدمة بنشر',
         'periodic_inspection_service_request' => 'طلب فحص دوري',
         'comprehensive_inspection_service_request' => 'طلب فحص شامل',
         'maintenance_service_request' => 'طلب صيانة',
@@ -136,7 +136,9 @@ return
         "Approve" => "موافقة",
         "Approve Provider" => "تأكيد الموافقة",
         "Are you sure you want to approve this provider?" => "هل أنت متأكد أنك تريد الموافقة على هذا المزود؟",
-        "Cancel" => "إلغاء"
+        "Cancel" => "إلغاء",
+        'you_have_received_offer' => 'لقد تلقيت عرضًا جديدًا',
+        'you_have_received_offer_from' => 'لقد تلقيت عرضًا جديدًا من',
 
 
     ];

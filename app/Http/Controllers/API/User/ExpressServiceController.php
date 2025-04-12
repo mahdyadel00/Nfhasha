@@ -47,7 +47,7 @@ class ExpressServiceController extends Controller
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true); // ✅ التحقق من أن البروفايدر نشط
+                        ->where('is_active', true);
                 })
                 ->get();
 
