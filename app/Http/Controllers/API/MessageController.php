@@ -16,29 +16,33 @@ class MessageController extends Controller
     {
         // التحقق من البيانات المدخلة
         $request->validate([
-            'chat_id'       => 'required',
-            'message'       => 'required',
-            'type'          => 'required',
+            'chat_id'   => 'required',
+            'message'   => 'required',
+            'type'      => 'required',
         ]);
 
-        // العثور على الطلب حسب الـ id
+        // العثور على الطلب حسب الـ id بشرط يكون مقبول
         $order = Order::where('status', 'accepted')->find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        // تحديد من هو المرسل بناءً على الـ user_id
+        // تحديد المرسل والمستلم
         if ($order->user_id == auth()->id()) {
             $request->merge(['sender_id' => $order->user_id]);
+            $receiverToken = $order->provider->fcm_token ?? null;
+            $receiverName = $order->provider->name ?? 'Provider';
         } else {
             $request->merge(['sender_id' => $order->provider_id]);
+            $receiverToken = $order->user->fcm_token ?? null;
+            $receiverName = $order->user->name ?? 'User';
         }
 
         // إنشاء الرسالة
         $message = Message::create($request->all());
 
-        // إعدادات Pusher
+        // إرسال البيانات عبر Pusher
         try {
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
@@ -47,15 +51,14 @@ class MessageController extends Controller
                 ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
             );
 
-            // إرسال البيانات إلى القناة المحددة
             $pusher->trigger('chat-channel', 'chat-event', [
-                'order_id'      => $order->id,
-                'sender_id'     => $message->sender_id,
-                'chat_id'       => $message->chat_id,
-                'type'          => $message->type,
-                'message'       => $message->message,
+                'order_id'       => $order->id,
+                'sender_id'      => $message->sender_id,
+                'chat_id'        => $message->chat_id,
+                'type'           => $message->type,
+                'message'        => $message->message,
                 'reservation_id' => $order->provider_id,
-                'created_at'    => $message->created_at,
+                'created_at'     => $message->created_at,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -64,12 +67,13 @@ class MessageController extends Controller
             ], 500);
         }
 
-        if (!empty($order->provider->fcm_token)) {
+        // إرسال إشعار Firebase للطرف الآخر فقط
+        if (!empty($receiverToken)) {
             try {
                 $firebaseService = new FirebaseService();
 
-                $title = __('messages.new_message');
-                $body = $message->message;
+                $title = __('messages.new_message'); // العنوان مترجم
+                $body = $message->message; // الرسالة نفسها في الـ body
 
                 $extraData = [
                     'order_id' => $order->id,
@@ -77,9 +81,9 @@ class MessageController extends Controller
                 ];
 
                 $firebaseService->sendNotificationToUser(
-                    $order->provider->fcm_token,
+                    $receiverToken,
                     $title,
-                    $body,   
+                    $body,
                     $extraData
                 );
             } catch (\Exception $e) {
@@ -89,7 +93,6 @@ class MessageController extends Controller
                 ], 500);
             }
         }
-
 
         // إرسال رد بنجاح
         return response()->json(['message' => __('messages.message_sent')]);

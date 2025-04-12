@@ -33,8 +33,7 @@ class NotificationController extends Controller
             return new ErrorResource('No orders found');
         }
 
-        $offers = OrderOffer::where('order_id', $order->id)
-            ->get();
+        $offers = OrderOffer::where('order_id', $order->id)->get();
 
         return new SuccessResource([
             'message'   => 'Notifications found successfully',
