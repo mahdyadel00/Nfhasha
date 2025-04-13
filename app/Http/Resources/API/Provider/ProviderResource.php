@@ -48,7 +48,7 @@ class   ProviderResource extends JsonResource
                 'rate'                  => RateResource::make(optional($this->ratings)->firstWhere('provider_id', auth()->id())),
                 'ratings_count'         => $this->ratings_count,
                 'completed_orders_count' => $this->completed_orders_count, // ✅ التعديل هنا
-                
+
             ];
         }
 

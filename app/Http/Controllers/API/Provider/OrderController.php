@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProviderNotification;
 use App\Http\Resources\API\OrderResource;
 use App\Http\Resources\API\SuccessResource;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -24,11 +25,9 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message' => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
-            'data' => OrderResource::collection($orders)
+            'data' => OrderResource::collection($orders),
         ]);
     }
-
-
 
     public function show($id)
     {
@@ -36,22 +35,20 @@ class OrderController extends Controller
 
         if (!$order) {
             return new SuccessResource([
-                'message' => __('messages.order_not_found')
+                'message' => __('messages.order_not_found'),
             ]);
         }
 
         return new SuccessResource([
             'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
-            'data' => new OrderResource($order)
+            'data' => new OrderResource($order),
         ]);
     }
-
 
     public function ordersByStatus(Request $request)
     {
         $orders = Order::where('provider_id', auth('sanctum')->id())
             ->orderBy('created_at', 'desc')
-            //when status array
             ->when($request->status, function ($query) use ($request) {
                 return $query->whereIn('status', $request->status);
             })
@@ -62,7 +59,7 @@ class OrderController extends Controller
 
         return new SuccessResource([
             'message' => __('messages.data_returned_successfully', ['attr' => __('messages.orders')]),
-            'data' => OrderResource::collection($orders)
+            'data' => OrderResource::collection($orders),
         ]);
     }
 
@@ -72,12 +69,12 @@ class OrderController extends Controller
 
         if (!$order) {
             return new SuccessResource([
-                'message' => __('messages.order_not_found')
+                'message' => __('messages.order_not_found'),
             ]);
         }
 
         $order->update([
-            'status' => $request->status
+            'status' => $request->status,
         ]);
 
         $users = User::whereHas('orders', function ($q) use ($order) {
@@ -92,27 +89,25 @@ class OrderController extends Controller
                     $firebaseService = new FirebaseService();
 
                     $extraData = [
-                        'order_id' => $order->id,
-                        'type'     => 'order',
-                        'sound'    => 'notify_sound.mp3',
+                        'order_id' => (string) $order->id, // تحويل إلى string
+                        'type' => 'order',
+                        'order_status' => $order->status, // إضافة حالة الطلب
+                        'sound' => 'notify_sound', // تصحيح الصوت
                     ];
 
                     $message = 'تم تغيير حالة الطلب الخاص بك';
 
-                    $firebaseService->sendNotificationToMultipleUsers(
-                        $tokens,
-                        'تغيير حالة الطلب',
-                        $message,
-                        $extraData
-                    );
+                    $firebaseService->sendNotificationToMultipleUsers($tokens, 'تغيير حالة الطلب', $message, $extraData);
+
+                    \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                 }
             } catch (\Exception $e) {
-                Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                Log::channel('error')->error('Firebase Notification Failed: ' . $e->getMessage());
             }
         }
 
         return new SuccessResource([
-            'message' => __('messages.order_status_changed')
+            'message' => __('messages.order_status_changed'),
         ]);
     }
 
@@ -130,19 +125,19 @@ class OrderController extends Controller
 
         if (!$order) {
             return new SuccessResource([
-                'message' => __('messages.order_not_found')
+                'message' => __('messages.order_not_found'),
             ]);
         }
 
         if ($order->status !== 'accepted') {
             return new SuccessResource([
-                'message' => __('messages.invalid_order_status')
+                'message' => __('messages.invalid_order_status'),
             ]);
         }
 
         $user->update([
             'latitude' => $request->latitude,
-            'longitude' => $request->longitude
+            'longitude' => $request->longitude,
         ]);
 
         $tracking_order = OrderTracking::where('order_id', $order->id)->first();
@@ -180,27 +175,24 @@ class OrderController extends Controller
             'order_id' => $order->id,
             'provider_id' => auth()->id(),
             'service_type' => $order->type,
-            'message' => __('messages.tracking_my_order')
+            'message' => __('messages.tracking_my_order'),
+            'order_status' => $order->status, // إضافة حالة الطلب
         ]);
 
-        $pusher = new Pusher(
-            env('PUSHER_APP_KEY'),
-            env('PUSHER_APP_SECRET'),
-            env('PUSHER_APP_ID'),
-            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-        );
+        $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
         $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.location', [
             'message' => __('messages.tracking_my_order'),
             'order' => $order,
             'provider' => auth()->user(),
+            'order_status' => $order->status, // إضافة حالة الطلب
             'order_tracking' => [
                 'status' => $request->status,
                 'inspection_reject_reason' => $request->reason,
                 'inspection_reject_image' => $image,
             ],
             'latitude' => $request->latitude,
-            'longitude' => $request->longitude
+            'longitude' => $request->longitude,
         ]);
 
         return new SuccessResource([

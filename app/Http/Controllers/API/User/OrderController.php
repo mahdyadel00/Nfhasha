@@ -26,7 +26,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Pusher\Pusher;
 
-
 class OrderController extends Controller
 {
     public function cyPeriodics()
@@ -37,6 +36,7 @@ class OrderController extends Controller
             ? CyPeriodicResource::collection($cyPeriodics)
             : new ErrorResource('No cy periodics found');
     }
+
     public function createOrder(StoreperiodicExaminationRequest $request)
     {
         try {
@@ -148,6 +148,7 @@ class OrderController extends Controller
                 })
                 ->get();
             $providerIds = $users->pluck('id')->toArray();
+
             //create notification
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
@@ -156,9 +157,9 @@ class OrderController extends Controller
                     'order_id'      => $order->id,
                     'message'       => __('messages.new_order'),
                     'service_type'  => $order->type,
+                    'order_status'  => $order->status, // إضافة حالة الطلب
                 ]);
             }
-
 
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
@@ -178,6 +179,7 @@ class OrderController extends Controller
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
                     'message'       => $message,
                     'order'         => $order,
+                    'order_status'  => $order->status, // إضافة حالة الطلب
                     'Provider_ids'  => $providerIds,
                 ]);
             }
@@ -189,14 +191,22 @@ class OrderController extends Controller
                     if (!empty($tokens)) {
                         $firebaseService = new FirebaseService();
 
-                        // البيانات الإضافية للإشعار
                         $extraData = [
-                            'order_id' => $order->id, // يجب تمرير $order عند استدعاء هذا الكود
-                            'type'     => __('messages.new_order'),
-                            'sound'    => 'notify_sound.mp3',
+                            'order_id'     => (string) $order->id, // تحويل إلى string للتوافق مع Flutter
+                            'type'         => __('messages.new_order'),
+                            'order_status' => $order->status, // إضافة حالة الطلب
+                            'sound'        => 'notify_sound', // تصحيح الصوت للتوافق مع Flutter
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers(
+                            $tokens,
+                            __('messages.new_order'),
+                            $message,
+                            $extraData
+                        );
+
+                        // تسجيل للتحقق
+                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -262,11 +272,12 @@ class OrderController extends Controller
 
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
-                    'provider_id' => $providerId,
-                    'user_id' => auth()->id(),
-                    'order_id' => $order->id,
-                    'message' => '🚀 New order request',
-                    'service_type' => $order->type,
+                    'provider_id'   => $providerId,
+                    'user_id'       => auth()->id(),
+                    'order_id'      => $order->id,
+                    'message'       => '🚀 New order request',
+                    'service_type'  => $order->type,
+                    'order_status'  => $order->status, // إضافة حالة الطلب
                 ]);
             }
 
@@ -281,9 +292,10 @@ class OrderController extends Controller
 
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                    'message' => $message,
-                    'order' => $order,
-                    'Provider_ids' => $providerIds,
+                    'message'       => $message,
+                    'order'         => $order,
+                    'order_status'  => $order->status, // إضافة حالة الطلب
+                    'Provider_ids'  => $providerIds,
                 ]);
             }
 
@@ -296,12 +308,20 @@ class OrderController extends Controller
                         $firebaseService = new FirebaseService();
 
                         $extraData = [
-                            'order_id' => $order->id,
-                            'type' => __('messages.periodic_inspection'),
-                            'sound' => 'notify_sound.mp3',
+                            'order_id'     => (string) $order->id, // تحويل إلى string
+                            'type'         => __('messages.periodic_inspection'),
+                            'order_status' => $order->status, // إضافة حالة الطلب
+                            'sound'        => 'notify_sound', // تصحيح الصوت
                         ];
 
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.periodic_inspection'), $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers(
+                            $tokens,
+                            __('messages.periodic_inspection'),
+                            $message,
+                            $extraData
+                        );
+
+                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
@@ -321,7 +341,6 @@ class OrderController extends Controller
         }
     }
 
-
     public function payment($order)
     {
         $order = auth('sanctum')->user()->orders()->find($order);
@@ -335,7 +354,6 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => 'approved']);
-
 
         broadcast(new ServiceRequestEvent($order, $order->type));
 
@@ -362,7 +380,6 @@ class OrderController extends Controller
             'data'    => OrderResource::collection($orders)
         ]);
     }
-
 
     public function show($id)
     {
@@ -397,6 +414,7 @@ class OrderController extends Controller
             'data'      => OrderResource::collection($orders)
         ]);
     }
+
     public function cancelOrder(Request $request, $id)
     {
         $order = Order::where('user_id', auth('sanctum')->id())->find($id);
@@ -416,26 +434,27 @@ class OrderController extends Controller
             try {
                 $firebaseService = new FirebaseService();
 
-                // البيانات الإضافية
                 $extraData = [
-                    'order_id' => $order->id,
-                    'type'     => __('messages.order_canceled'),
-                    'sound'    => 'notify_sound.mp3',
+                    'order_id'     => (string) $order->id, // تحويل إلى string
+                    'type'         => __('messages.order_canceled'),
+                    'order_status' => $order->status, // إضافة حالة الطلب
+                    'sound'        => 'notify_sound', // تصحيح الصوت
                 ];
 
                 $firebaseService->sendNotificationToUser(
                     $order->provider->fcm_token,
                     __('messages.order_canceled'),
                     __('messages.order_canceled_message', ['reason' => $order->reason]),
-                    $extraData // تمرير البيانات الإضافية
+                    $extraData
                 );
+
+                \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
             } catch (\Exception $e) {
                 Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
             }
         } else {
             Log::channel('error')->warning("No valid provider or FCM token found for order ID: {$order->id}");
         }
-
 
         return new SuccessResource([
             'message'   => __('messages.order_canceled_successfully')
@@ -484,11 +503,11 @@ class OrderController extends Controller
             if (!empty($order->provider->fcm_token)) {
                 $firebaseService = new FirebaseService();
 
-                // البيانات الإضافية
                 $extraData = [
-                    'order_id' => $order->id,
-                    'type'     => __('messages.order_rejected'),
-                    'sound'    => 'notify_sound.mp3',
+                    'order_id'     => (string) $order->id, // تحويل إلى string
+                    'type'         => __('messages.order_rejected'),
+                    'order_status' => $order->status, // إضافة حالة الطلب
+                    'sound'        => 'notify_sound', // تصحيح الصوت
                 ];
 
                 $firebaseService->sendNotificationToUser(
@@ -497,6 +516,8 @@ class OrderController extends Controller
                     __('messages.order_rejected_message', ['reason' => $request->reason]),
                     $extraData
                 );
+
+                \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
             } else {
                 Log::warning('❌ No valid FCM token found for provider ID: ' . $order->provider->id);
             }
@@ -515,6 +536,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
     public function rate(Request $request, $id)
     {
         $request->validate([
@@ -522,13 +544,11 @@ class OrderController extends Controller
             'comment'   => 'nullable|string',
         ]);
 
-
         $order = Order::where('user_id', auth('sanctum')->id())
             ->where('status', '!=', 'accepted')
             ->where('status', '!=', 'canceled')
             ->where('status', 'completed')
             ->find($id);
-
 
         if (!$order) {
             return new ErrorResource(__('messages.order_not_found'));
@@ -540,8 +560,6 @@ class OrderController extends Controller
             return response()->json(['error' => 'Invalid provider_id. Provider does not exist.'], 400);
         }
 
-
-
         $order->rates()->Create(
             [
                 'user_id'     => auth('sanctum')->id(),
@@ -550,8 +568,6 @@ class OrderController extends Controller
                 'comment'     => $request->comment,
             ]
         );
-
-
 
         return new SuccessResource([
             'message'   => __('messages.order_rated_successfully')

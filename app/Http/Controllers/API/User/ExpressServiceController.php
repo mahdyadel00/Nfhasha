@@ -23,11 +23,9 @@ class ExpressServiceController extends Controller
 {
     public function index(Request $request)
     {
-        $express_services = ExpressService::where('type', $request->type)->paginate(config("app.pagination"));
+        $express_services = ExpressService::where('type', $request->type)->paginate(config('app.pagination'));
 
-        return Count($express_services) > 0
-            ? ExpressServiceResource::collection($express_services)
-            : new ErrorResource('No express services found');
+        return Count($express_services) > 0 ? ExpressServiceResource::collection($express_services) : new ErrorResource('No express services found');
     }
 
     public function store(StoreExpressServiceRequest $request)
@@ -35,9 +33,7 @@ class ExpressServiceController extends Controller
         try {
             DB::beginTransaction();
 
-
             $express_services = ExpressService::find($request->express_service_id);
-
 
             $serviceType = $express_services->type;
 
@@ -46,8 +42,7 @@ class ExpressServiceController extends Controller
                 ->nearby($request->from_latitude, $request->from_longitude, 50)
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
-                    $query->where($serviceType, true)
-                        ->where('is_active', true);
+                    $query->where($serviceType, true)->where('is_active', true);
                 })
                 ->get();
 
@@ -91,12 +86,7 @@ class ExpressServiceController extends Controller
             ]);
 
             //send notification to provider
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-            );
+            $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
             $service_type = $express_services->type;
 
@@ -110,7 +100,7 @@ class ExpressServiceController extends Controller
                 'comprehensive_inspections' => __('messages.comprehensive_inspection_service_request'),
                 'maintenance' => __('messages.maintenance_service_request'),
                 'car_reservations' => __('messages.car_reservations_service_request'),
-                'default' => __('messages.express_service_request'),
+                default => __('messages.express_service_request'),
             };
 
             //create notification
@@ -121,6 +111,7 @@ class ExpressServiceController extends Controller
                     'order_id' => $order->id,
                     'message' => __($message),
                     'service_type' => $order->type,
+                    'order_status' => $order->status, // إضافة حالة الطلب
                 ]);
             }
 
@@ -128,9 +119,11 @@ class ExpressServiceController extends Controller
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
                     'message' => $message,
                     'order' => $order,
+                    'order_status' => $order->status, // إضافة حالة الطلب
                     'Provider_ids' => $providerIds,
                 ]);
             } //end foreach
+
             if ($users->isNotEmpty()) {
                 try {
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
@@ -139,15 +132,20 @@ class ExpressServiceController extends Controller
                         $firebaseService = new FirebaseService();
 
                         $extraData = [
-                            'order_id' => $order->id,
-                            'type'     => __('messages.express_service'),
-                            'sound'    => 'notify_sound.mp3',
+                            'order_id' => (string) $order->id, // تحويل order_id إلى string لتجنب مشاكل Flutter
+                            'type' => __('messages.express_service'),
+                            'order_status' => $order->status, // إضافة حالة الطلب
+                            'sound' => 'notify_sound', // إزالة الامتداد .mp3 للتوافق مع Flutter
                         ];
 
+                        // إرسال الإشعار مع الصوت
                         $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
+
+                        // تسجيل للتحقق من إرسال الصوت
+                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
-                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                    \Log::channel('error')->error('Firebase Notification Failed: ' . $e->getMessage());
                 }
             }
 
@@ -159,7 +157,7 @@ class ExpressServiceController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error($e->getMessage());
+            \Log::channel('error')->error($e->getMessage());
             return new ErrorResource($e->getMessage());
         }
     }
@@ -171,19 +169,15 @@ class ExpressServiceController extends Controller
                 return $query->whereIn('status', $request->status);
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(config("app.pagination"));
+            ->paginate(config('app.pagination'));
 
-        return Count($puncture_services) > 0
-            ? PunctureServiceResource::collection($puncture_services)
-            : new ErrorResource('No express services found');
+        return Count($puncture_services) > 0 ? PunctureServiceResource::collection($puncture_services) : new ErrorResource('No express services found');
     }
 
     public function show($id)
     {
         $puncture_service = PunctureService::where('user_id', auth()->id())->find($id);
 
-        return $puncture_service
-            ? new PunctureServiceResource($puncture_service)
-            : new ErrorResource('No express service found');
+        return $puncture_service ? new PunctureServiceResource($puncture_service) : new ErrorResource('No express service found');
     }
 }
