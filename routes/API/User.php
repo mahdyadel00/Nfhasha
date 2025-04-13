@@ -74,7 +74,7 @@ Route::group(['prefix' => 'app', 'controller' => AppController::class], function
 
 Route::group(['prefix' => 'wallet', 'controller' => WalletController::class], function () {
     Route::get('', 'index');
-    Route::post('deposit', 'deposit');
+    // Route::post('deposit', 'deposit');
     Route::post('withdraw', 'withdraw');
 
 });
@@ -150,4 +150,8 @@ Route::post('/payment/refund/{id}', [HyperPayController::class, 'refundPayment']
 Route::post('/payment/applepay/callback', [HyperPayController::class, 'applePayCallback'])->name('payment.applepay.callback');
 //checkout id
 Route::get('/payment/checkout/{id}', [HyperPayController::class, 'getCheckoutId']);
+Route::post('/payment/deposit', [HyperPayController::class, 'deposit']);
+
+//get directions
+Route::get('/get-directions', [OrderController::class, 'getDirections']);
 

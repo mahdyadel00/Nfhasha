@@ -573,4 +573,12 @@ class OrderController extends Controller
             'message'   => __('messages.order_rated_successfully')
         ]);
     }
+
+    public function getDirections(Request $request)
+    {
+        $request->validate([
+            'from' => 'required|string',
+            'to' => 'required|string',
+        ]);
+    }
 }

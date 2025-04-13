@@ -11,11 +11,11 @@ use Laravel\Sanctum\HasApiTokens;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Support\Str;
-use \TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
+use TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable ,InteractsWithLanguages;
+    use HasApiTokens, HasFactory, Notifiable, InteractsWithLanguages;
 
     /**
      * The attributes that are mass assignable.
@@ -29,10 +29,7 @@ class User extends Authenticatable implements FilamentUser
      *
      * @var array<int, string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
      * The attributes that should be cast.
@@ -44,16 +41,15 @@ class User extends Authenticatable implements FilamentUser
         'password' => 'hashed',
     ];
 
-
     public function scopeNearby(Builder $query, $latitude, $longitude, $distance = 50)
     {
         $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude))
         * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
-        return $query->select('*')
+        return $query
+            ->select('*')
             ->selectRaw("{$haversine} AS distance", [$latitude, $longitude, $latitude])
             ->having('distance', '<', $distance) // 50 KM
             ->orderBy('distance');
-
     }
 
     //Generate Invitation Code Start
@@ -82,7 +78,6 @@ class User extends Authenticatable implements FilamentUser
     }
     //Generate Invitation Code End
 
-
     //Authorization for filament panel
     public function canAccessPanel(Panel $panel): bool
     {
@@ -90,15 +85,15 @@ class User extends Authenticatable implements FilamentUser
     }
 
     //Mutator For password
-//    public function setPasswordAttribute($password)
-//    {
-//        $this->attributes['password'] = Hash::make($password);
-//    }
+    //    public function setPasswordAttribute($password)
+    //    {
+    //        $this->attributes['password'] = Hash::make($password);
+    //    }
 
     //Invitations relationships
     public function invitations()
     {
-        return $this->hasMany(Invitation::class , 'user_id');
+        return $this->hasMany(Invitation::class, 'user_id');
     }
 
     // InvitedBy relationship
@@ -110,9 +105,8 @@ class User extends Authenticatable implements FilamentUser
     //Invitation relationship
     public function InvitedUser()
     {
-        return $this->hasOne(Invitation::class , 'invited_user_id');
+        return $this->hasOne(Invitation::class, 'invited_user_id');
     }
-
 
     //vehicles relationship
     public function vehicles()
@@ -137,6 +131,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(WalletTransaction::class);
     }
 
+    public function walletDeposits()
+    {
+        return $this->hasMany(WalletDeposit::class);
+    }
+
     //Withdrawal relationship
     public function withdrawals()
     {
@@ -148,7 +147,6 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Order::class, 'user_id'); // تأكد أن العمود الصحيح هو `user_id`
     }
-
 
     //Puncture Services
     public function punctureServices()
