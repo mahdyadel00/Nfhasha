@@ -174,7 +174,7 @@ class OfferController extends Controller
             ]);
 
             $order->offers()->create([
-                'amount' => $request->amount,
+                'amount' => $request->amount ?? $order->total_cost,
                 'provider_id' => auth()->id(),
                 'status' => 'sent',
             ]);
