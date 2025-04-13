@@ -18,70 +18,49 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'type' => $this->type,
-            'status' => $this->status,
-            'payment_method' => $this->payment_method,
-            'type_from' => $this->type_from,
-            'position' => $this->position,
-            'date_at' => $this->date_at,
-            'scheduled_at' => $this->scheduled_at,
-            'time_at' => $this->time_at,
-            'address' => $this->address,
-            'from_lat' => $this->from_lat,
-            'from_long' => $this->from_long,
-            'address_to' => $this->address_to,
-            'reason' => $this->reason,
-            'images' => collect(json_decode($this->images, true) ?? [])->map(fn($path) => asset('storage/' . $path)),
-            'to_lat' => $this->to_lat,
-            'to_long' => $this->to_long,
-            'details' => $this->details,
-            'canceled_by' => $this->canceled_by,
-            'canceled_by_provider' => $this->canceled_by_provider,
-            'update_by' => $this->update_by,
-            'company_profit' => $this->company_profit,
-            'total_cost' => $this->total_cost,
-            'note' => $this->note,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'user' => new UserResource($this->user),
-            'express_service' => new ExpressServiceResource($this->expressService, $this->id),
-            'providers' => $this->getProvidersWithAdditionalData(),
-            'userVehicle' => new VehiclesResource($this->userVehicle),
-            'city' => new CityResource($this->city),
-            'pickUpTruck' => new PickupTrucksResource($this->pickUpTruck),
+            'id'                            => $this->id,
+            'type'                          => $this->type,
+            'status'                        => $this->status,
+            'payment_method'                => $this->payment_method,
+            'type_from'                     => $this->type_from,
+            'position'                      => $this->position,
+            'date_at'                       => $this->date_at,
+            'scheduled_at'                  => $this->scheduled_at,
+            'time_at'                       => $this->time_at,
+            'address'                       => $this->address,
+            'from_lat'                      => $this->from_lat,
+            'from_long'                     => $this->from_long,
+            'address_to'                    => $this->address_to,
+            'reason'                        => $this->reason,
+            'images'                        => collect(json_decode($this->images, true) ?? [])
+                ->map(fn($path) => asset('storage/' . $path)),
+            'to_lat'                        => $this->to_lat,
+            'to_long'                       => $this->to_long,
+            'details'                       => $this->details,
+            'canceled_by'                   => $this->canceled_by,
+            'canceled_by_provider'          => $this->canceled_by_provider,
+            'update_by'                     => $this->update_by,
+            'company_profit'                => $this->company_profit,
+            'total_cost'                    => $this->total_cost,
+            'note'                          => $this->note,
+            'created_at'                    => $this->created_at,
+            'updated_at'                    => $this->updated_at,
+            'user'                          => new UserResource($this->user),
+            'express_service'               => new ExpressServiceResource($this->expressService, $this->id),
+            'providers' => UserResource::collection(
+                collect([$this->provider])->merge($this->providers)->filter()
+            ),
+
+            'userVehicle'                   => new VehiclesResource($this->userVehicle),
+            'city'                          => new CityResource($this->city),
+            'pickUpTruck'                   => new PickupTrucksResource($this->pickUpTruck),
             'order_tracking' => $this->tracking ? new OrderTrackingResource($this->tracking) : null,
-            'rate' => RateResource::collection($this->rates),
-            'offers' => $this->whenLoaded('offers', function () {
-                return OrderOfferResource::collection($this->offers->where('provider_id', auth()->id()));
+            'rate'                          => RateResource::collection($this->rates),
+            'offers'                        => $this->whenLoaded('offers', function () {
+                return OrderOfferResource::collection(
+                    $this->offers->where('provider_id', auth()->id())
+                );
             }),
         ];
-    }
-
-    /**
-     * Get providers with additional wallet balance and rating rate.
-     *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-     */
-    private function getProvidersWithAdditionalData()
-    {
-        $providers = collect([$this->provider])
-            ->merge($this->providers)
-            ->filter();
-
-        // Transform providers to include wallet_balance and rating_rate
-        return UserResource::collection(
-            $providers->map(function ($provider) {
-                return new class ($provider) extends UserResource {
-                    public function toArray(Request $request): array
-                    {
-                        $data = parent::toArray($request);
-                        $data['wallet_balance'] = $this->resource->wallet_balance ?? 0;
-                        $data['rating_rate'] = $this->resource->rates()->avg('rate') ?? 0;
-                        return $data;
-                    }
-                };
-            }),
-        );
     }
 }
