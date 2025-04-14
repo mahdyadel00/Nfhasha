@@ -181,4 +181,11 @@ return
         'redirect_to_payment' => 'Redirecting to payment page',
         'wallet_not_found' => 'Wallet not found',
         'wallet_not_found_property' => 'No wallet found for this user',
+        // Activation Code messages
+        'invalid_activation_code' => 'Invalid activation code',
+        'invalid_activation_code_property' => 'Please check the entered code',
+        'activation_code_applied' => 'Code activated successfully',
+        'activation_code_applied_property' => 'Balance has been added to your account',
+        'activation_codes_generated' => 'Activation codes generated successfully',
+        'activation_codes_generated_property' => 'Requested codes have been generated',
     ];

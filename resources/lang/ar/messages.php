@@ -195,4 +195,12 @@ return
         'wallet_not_found_property' => 'لم يتم العثور على محفظة لهذا المستخدم',
         'withdrawal_request_sent' => 'تم إرسال طلب السحب',
         'withdrawal_request_sent_property' => 'تم إرسال طلب السحب وسيتم معالجته قريباً',
+
+        // Activation Code messages
+        'invalid_activation_code' => 'كود التفعيل غير صالح',
+        'invalid_activation_code_property' => 'الرجاء التأكد من صحة الكود المدخل',
+        'activation_code_applied' => 'تم تفعيل الكود بنجاح',
+        'activation_code_applied_property' => 'تم إضافة الرصيد إلى حسابك',
+        'activation_codes_generated' => 'تم إنشاء أكواد التفعيل بنجاح',
+        'activation_codes_generated_property' => 'تم إنشاء الأكواد المطلوبة',
     ];

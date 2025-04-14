@@ -4,6 +4,7 @@ use App\Http\Controllers\API\User\{AppController, ContactUsController, ExpressSe
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\User\OrderController;
+use App\Http\Controllers\API\User\ActivationCodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -141,3 +142,9 @@ Route::get('/directions', [DirectionController::class, 'index']);
 Route::get('/directions/{id}', [DirectionController::class, 'show']);
 
 Route::post('/withdraw', [WithdrawalController::class, 'store']);
+
+// Add these routes in the appropriate group
+Route::post('/activate-code', [ActivationCodeController::class, 'activate']);
+
+// Admin routes
+Route::post('/admin/generate-codes', [ActivationCodeController::class, 'generate'])->middleware(['auth:api', 'admin']);

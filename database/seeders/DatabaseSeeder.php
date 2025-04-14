@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             ServiceOfferSeeder::class,
             ServiceMaintenanceSeeder::class,
             TypePeriodicInspectionsSeeder::class,
+            ActivationCodeSeeder::class,
         ]);
 
         User::factory()->count(50)->create();
