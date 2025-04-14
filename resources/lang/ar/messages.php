@@ -151,11 +151,38 @@ return
         'login_first_property' => 'يرجى تسجيل الدخول أولاً لإتمام العملية',
         'insufficient_balance_property' => 'رصيدك الحالي غير كافٍ لإتمام عملية السحب هذه',
         'withdrawal_request_sent' => 'تم إرسال طلب السحب بنجاح',
+        'withdrawal_request_sent_property' => 'تم إرسال طلب السحب بنجاح وسيتم معالجته قريباً',
         'withdrawal_request_sent_message' => 'تم إرسال طلب السحب بنجاح',
         'withdrawal_request_sent_message_from' => 'تم إرسال طلب السحب بنجاح من قبل',
         'withdrawal_request_sent_message_to' => 'لقد تم إرسال طلب السحب بنجاح إلى',
         'withdrawal_request_sent_message_amount' => 'مبلغ السحب',
         'withdrawal_request_sent_message_date' => 'التاريخ',
 
+        // HyperPay related messages
+        'deposit_record_not_found' => 'سجل الإيداع غير موجود',
+        'deposit_record_not_found_property' => 'لم يتم العثور على سجل إيداع بهذا المعرف',
 
+        'checkout_id_expired' => 'انتهت صلاحية معرف الدفع',
+        'checkout_id_expired_property' => 'لقد انتهت صلاحية عملية الدفع، يرجى المحاولة مرة أخرى',
+
+        'unexpected_response_type' => 'نوع الرد غير متوقع',
+        'unexpected_response_type_property' => 'حدث خطأ أثناء التواصل مع بوابة الدفع',
+
+        'failed_to_retrieve_payment_status' => 'فشل في استرجاع حالة الدفع',
+        'failed_to_retrieve_payment_status_property' => 'تعذر التحقق من حالة الدفع، يرجى المحاولة لاحقًا',
+
+        'invalid_hyperpay_response' => 'رد غير صالح من HyperPay',
+        'invalid_hyperpay_response_property' => 'حدث خطأ أثناء التحقق من حالة الدفع',
+
+        'deposit_confirmed_successfully' => 'تم تأكيد الإيداع بنجاح',
+        'deposit_confirmed_successfully_property' => 'تمت إضافة المبلغ إلى رصيدك بنجاح',
+
+        'deposit_processing' => 'الإيداع قيد المعالجة',
+        'deposit_processing_property' => 'عملية الإيداع قيد المعالجة، يرجى الانتظار',
+
+        'deposit_failed' => 'فشل عملية الإيداع',
+        'deposit_failed_property' => 'فشلت عملية الإيداع، يرجى المحاولة مرة أخرى',
+
+        'payment_status_retrieved_successfully' => 'تم استرجاع حالة الدفع بنجاح',
+        'payment_status_retrieved_successfully_property' => 'تم تحديث حالة الدفع بنجاح',
     ];

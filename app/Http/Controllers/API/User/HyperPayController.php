@@ -110,6 +110,96 @@ class HyperPayController extends Controller
         ]);
     }
 
+    public function confirmDeposit(Request $request, $checkoutId)
+    {
+        $deposit = WalletDeposit::where('checkout_id', $checkoutId)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$deposit) {
+            return response()->json([
+                'error' => __('messages.deposit_record_not_found'),
+                'property_message' => __('messages.deposit_record_not_found_property')
+            ], 404);
+        }
+
+        if ($deposit->created_at->diffInMinutes(now()) > 30) {
+            $deposit->update(['status' => 'failed']);
+            return response()->json([
+                'error' => __('messages.checkout_id_expired'),
+                'property_message' => __('messages.checkout_id_expired_property')
+            ], 400);
+        }
+
+        $response = $this->hyperPayService->getPaymentStatus($checkoutId, $deposit->payment_method);
+
+        if (!$response instanceof \Illuminate\Http\Client\Response) {
+            \Log::error('نوع الرد غير متوقع من HyperPay API', ['response' => $response]);
+            return response()->json([
+                'error' => __('messages.unexpected_response_type'),
+                'property_message' => __('messages.unexpected_response_type_property')
+            ], 500);
+        }
+
+        if ($response->failed()) {
+            \Log::error('فشل في استرجاع حالة الدفع من HyperPay', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+            return response()->json([
+                'error' => __('messages.failed_to_retrieve_payment_status'),
+                'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
+                'details' => $response->body()
+            ], 500);
+        }
+
+        $responseData = $response->json();
+        $resultCode = $responseData['result']['code'] ?? null;
+
+        if (!$resultCode) {
+            \Log::error('رد غير صالح من HyperPay', ['response' => $responseData]);
+            return response()->json([
+                'error' => __('messages.invalid_hyperpay_response'),
+                'property_message' => __('messages.invalid_hyperpay_response_property')
+            ], 500);
+        }
+
+        $status = match ($resultCode) {
+            '000.100.110' => 'completed',
+            '000.200.000' => 'pending',
+            default => 'failed',
+        };
+
+        $deposit->update(['status' => $status]);
+
+        if ($status === 'completed') {
+            $user = $deposit->user;
+            $user->balance += $deposit->amount;
+            $user->save();
+
+            return response()->json([
+                'message' => __('messages.deposit_confirmed_successfully'),
+                'property_message' => __('messages.deposit_confirmed_successfully_property'),
+                'deposit_status' => $deposit->status,
+                'hyperpay_result_code' => $resultCode,
+            ]);
+        } elseif ($status === 'pending') {
+            return response()->json([
+                'message' => __('messages.deposit_processing'),
+                'property_message' => __('messages.deposit_processing_property'),
+                'deposit_status' => $deposit->status,
+                'hyperpay_result_code' => $resultCode,
+            ]);
+        } else {
+            return response()->json([
+                'error' => __('messages.deposit_failed'),
+                'property_message' => __('messages.deposit_failed_property'),
+                'deposit_status' => $deposit->status,
+                'hyperpay_result_code' => $resultCode,
+            ], 400);
+        }
+    }
+
     // باقي الدوال زي ما هي
     public function updateDepositStatus(Request $request, $checkoutId)
     {

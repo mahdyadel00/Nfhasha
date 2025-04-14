@@ -134,6 +134,8 @@ Route::post('/payment/applepay/callback', [HyperPayController::class, 'applePayC
 Route::get('/payment/checkout/{id}', [HyperPayController::class, 'getCheckoutId']);
 Route::post('/payment/deposit', [HyperPayController::class, 'deposit']);
 
+Route::post('/payment/confirm-deposit/{checkoutId}', [HyperPayController::class, 'confirmDeposit']);
+
 //get directions
 Route::get('/directions', [DirectionController::class, 'index']);
 Route::get('/directions/{id}', [DirectionController::class, 'show']);

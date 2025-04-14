@@ -44,7 +44,7 @@ class WithdrawalController extends Controller
 
         return response()->json([
             'message' => __('messages.withdrawal_request_sent'),
-            'property_message' => __('messages.withdrawal_request_sent_message'),
+            'property_message' => __('messages.withdrawal_request_sent_property'),
             'withdrawal' => $withdrawal,
         ]);
     }
