@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\ActivationCode;
 
 class RegisterController extends Controller
 {
@@ -32,6 +33,20 @@ class RegisterController extends Controller
             'fcm_token'     => $request->fcm_token ?? null,
         ]);
 
+        if ($request->has('activation_code')) {
+            $code = ActivationCode::where('code', $request->activation_code)->first();
+
+            if ($code) {
+                if (!$code->users()->where('user_id', $user->id)->exists()) {
+                    $user->balance += $code->amount;
+                    $user->save();
+
+                    $code->users()->attach($user->id, [
+                        'used_at' => now()
+                    ]);
+                }
+            }
+        }
 
         if ($request->has('invitation_code')) {
             $inviter = User::where('invitation_code', $request->invitation_code)->first();
@@ -188,6 +203,50 @@ class RegisterController extends Controller
         return response()->json([
             'message' => 'Token retrieved successfully',
             'access_token' => $token
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'required|string|unique:users',
+            'activation_code' => 'nullable|string'
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'phone' => $request->phone,
+        ]);
+
+        if ($request->activation_code) {
+            $code = ActivationCode::where('code', $request->activation_code)->first();
+
+            if ($code) {
+                if (!$code->users()->where('user_id', $user->id)->exists()) {
+                    $user->balance += $code->amount;
+                    $user->save();
+
+                    $code->users()->attach($user->id, [
+                        'used_at' => now()
+                    ]);
+                }
+            }
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.user_registered'),
+            'data' => [
+                'user' => $user,
+                'token' => $token
+            ]
         ]);
     }
 }
