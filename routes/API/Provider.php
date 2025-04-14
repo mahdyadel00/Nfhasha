@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Provider\AccountController;
 use App\Http\Controllers\API\Provider\OfferController;
 use App\Http\Controllers\API\Provider\OrderController;
+use App\Http\Controllers\API\Provider\WalletController;
 use App\Http\Controllers\API\User\{AppController, ContactUsController};
 use Illuminate\Support\Facades\Route;
 
@@ -56,3 +57,12 @@ Route::get('order/{id}' , [OrderController::class , 'show']);
 Route::post('order-tracking/{id}' , [OrderController::class , 'orderTracking']);
 Route::get('orders' , [OrderController::class , 'ordersByStatus']);
 Route::post('change-order-status/{id}' , [OrderController::class , 'changeOrderStatus']);
+
+// Wallet routes
+Route::group(['prefix' => 'wallet', 'controller' => WalletController::class], function () {    Route::get('', 'index');
+    Route::post('withdraw', 'withdraw');
+    Route::post('deposit', 'deposit');
+    Route::post('deposit/{checkoutId}/confirm', 'confirmDeposit')->where('checkoutId', '.*');
+    Route::get('withdrawals', 'getWithdrawals');
+    Route::get('deposits', 'getDeposits');
+});

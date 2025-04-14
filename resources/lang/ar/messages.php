@@ -185,4 +185,14 @@ return
 
         'payment_status_retrieved_successfully' => 'تم استرجاع حالة الدفع بنجاح',
         'payment_status_retrieved_successfully_property' => 'تم تحديث حالة الدفع بنجاح',
+
+        'deposit_successful' => 'تم الإيداع بنجاح',
+        'deposit_successful_property' => 'تم إضافة المبلغ إلى رصيدك بنجاح',
+        'redirect_to_payment' => 'يتم التوجيه إلى صفحة الدفع',
+        'insufficient_balance' => 'رصيد غير كافٍ',
+        'insufficient_balance_property' => 'رصيدك الحالي غير كافٍ لإتمام هذه العملية',
+        'wallet_not_found' => 'لم يتم العثور على المحفظة',
+        'wallet_not_found_property' => 'لم يتم العثور على محفظة لهذا المستخدم',
+        'withdrawal_request_sent' => 'تم إرسال طلب السحب',
+        'withdrawal_request_sent_property' => 'تم إرسال طلب السحب وسيتم معالجته قريباً',
     ];
