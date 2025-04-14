@@ -1,19 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\User\{
-    AppController,
-    ContactUsController,
-    ExpressServiceController,
-    MainServicesController,
-    NotificationController,
-    UserController,
-    VehiclesController,
-    VehiclesInfoController,
-    WalletController,
-    ProviderController,
-    PaymentController,
-    HyperPayController
-};
+use App\Http\Controllers\API\User\{AppController, ContactUsController, ExpressServiceController, MainServicesController, NotificationController, UserController, VehiclesController, VehiclesInfoController, WalletController, ProviderController, PaymentController, HyperPayController, DirectionController};
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\User\OrderController;
@@ -32,10 +19,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('', function () {
     return response()->json([
-        'data' => auth()->user()
+        'data' => auth()->user(),
     ]);
 });
-
 
 Route::group(['prefix' => 'vehicles-info', 'controller' => VehiclesInfoController::class], function () {
     Route::get('years', 'years');
@@ -71,27 +57,25 @@ Route::group(['prefix' => 'app', 'controller' => AppController::class], function
     Route::get('links', 'links');
 });
 
-
 Route::group(['prefix' => 'wallet', 'controller' => WalletController::class], function () {
     Route::get('', 'index');
     // Route::post('deposit', 'deposit');
     Route::post('withdraw', 'withdraw');
-
 });
 
-
 Route::post('contact-us', ContactUsController::class);
-
 
 //Order Requirments
 Route::get('periodic-examination/{city}', [OrderController::class, 'cyPeriodics']);
 
-Route::prefix('orders')->controller(OrderController::class)->group(function () {
-    Route::post('periodic-examination', 'createOrder');
-    Route::post('update-periodic-examination/{id}', 'updatePeriodicInspection');
-    Route::post('payment/{order}', 'payment');
-    Route::get('', 'index');
-});
+Route::prefix('orders')
+    ->controller(OrderController::class)
+    ->group(function () {
+        Route::post('periodic-examination', 'createOrder');
+        Route::post('update-periodic-examination/{id}', 'updatePeriodicInspection');
+        Route::post('payment/{order}', 'payment');
+        Route::get('', 'index');
+    });
 
 //get nearby providers
 Route::get('nearby-providers', [ProviderController::class, 'nearbyProviders']);
@@ -100,8 +84,6 @@ Route::get('express-services', [ExpressServiceController::class, 'index']);
 Route::post('express-services', [ExpressServiceController::class, 'store']);
 Route::get('my-express-services', [ExpressServiceController::class, 'myExpressServices']);
 Route::get('express-service/{id}', [ExpressServiceController::class, 'show']);
-
-
 
 //get all notifications
 Route::get('notifications', [NotificationController::class, 'index']);
@@ -153,5 +135,5 @@ Route::get('/payment/checkout/{id}', [HyperPayController::class, 'getCheckoutId'
 Route::post('/payment/deposit', [HyperPayController::class, 'deposit']);
 
 //get directions
-Route::get('/get-directions', [OrderController::class, 'getDirections']);
-
+Route::get('/directions', [DirectionController::class, 'index']);
+Route::get('/directions/{id}', [DirectionController::class, 'show']);
