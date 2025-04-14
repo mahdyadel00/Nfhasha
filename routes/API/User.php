@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\User\{AppController, ContactUsController, ExpressServiceController, MainServicesController, NotificationController, UserController, VehiclesController, VehiclesInfoController, WalletController, ProviderController, PaymentController, HyperPayController, DirectionController};
+use App\Http\Controllers\API\User\{AppController, ContactUsController, ExpressServiceController, MainServicesController, NotificationController, UserController, VehiclesController, VehiclesInfoController, WalletController, ProviderController, PaymentController, HyperPayController, DirectionController, WithdrawalController};
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\User\OrderController;
@@ -137,3 +137,6 @@ Route::post('/payment/deposit', [HyperPayController::class, 'deposit']);
 //get directions
 Route::get('/directions', [DirectionController::class, 'index']);
 Route::get('/directions/{id}', [DirectionController::class, 'show']);
+
+Route::post('/withdraw', [WithdrawalController::class, 'store']);
+Route::post('/withdraw/{id}/confirm', [WithdrawalController::class, 'confirm']);

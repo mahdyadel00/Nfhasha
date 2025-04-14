@@ -139,7 +139,7 @@ class User extends Authenticatable implements FilamentUser
     //Withdrawal relationship
     public function withdrawals()
     {
-        return $this->hasMany(WithdrawalRequest::class);
+        return $this->hasMany(Withdrawal::class);
     }
 
     //Orders
