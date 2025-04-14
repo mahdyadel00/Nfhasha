@@ -147,6 +147,15 @@ return
         'order_canceled_message' => 'لقد تم إلغاء طلبك من قبل المزود',
         'rejected_offer' => 'عرض مرفوض',
         'offer_accepted_message' => 'لقد تم قبول عرضك من قبل المزود',
+        'login_first' => 'يرجى تسجيل الدخول أولاً',
+        'login_first_property' => 'يرجى تسجيل الدخول أولاً لإتمام العملية',
+        'insufficient_balance_property' => 'رصيدك الحالي غير كافٍ لإتمام عملية السحب هذه',
+        'withdrawal_request_sent' => 'تم إرسال طلب السحب بنجاح',
+        'withdrawal_request_sent_message' => 'تم إرسال طلب السحب بنجاح',
+        'withdrawal_request_sent_message_from' => 'تم إرسال طلب السحب بنجاح من قبل',
+        'withdrawal_request_sent_message_to' => 'لقد تم إرسال طلب السحب بنجاح إلى',
+        'withdrawal_request_sent_message_amount' => 'مبلغ السحب',
+        'withdrawal_request_sent_message_date' => 'التاريخ',
 
 
     ];

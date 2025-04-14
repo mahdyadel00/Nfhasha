@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class WithdrawalController extends Controller
 {
-    // API لإدخال بيانات السحب
     public function store(Request $request)
     {
         $request->validate([
@@ -19,13 +18,19 @@ class WithdrawalController extends Controller
             'amount' => 'required|numeric|min:1',
         ]);
 
-        $user = Auth::user(); // جلب المستخدم المصادق عليه
+        $user = Auth::user();
         if (!$user) {
-            return response()->json(['error' => 'يرجى تسجيل الدخول'], 401);
+            return response()->json([
+                'error' => __('messages.login_first'),
+                'property_message' => __('messages.login_first_property')
+            ], 401);
         }
 
         if ($user->balance < $request->amount) {
-            return response()->json(['error' => 'الرصيد غير كافٍ'], 400);
+            return response()->json([
+                'error' => __('messages.insufficient_balance'),
+                'property_message' => __('messages.insufficient_balance_property')
+            ], 400);
         }
 
         $withdrawal = Withdrawal::create([
@@ -38,43 +43,8 @@ class WithdrawalController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'تم تسجيل طلب السحب بنجاح',
-            'withdrawal' => $withdrawal,
-        ]);
-    }
-
-    // API لتأكيد وتنفيذ السحب
-    public function confirm($id)
-    {
-        $user = Auth::user(); // جلب المستخدم المصادق عليه
-        if (!$user) {
-            return response()->json(['error' => 'يرجى تسجيل الدخول'], 401);
-        }
-
-        $withdrawal = Withdrawal::where('user_id', $user->id)->find($id);
-        if (!$withdrawal) {
-            return response()->json(['error' => 'طلب السحب غير موجود'], 404);
-        }
-
-        if ($withdrawal->status !== 'pending') {
-            return response()->json(['error' => 'تمت معالجة الطلب مسبقًا'], 400);
-        }
-
-        if ($user->balance < $withdrawal->amount) {
-            $withdrawal->update(['status' => 'failed']);
-            return response()->json(['error' => 'الرصيد غير كافٍ'], 400);
-        }
-
-        // خصم المبلغ من الرصيد
-        $user->balance -= $withdrawal->amount;
-        $user->save();
-
-        // تحديث حالة السحب
-        $withdrawal->update(['status' => 'completed']);
-
-        return response()->json([
-            'message' => 'تم تنفيذ السحب بنجاح',
-            'new_balance' => $user->balance,
+            'message' => __('messages.withdrawal_request_sent'),
+            'property_message' => __('messages.withdrawal_request_sent_message'),
             'withdrawal' => $withdrawal,
         ]);
     }

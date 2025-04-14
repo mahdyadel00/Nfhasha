@@ -139,4 +139,3 @@ Route::get('/directions', [DirectionController::class, 'index']);
 Route::get('/directions/{id}', [DirectionController::class, 'show']);
 
 Route::post('/withdraw', [WithdrawalController::class, 'store']);
-Route::post('/withdraw/{id}/confirm', [WithdrawalController::class, 'confirm']);

@@ -148,4 +148,5 @@ return
         'order_canceled_message' => 'Your order has been canceled by the provider',
         'rejected_offer' => 'Offer Rejected',
         'offer_accepted_message' => 'Your offer has been accepted',
+        'insufficient_balance_message' => 'Your balance is insufficient to complete this withdrawal request',
     ];
