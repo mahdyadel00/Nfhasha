@@ -23,13 +23,14 @@ class ServiceOfferResouce extends JsonResource
             'name'                          => $this->name,
             'description'                   => $this->description,
             'is_active'                     => $this->is_active ? 'Active' : 'Inactive',
-            'image'                         => asset('storage/' . $this->image),
-            'created_at'                    => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly'            => $this->created_at->diffForHumans(),
-            'updated_at'                    => $this->updated_at->format('Y-m-d H:i:s'),
-            'updated_at_humanly'            => $this->updated_at->diffForHumans(),
-            // 'service'                       => new ExpressServiceResource($this->service),
-
+            'image'                         => $this->image ? asset('storage/' . $this->image) : null,
+            'created_at'                    => $this->created_at ? $this->created_at->format('Y-m-d H:i:s') : null,
+            'created_at_humanly'            => $this->created_at ? $this->created_at->diffForHumans() : null,
+            'updated_at'                    => $this->updated_at ? $this->updated_at->format('Y-m-d H:i:s') : null,
+            'updated_at_humanly'            => $this->updated_at ? $this->updated_at->diffForHumans() : null,
+            'service'                       => $this->when($this->relationLoaded('service') && $this->service, function () {
+                return new ExpressServiceResource($this->service);
+            }),
         ];
     }
 }

@@ -16,35 +16,61 @@ class ExpressServiceResource extends JsonResource
     }
     public function toArray($request)
     {
-        $this->loadMissing('carReservations'); // تحميل العلاقة إن لم تكن مُحمّلة
+        try {
+            // التحقق من وجود المورد
+            if (!$this->resource) {
+                return [
+                    'error' => 'Express service not found'
+                ];
+            }
 
-        $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
+            $this->loadMissing('carReservations');
 
-        $getUserReservation = function ($relation) use ($request) {
-            return $this->$relation()
-                ->where('user_id', $request->user()->id)
-                ->where('express_service_id', $this->id)
-                ->where('order_id', $this->orderId)
-                ->first();
-        };
+            $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
-        return [
-            'id'                        => $this->id,
-            'is_active'                 => (bool) $this->is_active,
-            'type'                      => $this->type,
-            'price'                     => $this->price,
-            'vat'                       => $this->vat,
-            'created_at'                => $this->created_at,
-            'updated_at'                => $this->updated_at,
-            'name'                      => $this->name,
-            'note'                      => $this->note,
-            'terms_condition'           => $this->terms_condition ?? null,
-            'battery_image'             => $latestPunctureService ? asset('storage/express_services/' . basename($latestPunctureService->battery_image)) : null,
-            'type_battery'              => $latestPunctureService?->type_battery,
-            'car_reservation'           => CarReservationsResource::make($getUserReservation('carReservations')),
-            'comprehensiveInspections'  => ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections')),
-            'maintenance'               => MaintenanceResource::make($getUserReservation('maintenance')),
-            'periodicInspections'       => PeriodicInspectionsResource::make($getUserReservation('periodicInspections')),
-        ];
+            $getUserReservation = function ($relation) use ($request) {
+                if (!$this->$relation) {
+                    return null;
+                }
+                return $this->$relation()
+                    ->where('user_id', $request->user()->id)
+                    ->where('express_service_id', $this->id)
+                    ->where('order_id', $this->orderId)
+                    ->first();
+            };
+
+            return [
+                'id'                        => $this->id ?? null,
+                'is_active'                 => (bool) ($this->is_active ?? false),
+                'type'                      => $this->type ?? null,
+                'price'                     => $this->price ?? null,
+                'vat'                       => $this->vat ?? null,
+                'created_at'                => $this->created_at ?? null,
+                'updated_at'                => $this->updated_at ?? null,
+                'name'                      => $this->name ?? null,
+                'note'                      => $this->note ?? null,
+                'terms_condition'           => $this->terms_condition ?? null,
+                'battery_image'             => $latestPunctureService && $latestPunctureService->battery_image ?
+                    asset('storage/express_services/' . basename($latestPunctureService->battery_image)) : null,
+                'type_battery'              => $latestPunctureService?->type_battery ?? null,
+                'car_reservation'           => $this->when($this->carReservations, function() use ($getUserReservation) {
+                    return CarReservationsResource::make($getUserReservation('carReservations'));
+                }),
+                'comprehensiveInspections'  => $this->when($this->comprehensiveInspections, function() use ($getUserReservation) {
+                    return ComprehensiveInspectionsResource::make($getUserReservation('comprehensiveInspections'));
+                }),
+                'maintenance'               => $this->when($this->maintenance, function() use ($getUserReservation) {
+                    return MaintenanceResource::make($getUserReservation('maintenance'));
+                }),
+                'periodicInspections'       => $this->when($this->periodicInspections, function() use ($getUserReservation) {
+                    return PeriodicInspectionsResource::make($getUserReservation('periodicInspections'));
+                }),
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error in ExpressServiceResource: ' . $e->getMessage());
+            return [
+                'error' => 'Error processing express service data'
+            ];
+        }
     }
 }
