@@ -13,7 +13,7 @@ class WithdrawalController extends Controller
     {
         $request->validate([
             'bank_name' => 'required|string|max:255',
-            'account_number' => 'required|string|max:50',
+            'account_holder' => 'required|string|max:50',
             'iban' => 'required|string|max:50',
             'amount' => 'required|numeric|min:1',
         ]);
@@ -36,7 +36,7 @@ class WithdrawalController extends Controller
         $withdrawal = Withdrawal::create([
             'user_id' => $user->id,
             'bank_name' => $request->bank_name,
-            'account_number' => $request->account_number,
+            'account_holder' => $request->account_holder,
             'iban' => $request->iban,
             'amount' => $request->amount,
             'status' => 'pending',
