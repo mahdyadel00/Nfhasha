@@ -70,18 +70,6 @@ class LoginController extends Controller
                 $user->tokens()->delete();
 
                 $token = $user->createToken('auth_token')->plainTextToken;
-                // if (!empty($user->fcm_token)) {
-                //     $firebaseService = new FirebaseService();
-                //     $firebaseService->sendNotificationToUser(
-                //         $user->fcm_token,
-                //         'Welcome to ' . config('app.name'),
-                //         'Welcome to ' . config('app.name')
-                //     );
-                // }
-                // return apiResponse(200, __('messages.logged_in_successfully'), [
-                //     'token' => $token,
-                //     'user' => $user
-                // ]);
                 return new SuccessResource([
                     'token' => $token,
                     'data' => UserResource::make(auth()->user())

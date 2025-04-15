@@ -91,9 +91,6 @@ class AccountController extends Controller
             $user->save();
         }
 
-        // $user->update($request->except('profile_picture'));
-
-
 
         $user->provider()->update([
             'city_id'                   => $request->city_id,
