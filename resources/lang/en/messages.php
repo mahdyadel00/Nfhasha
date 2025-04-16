@@ -241,4 +241,7 @@ return
         'error_in_reject_offer' => 'Error in reject offer',
         'error_in_send_offer' => 'Error in send offer',
         'failed_to_initiate_deposit_payment' => 'Failed to initiate deposit payment',
+        'error_in_initiate_payment' => 'Error in initiate payment',
+        'order_not_found_detail' => 'Order not found',
+    
     ];

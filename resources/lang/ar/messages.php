@@ -216,6 +216,16 @@ return [
     'order_rejected_property' => 'تم رفض الطلب',
     'order_accepted' => 'تم قبول الطلب',
     'order_accepted_property' => 'تم قبول الطلب',
+    'order_completed' => 'تم انتهاء الطلب',
+    'order_completed_property' => 'تم انتهاء الطلب',
+    'order_pending' => 'قيد الإنتظار',
+    'order_pending_property' => 'قيد الإنتظار',
+    'order_processing' => 'قيد المعالجة',
+    'order_processing_property' => 'قيد المعالجة',
+    'order_not_found_detail' => 'لم يتم العثور على الطلب',
+    'order_not_found_detail_property' => 'لم يتم العثور على الطلب',
+
+
 
 
 
