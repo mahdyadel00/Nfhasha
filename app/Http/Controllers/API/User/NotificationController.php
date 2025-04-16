@@ -261,10 +261,10 @@ class NotificationController extends Controller
                 return response()->json([
                     'status' => 200,
                     'message' => __('messages.offer_accepted'),
-                    'data' => [
-                        'order' => $order->fresh(),
-                        'offer' => new OrderOfferResource($offer->fresh())
-                    ]
+                    // 'data' => [
+                    //     'order' => $order->fresh(),
+                    //     'offer' => new OrderOfferResource($offer->fresh())
+                    // ]
                 ], 200);
 
             } catch (\Exception $e) {
