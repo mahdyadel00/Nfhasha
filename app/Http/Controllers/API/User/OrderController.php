@@ -45,9 +45,13 @@ class OrderController extends Controller
 
             $expressService = ExpressService::find($request->service_id);
 
-            // التحقق من تاريخ الخدمة
             $serviceDate = Carbon::parse($request->date);
-            $isFutureDate = $serviceDate->isFuture();
+$today = Carbon::today();
+
+if ($serviceDate->lt($today)) {
+    return new ErrorResource(__('messages.date_cannot_be_before_today'));
+}
+
 
             $order = Order::create([
                 'user_id'               => auth()->id(),
@@ -55,7 +59,7 @@ class OrderController extends Controller
                 'user_vehicle_id'       => $request->vehicle_id,
                 'pick_up_truck_id'      => $request->pick_up_truck_id,
                 'city_id'               => $request->city_id ?? null,
-                'status'                => $isFutureDate ? 'pending' : 'completed',
+                'status'                => 'pending',
                 'from_lat'              => $request->from_lat ?? $request->latitude,
                 'from_long'             => $request->from_long ?? $request->longitude,
                 'type'                  => $expressService->type,
@@ -82,7 +86,7 @@ class OrderController extends Controller
                     'inspection_side'       => $inspection_side_string,
                     'date'                  => $request->date,
                     'time'                  => $request->time,
-                    'status'                => $isFutureDate ? 'pending' : 'completed',
+                    'status'                => 'pending',
                 ]);
             }
 

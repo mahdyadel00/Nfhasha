@@ -189,4 +189,6 @@ return
         'activation_codes_generated' => 'Activation codes generated successfully',
         'activation_codes_generated_property' => 'Requested codes have been generated',
         'offer_already_processed' => 'This offer has already been processed',
+        'date_cannot_be_before_today' => 'Date cannot be before today',
+        'no_cy_periodics_found' => 'No cy periodics found',
     ];
