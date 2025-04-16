@@ -14,6 +14,7 @@ use App\Models\ProviderNotification;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Http\Resources\API\OrderOfferResource;
+use Illuminate\Support\Facades\DB;
 
 class NotificationController extends Controller
 {
@@ -173,77 +174,110 @@ class NotificationController extends Controller
     public function acceptOffer($id)
     {
         try {
-            $offer = OrderOffer::with(['order', 'provider'])->find($id);
+            $offer = OrderOffer::with(['order.expressService', 'provider'])->findOrFail($id);
 
             if (!$offer) {
-                return new ErrorResource(__('messages.offer_not_found'));
+                return response()->json([
+                    'status' => 404,
+                    'message' => __('messages.offer_not_found'),
+                    'data' => null
+                ], 404);
             }
 
             if ($offer->status !== 'pending') {
-                return new ErrorResource(__('messages.offer_already_processed'));
+                return response()->json([
+                    'status' => 400,
+                    'message' => __('messages.offer_already_processed'),
+                    'data' => null
+                ], 400);
             }
 
             $order = $offer->order;
-            $order->update([
-                'status' => 'accepted',
-                'provider_id' => $offer->provider_id,
-                'total_cost' => $offer->amount,
-            ]);
 
-            if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
-                OrderProvider::create([
-                    'provider_id' => auth()->id(),
-                    'order_id' => $order->id,
-                    'status' => 'assigned',
-                ]);
+            if (!$order) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => __('messages.order_not_found'),
+                    'data' => null
+                ], 404);
             }
 
-            $offer->update(['status' => 'accepted']);
+            DB::beginTransaction();
 
-            // إرسال الإشعار عبر Pusher
-            $this->sendPusherNotification(
-                'notifications.providers',
-                'sent.offer',
-                [
-                    'message' => __('messages.offer_accepted'),
+            try {
+                $order->update([
+                    'status' => 'accepted',
+                    'provider_id' => $offer->provider_id,
+                    'total_cost' => $offer->amount,
+                ]);
+
+                if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
+                    OrderProvider::create([
+                        'provider_id' => $offer->provider_id,
+                        'order_id' => $order->id,
+                        'status' => 'assigned',
+                    ]);
+                }
+
+                $offer->update(['status' => 'accepted']);
+
+                // إرسال الإشعار عبر Pusher
+                $this->sendPusherNotification(
+                    'notifications.providers.' . $offer->provider_id,
+                    'sent.offer',
+                    [
+                        'message' => __('messages.offer_accepted'),
+                        'user_id' => $order->user_id,
+                        'order_id' => $order->id,
+                        'provider_id' => $offer->provider_id,
+                    ]
+                );
+
+                // إنشاء إشعار للمزود
+                ProviderNotification::create([
                     'user_id' => $order->user_id,
                     'order_id' => $order->id,
                     'provider_id' => $offer->provider_id,
-                ]
-            );
+                    'service_type' => $order->type,
+                    'message' => __('messages.offer_accepted'),
+                ]);
 
-            // إنشاء إشعار للمزود
-            ProviderNotification::create([
-                'user_id' => $order->user_id,
-                'order_id' => $order->id,
-                'provider_id' => $offer->provider_id,
-                'service_type' => $order->type,
-                'message' => __('messages.offer_accepted'),
-            ]);
+                // إرسال إشعار Firebase
+                if (!empty($offer->provider->fcm_token)) {
+                    $this->sendFirebaseNotification(
+                        $offer->provider->fcm_token,
+                        __('messages.offer_accepted'),
+                        __('messages.offer_accepted_message', ['amount' => $offer->amount]),
+                        [
+                            'offer_id' => $offer->id,
+                            'type' => __('messages.offer_accepted'),
+                            'order_status' => $order->status,
+                        ]
+                    );
+                }
 
-            // إرسال إشعار Firebase
-            if (!empty($offer->provider->fcm_token)) {
-                $this->sendFirebaseNotification(
-                    $offer->provider->fcm_token,
-                    __('messages.offer_accepted'),
-                    __('messages.offer_accepted_message', ['amount' => $offer->amount]),
-                    [
-                        'offer_id' => $offer->id,
-                        'type' => __('messages.offer_accepted'),
+                DB::commit();
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => __('messages.offer_accepted'),
+                    'data' => [
+                        'order' => $order->fresh(),
+                        'offer' => new OrderOfferResource($offer->fresh())
                     ]
-                );
-            }
+                ], 200);
 
-            return new SuccessResource([
-                'message' => __('messages.offer_accepted'),
-                'data' => [
-                    'order' => $order,
-                    'offer' => new OrderOfferResource($offer)
-                ]
-            ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
         } catch (\Exception $e) {
             Log::error('Error in acceptOffer: ' . $e->getMessage());
-            return new ErrorResource(__('messages.something_went_wrong'));
+            return response()->json([
+                'status' => 500,
+                'message' => __('messages.something_went_wrong'),
+                'data' => ['error' => $e->getMessage()]
+            ], 500);
         }
     }
 }

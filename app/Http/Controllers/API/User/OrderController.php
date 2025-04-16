@@ -389,18 +389,33 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with('providers')->where('user_id', auth('sanctum')->id())->find($id);
+        try {
+            $order = Order::query()
+                ->with(['providers', 'expressService', 'userVehicle', 'city'])
+                ->where('user_id', auth('sanctum')->id())
+                ->find($id);
 
-        if (!$order) {
+            if (!$order) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => __('messages.order_not_found'),
+                    'data' => null
+                ], 404);
+            }
+
             return new SuccessResource([
-                'message'   => __('messages.order_not_found')
+                'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
+                'data' => new OrderResource($order)
             ]);
-        }
 
-        return new SuccessResource([
-            'message'   => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
-            'data'     => new OrderResource($order)
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Error in show order: ' . $e->getMessage());
+            return response()->json([
+                'status' => 500,
+                'message' => __('messages.something_went_wrong'),
+                'data' => ['error' => $e->getMessage()]
+            ], 500);
+        }
     }
 
     public function ordersByStatus(Request $request)
