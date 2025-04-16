@@ -12,6 +12,7 @@ class ExpressServiceResource extends JsonResource
     public function __construct($resource, $orderId = null)
     {
         parent::__construct($resource);
+        
         $this->orderId = $orderId; // ✅ حفظ `order_id`
     }
     public function toArray($request)
