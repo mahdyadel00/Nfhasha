@@ -99,10 +99,10 @@ class OrderController extends Controller
 
                     $firebaseService->sendNotificationToMultipleUsers($tokens, 'تغيير حالة الطلب', $message, $extraData);
 
-                    \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                    \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
                 }
             } catch (\Exception $e) {
-                Log::channel('error')->error('Firebase Notification Failed: ' . $e->getMessage());
+                Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());    
             }
         }
 

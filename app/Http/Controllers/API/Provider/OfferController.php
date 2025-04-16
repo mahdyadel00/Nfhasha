@@ -53,7 +53,7 @@ class OfferController extends Controller
                 200,
             );
         } catch (\Exception $e) {
-            Log::channel('error')->error('Error in OfferController@offers: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_offers') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
@@ -72,7 +72,7 @@ class OfferController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in OfferController@offer: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_offer') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
@@ -146,7 +146,7 @@ class OfferController extends Controller
             return new SuccessResource(['message' => __('messages.offer_accepted')]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in OfferController@acceptOffer: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_accept_offer') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => __('messages.some_error')]);
         }
     }
@@ -221,7 +221,7 @@ class OfferController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in OfferController@sendOffer: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_send_offer') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
@@ -305,7 +305,7 @@ class OfferController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in OfferController@rejectOffer: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_reject_offer') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage()]);
         }
     }

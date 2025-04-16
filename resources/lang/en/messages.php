@@ -235,4 +235,10 @@ return
         'invalid_customer_email' => 'Invalid customer email',
         'entity_id_missing_for_payment_method' => 'Entity ID missing for payment method',
         'unexpected_error_occurred' => 'Unexpected error occurred',
+        'error_in_offers' => 'Error in offers',
+        'error_in_offer' => 'Error in offer',
+        'error_in_accept_offer' => 'Error in accept offer',
+        'error_in_reject_offer' => 'Error in reject offer',
+        'error_in_send_offer' => 'Error in send offer',
+        'failed_to_initiate_deposit_payment' => 'Failed to initiate deposit payment',
     ];

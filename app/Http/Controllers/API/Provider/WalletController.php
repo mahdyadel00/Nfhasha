@@ -116,7 +116,7 @@ class WalletController extends Controller
         // Prepare customer data
         $email = $user->email ?? 'test@example.com';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            \Log::warning('Invalid user email in deposit', ['user_id' => $user->id, 'email' => $email]);
+            \Log::warning(__('messages.invalid_user_email') . ': ' . $email);
             $email = 'test@example.com';
         }
 
@@ -139,13 +139,7 @@ class WalletController extends Controller
             $errorMessage = $paymentData['error'] ?? 'Failed to initiate payment';
             $errorDetails = $paymentData['details'] ?? [];
 
-            \Log::error('Failed to initiate deposit payment', [
-                'user_id' => $user->id,
-                'amount' => $amount,
-                'payment_method' => $paymentMethod,
-                'error' => $errorMessage,
-                'details' => $errorDetails,
-            ]);
+            \Log::error(__('messages.failed_to_initiate_deposit_payment') . ': ' . $errorMessage);
 
             return response()->json([
                 'status' => false,

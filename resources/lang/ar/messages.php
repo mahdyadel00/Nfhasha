@@ -146,4 +146,10 @@ return [
     'error_in_change_password' => 'خطأ في تغيير كلمة المرور',
     'entity_id_missing_for_payment_method' => 'معرف الكيان غير موجود للدفعة',
     'unexpected_error_occurred' => 'حدث خطأ غير متوقع',
+    'error_in_offers' => 'خطأ في عروض الخدمات',
+    'error_in_offer' => 'خطأ في عرض الخدمة',
+    'error_in_accept_offer' => 'خطأ في قبول العرض',
+    'error_in_reject_offer' => 'خطأ في رفض العرض',
+    'error_in_send_offer' => 'خطأ في إرسال العرض',
+    'failed_to_initiate_deposit_payment' => 'فشل إنشاء الدفع',
 ];

@@ -48,6 +48,7 @@ class OrderController extends Controller
             $serviceDate = Carbon::parse($request->date);
             $today = Carbon::today();
             if ($serviceDate->lt($today)) {
+                dd('test');
                 return new ErrorResource(__('messages.date_cannot_be_before_today'));
             }
 
