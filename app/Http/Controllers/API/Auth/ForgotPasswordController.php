@@ -41,7 +41,7 @@ class ForgotPasswordController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('forgot password error: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.forgot_password_error') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage(),]);
         }
     }
@@ -67,7 +67,7 @@ class ForgotPasswordController extends Controller
                 'message' => __('messages.otp_not_verified'),
             ]);
         } catch (\Exception $e) {
-            Log::channel('error')->error('verify otp error: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.verify_otp_error') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage(),]);
         }
     }
@@ -88,7 +88,7 @@ class ForgotPasswordController extends Controller
                 'message' => __('messages.password_reset_successfully'),
             ]);
         } catch (\Exception $e) {
-            Log::channel('error')->error('reset password error: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.reset_password_error') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => $e->getMessage(),]);
         }
     }
