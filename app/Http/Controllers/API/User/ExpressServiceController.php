@@ -25,7 +25,7 @@ class ExpressServiceController extends Controller
     {
         $express_services = ExpressService::where('type', $request->type)->paginate(config('app.pagination'));
 
-        return Count($express_services) > 0 ? ExpressServiceResource::collection($express_services) : new ErrorResource('No express services found');
+        return Count($express_services) > 0 ? ExpressServiceResource::collection($express_services) : new ErrorResource(__('messages.no_express_services_found'));
     }
 
     public function store(StoreExpressServiceRequest $request)
@@ -91,16 +91,16 @@ class ExpressServiceController extends Controller
             $service_type = $express_services->type;
 
             $message = match ($service_type) {
-                'battery' => __('messages.battery_service_request'),
-                'puncture' => __('messages.puncture_service_request'),
-                'fuel' => __('messages.fuel_service_request'),
-                'open_locks' => __('messages.open_locks_service_request'),
-                'tow_truck' => __('messages.tow_truck_service_request'),
-                'periodic_inspections' => __('messages.periodic_inspection_service_request'),
-                'comprehensive_inspections' => __('messages.comprehensive_inspection_service_request'),
-                'maintenance' => __('messages.maintenance_service_request'),
-                'car_reservations' => __('messages.car_reservations_service_request'),
-                default => __('messages.express_service_request'),
+                'battery'                       => __('messages.battery_service_request'),
+                'puncture'                      => __('messages.puncture_service_request'),
+                'fuel'                          => __('messages.fuel_service_request'),
+                'open_locks'                    => __('messages.open_locks_service_request'),
+                'tow_truck'                     => __('messages.tow_truck_service_request'),
+                'periodic_inspections'          => __('messages.periodic_inspection_service_request'),
+                'comprehensive_inspections'     => __('messages.comprehensive_inspection_service_request'),
+                'maintenance'                   => __('messages.maintenance_service_request'),
+                'car_reservations'              => __('messages.car_reservations_service_request'),
+                default                         => __('messages.express_service_request'),
             };
 
             //create notification
@@ -152,8 +152,8 @@ class ExpressServiceController extends Controller
             DB::commit();
 
             return new SuccessResource([
-                'message' => __('messages.express_service_created'),
-                'data' => $order->id,
+                'message'   => __('messages.express_service_created'),
+                'data'      => $order->id,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -171,13 +171,13 @@ class ExpressServiceController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(config('app.pagination'));
 
-        return Count($puncture_services) > 0 ? PunctureServiceResource::collection($puncture_services) : new ErrorResource('No express services found');
+        return Count($puncture_services) > 0 ? PunctureServiceResource::collection($puncture_services) : new ErrorResource(__('messages.no_express_services_found'));
     }
 
     public function show($id)
     {
         $puncture_service = PunctureService::where('user_id', auth()->id())->find($id);
 
-        return $puncture_service ? new PunctureServiceResource($puncture_service) : new ErrorResource('No express service found');
+        return $puncture_service ? new PunctureServiceResource($puncture_service) : new ErrorResource(__('messages.no_express_service_found'));
     }
 }

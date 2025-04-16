@@ -46,11 +46,11 @@ class OrderController extends Controller
             $expressService = ExpressService::find($request->service_id);
 
             $serviceDate = Carbon::parse($request->date);
-                $today = Carbon::today();
+            $today = Carbon::today();
+            if ($serviceDate->lt($today)) {
+                return new ErrorResource(__('messages.date_cannot_be_before_today'));
+            }
 
-                if ($serviceDate->lt($today)) {
-                    return new ErrorResource(__('messages.date_cannot_be_before_today'));
-                }
 
             $order = Order::create([
                 'user_id'               => auth()->id(),

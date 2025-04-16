@@ -201,7 +201,7 @@ class RegisterController extends Controller
         $token = $firebaseService->getAccessToken();
 
         return response()->json([
-            'message' => 'Token retrieved successfully',
+            'message' => __('messages.data_returned_successfully', ['attr' => __('messages.firebase_token')]),
             'access_token' => $token
         ]);
     }

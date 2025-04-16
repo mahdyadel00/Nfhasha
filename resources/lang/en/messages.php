@@ -192,5 +192,5 @@ return
         'date_cannot_be_before_today' => 'Date cannot be before today',
         'no_cy_periodics_found' => 'No cy periodics found',
         'offer_accepted_successfully' => 'Offer accepted successfully',
-
+        'no_express_services_found' => 'No express services found',
     ];
