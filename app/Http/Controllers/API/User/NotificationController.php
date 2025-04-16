@@ -174,14 +174,7 @@ class NotificationController extends Controller
     public function acceptOffer($id)
     {
         try {
-            // التحقق من وجود العرض أولاً
-            $offer = OrderOffer::where('id', $id)
-                ->where(function($query) {
-                    $query->whereHas('order', function($q) {
-                        $q->where('user_id', auth()->id());
-                    });
-                })
-                ->first();
+            $offer = OrderOffer::with(['order.expressService', 'provider'])->where('order_id', $id)->first();
 
             if (!$offer) {
                 return response()->json([
@@ -191,7 +184,6 @@ class NotificationController extends Controller
                 ], 404);
             }
 
-            // التحقق من حالة العرض
             if ($offer->status !== 'pending') {
                 return response()->json([
                     'status' => 400,
@@ -200,11 +192,7 @@ class NotificationController extends Controller
                 ], 400);
             }
 
-            // تحميل الطلب مع العلاقات
-            $order = Order::with(['expressService', 'userVehicle', 'city'])
-                ->where('id', $offer->order_id)
-                ->where('user_id', auth()->id())
-                ->first();
+            $order = $offer->order;
 
             if (!$order) {
                 return response()->json([
@@ -217,30 +205,23 @@ class NotificationController extends Controller
             DB::beginTransaction();
 
             try {
-                // تحديث حالة الطلب
                 $order->update([
                     'status' => 'accepted',
                     'provider_id' => $offer->provider_id,
-                    'total_cost' => $offer->amount
+                    'total_cost' => $offer->amount,
                 ]);
 
-                // إذا كان نوع الطلب فحص دوري
-                if ($order->type == 'periodic_inspections') {
-                    OrderProvider::updateOrCreate(
-                        [
-                            'order_id' => $order->id,
-                            'provider_id' => $offer->provider_id
-                        ],
-                        [
-                            'status' => 'assigned'
-                        ]
-                    );
+                if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
+                    OrderProvider::create([
+                        'provider_id' => $offer->provider_id,
+                        'order_id' => $order->id,
+                        'status' => 'assigned',
+                    ]);
                 }
 
-                // تحديث حالة العرض
                 $offer->update(['status' => 'accepted']);
 
-                // إرسال إشعار Pusher
+                // إرسال الإشعار عبر Pusher
                 $this->sendPusherNotification(
                     'notifications.providers.' . $offer->provider_id,
                     'sent.offer',
@@ -249,7 +230,6 @@ class NotificationController extends Controller
                         'user_id' => $order->user_id,
                         'order_id' => $order->id,
                         'provider_id' => $offer->provider_id,
-                        'order_status' => 'accepted'
                     ]
                 );
 
@@ -260,42 +240,35 @@ class NotificationController extends Controller
                     'provider_id' => $offer->provider_id,
                     'service_type' => $order->type,
                     'message' => __('messages.offer_accepted'),
-                    'order_status' => 'accepted'
                 ]);
 
                 // إرسال إشعار Firebase
-                if ($offer->provider && !empty($offer->provider->fcm_token)) {
+                if (!empty($offer->provider->fcm_token)) {
                     $this->sendFirebaseNotification(
                         $offer->provider->fcm_token,
                         __('messages.offer_accepted'),
                         __('messages.offer_accepted_message', ['amount' => $offer->amount]),
                         [
                             'offer_id' => $offer->id,
-                            'order_id' => $order->id,
-                            'type' => 'offer_accepted',
-                            'order_status' => 'accepted'
+                            'type' => __('messages.offer_accepted'),
+                            'order_status' => $order->status,
                         ]
                     );
                 }
 
                 DB::commit();
 
-                // تحميل البيانات المحدثة
-                $order->load(['expressService', 'userVehicle', 'city', 'provider']);
-                $offer->load(['provider']);
-
                 return response()->json([
                     'status' => 200,
                     'message' => __('messages.offer_accepted'),
                     'data' => [
-                        'order' => $order,
-                        'offer' => new OrderOfferResource($offer)
+                        'order' => $order->fresh(),
+                        'offer' => new OrderOfferResource($offer->fresh())
                     ]
                 ], 200);
 
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Transaction error in acceptOffer: ' . $e->getMessage());
                 throw $e;
             }
         } catch (\Exception $e) {
@@ -303,7 +276,7 @@ class NotificationController extends Controller
             return response()->json([
                 'status' => 500,
                 'message' => __('messages.something_went_wrong'),
-                'error' => $e->getMessage()
+                'data' => ['error' => $e->getMessage()]
             ], 500);
         }
     }
