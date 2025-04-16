@@ -19,7 +19,7 @@ class ProviderResource extends JsonResource
         return [
             'id'                    => $this->id,
             'name'                  => $this->name, // من جدول users
-            'image'                 => $this->image ? asset('storage/' . $this->image) : null, // من جدول users
+            'profile_picture'       => $this->profile_picture,
             'latitude'              => $this->latitude, // من جدول users
             'longitude'             => $this->longitude, // من جدول users
             'email'                 => $this->email, // من جدول users (اختياري، لو عايز)
