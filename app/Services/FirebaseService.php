@@ -55,7 +55,7 @@ class FirebaseService
         if (empty($token) || strlen($token) < 20) {
             return [
                 'success' => false,
-                'message' => "⚠️ لم يتم إرسال الإشعار بسبب FCM Token غير صالح أو مفقود!",
+                'message' => __('messages.firebase_notification_failed'),
             ];
         }
 
@@ -78,7 +78,7 @@ class FirebaseService
     public function sendNotificationToMultipleUsers(array $tokens, $title, $body, array $data = [])
     {
         if (empty($tokens)) {
-            throw new \Exception("❌ لم يتم تمرير أي FCM Token!");
+            throw new \Exception(__('messages.firebase_notification_failed'));
         }
 
         $responses = [];
@@ -98,7 +98,7 @@ class FirebaseService
     {
         $accessToken = $this->getFirebaseAccessToken();
         if (!$accessToken) {
-            throw new \Exception("❌ تعذر استرجاع Access Token من Firebase!");
+            throw new \Exception(__('messages.firebase_notification_failed'));
         }
 
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";

@@ -65,7 +65,7 @@ class HyperPayService
 
         $email = $customerData['email'] ?? 'test@example.com';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            \Log::warning('Invalid or missing customer email', ['email' => $email]);
+            \Log::warning(__('messages.invalid_customer_email'));
             $email = 'test@example.com';
         }
 
@@ -137,7 +137,7 @@ class HyperPayService
         try {
             $paymentMethod = strtolower($paymentMethod);
             if (!isset($this->entities[$paymentMethod])) {
-                return Http::response(['error' => 'Unsupported payment method'], 400);
+                return Http::response(['error' => __('messages.unsupported_payment_method')], 400);
             }
 
             $entityId = $this->entities[$paymentMethod];
@@ -146,7 +146,7 @@ class HyperPayService
                     'paymentMethod' => $paymentMethod,
                     'entityId' => $entityId,
                 ]);
-                return Http::response(['error' => 'Entity ID is missing for the selected payment method'], 500);
+                return Http::response(['error' => __('messages.entity_id_missing_for_payment_method')], 500);
             }
 
             $url = "{$this->baseUrl}v1/checkouts/{$checkoutId}/payment";
@@ -159,7 +159,7 @@ class HyperPayService
 
         } catch (\Exception $e) {
             \Log::error('HyperPay API Exception', ['error' => $e->getMessage()]);
-            return Http::response(['error' => 'Unexpected error occurred', 'exception' => $e->getMessage()], 500);
+            return Http::response(['error' => __('messages.unexpected_error_occurred'), 'exception' => $e->getMessage()], 500);
         }
     }
 }

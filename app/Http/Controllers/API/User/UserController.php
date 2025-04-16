@@ -39,7 +39,7 @@ class UserController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in change password', ['error' => $e]);
+            Log::channel('error')->error(__('messages.error_in_change_password') . ': ' . $e->getMessage());
             return new ErrorResource(['message' => __('messages.error_occurred')]);
         }
     }

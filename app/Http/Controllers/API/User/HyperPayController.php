@@ -142,10 +142,7 @@ class HyperPayController extends Controller
         }
 
         if ($response->failed()) {
-            \Log::error('فشل في استرجاع حالة الدفع من HyperPay', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
             return response()->json([
                 'error' => __('messages.failed_to_retrieve_payment_status'),
                 'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
@@ -157,7 +154,7 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error('رد غير صالح من HyperPay', ['response' => $responseData]);
+            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
             return response()->json([
                 'error' => __('messages.invalid_hyperpay_response'),
                 'property_message' => __('messages.invalid_hyperpay_response_property')
@@ -208,29 +205,33 @@ class HyperPayController extends Controller
             ->first();
 
         if (!$deposit) {
-            return response()->json(['error' => 'Deposit record not found'], 404);
+            return response()->json(['error' => __('messages.deposit_record_not_found'),
+                'property_message' => __('messages.deposit_record_not_found_property')
+            ], 404);
         }
 
         if ($deposit->created_at->diffInMinutes(now()) > 30) {
             $deposit->update(['status' => 'failed']);
-            return response()->json(['error' => 'Checkout ID expired'], 400);
+            return response()->json(['error' => __('messages.checkout_id_expired'),
+                'property_message' => __('messages.checkout_id_expired_property')
+            ], 400);
         }
 
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $deposit->payment_method);
 
         if (!$response instanceof \Illuminate\Http\Client\Response) {
-            \Log::error('Unexpected response type from HyperPay API', ['response' => $response]);
-            return response()->json(['error' => 'Unexpected response type'], 500);
+            \Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
+            return response()->json(['error' => __('messages.unexpected_response_type'),
+                'property_message' => __('messages.unexpected_response_type_property')
+            ], 500);
         }
 
         if ($response->failed()) {
-            \Log::error('Failed to retrieve payment status from HyperPay', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
             return response()->json(
                 [
-                    'error' => 'Failed to retrieve payment status',
+                    'error' => __('messages.failed_to_retrieve_payment_status'),
+                    'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
                     'details' => $response->body(),
                 ],
                 500,
@@ -241,8 +242,10 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error('Invalid response from HyperPay', ['response' => $responseData]);
-            return response()->json(['error' => 'Invalid response from HyperPay'], 500);
+            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
+            return response()->json(['error' => __('messages.invalid_hyperpay_response'),
+                'property_message' => __('messages.invalid_hyperpay_response_property')
+            ], 500);
         }
 
         $status = match ($resultCode) {
@@ -260,7 +263,8 @@ class HyperPayController extends Controller
         }
 
         return response()->json([
-            'message' => 'Deposit status updated successfully',
+            'message' => __('messages.deposit_status_updated_successfully'),
+            'property_message' => __('messages.deposit_status_updated_successfully_property'),
             'deposit_status' => $deposit->status,
             'hyperpay_result_code' => $resultCode,
         ]);
@@ -277,7 +281,9 @@ class HyperPayController extends Controller
 
         if ($request->paymentMethod === 'wallet') {
             if ($user->balance < $order->total_cost) {
-                return response()->json(['error' => 'Insufficient wallet balance'], 400);
+                return response()->json(['error' => __('messages.insufficient_wallet_balance'),
+                    'property_message' => __('messages.insufficient_wallet_balance_property')
+                ], 400);
             }
 
             $user->balance -= $order->total_cost;
@@ -289,7 +295,9 @@ class HyperPayController extends Controller
 
             $order->offers()->delete();
 
-            return response()->json(['message' => 'Payment successful via wallet']);
+            return response()->json(['message' => __('messages.payment_successful_via_wallet'),
+                'property_message' => __('messages.payment_successful_via_wallet_property')
+            ]);
         }
 
         $order->payment_method = ucfirst($request->paymentMethod);
@@ -315,14 +323,16 @@ class HyperPayController extends Controller
         $paymentData = $this->hyperPayService->initiatePayment($order->total_cost, $request->paymentMethod, $customerData);
 
         if (!isset($paymentData['id'])) {
-            return response()->json(['error' => 'Failed to initiate payment'], 500);
+            return response()->json(['error' => __('messages.failed_to_initiate_payment'),
+                'property_message' => __('messages.failed_to_initiate_payment_property')
+            ], 500);
         }
 
         $order->payment_transaction_id = $paymentData['id'];
         $order->save();
 
         return response()->json([
-            'message' => 'Redirect to payment page',
+            'message' => __('messages.redirect_to_payment_page'),
             'data' => $order->payment_transaction_id,
         ]);
     }
@@ -332,7 +342,7 @@ class HyperPayController extends Controller
         $order = Order::find($id);
 
         if (!$order) {
-            return ErrorResource::notFound('Order not found');
+            return new ErrorResource(__('messages.order_not_found'), 404);
         }
 
         $order->update([
@@ -345,12 +355,13 @@ class HyperPayController extends Controller
         } elseif ($request->status === 'failed') {
             $order->status = 'failed';
         } else {
-            return new ErrorResource('Invalid status');
+            return new ErrorResource(__('messages.invalid_status'), 400);
         }
         $order->save();
 
         return response()->json([
-            'message' => 'Payment status updated successfully',
+            'message' => __('messages.payment_status_updated_successfully'),
+            'property_message' => __('messages.payment_status_updated_successfully_property'),
             'order_status' => $order->status,
         ]);
     }
@@ -362,32 +373,44 @@ class HyperPayController extends Controller
             ->first();
 
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->json(['error' => __('messages.order_not_found'),
+                'property_message' => __('messages.order_not_found_property')
+            ], 404);
         }
 
         if (!$order->payment_transaction_id) {
-            return response()->json(['error' => 'Transaction ID not found.'], 400);
+            return response()->json(['error' => __('messages.transaction_id_not_found'),
+                'property_message' => __('messages.transaction_id_not_found_property')
+            ], 400);
         }
 
         if ($order->status !== 'completed') {
-            return response()->json(['error' => 'Only completed orders can be refunded.'], 400);
+            return response()->json(['error' => __('messages.only_completed_orders_can_be_refunded'),
+                'property_message' => __('messages.only_completed_orders_can_be_refunded_property')
+            ], 400);
         }
 
         $refundResponse = $this->hyperPayService->refundPayment($order->payment_transaction_id, $order->total_cost);
 
         if (!isset($refundResponse['result']['code']) || !str_contains($refundResponse['result']['code'], '000.100.')) {
-            return response()->json(['error' => 'Refund failed', 'data' => $refundResponse], 400);
+            return response()->json(['error' => __('messages.refund_failed'),
+                'property_message' => __('messages.refund_failed_property')
+            ], 400);
         }
 
         $order->status = 'refunded';
         $order->save();
 
-        return response()->json(['message' => 'Refund successful', 'data' => $refundResponse]);
+        return response()->json(['message' => __('messages.refund_successful'),
+            'property_message' => __('messages.refund_successful_property')
+        ]);
     }
 
     public function applePayCallback(Request $request)
     {
-        return response()->json(['message' => 'Apple Pay callback received', 'data' => $request->all()]);
+        return response()->json(['message' => __('messages.apple_pay_callback_received'),
+            'property_message' => __('messages.apple_pay_callback_received_property')
+        ]);
     }
 
     public function getCheckoutId($checkoutId)
@@ -398,25 +421,27 @@ class HyperPayController extends Controller
         }
 
         if (!$order) {
-            return response()->json(['error' => 'Order not found'], 404);
+            return response()->json(['error' => __('messages.order_not_found'),
+                'property_message' => __('messages.order_not_found_property')
+            ], 404);
         }
 
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $order->payment_method);
 
         if (!$response instanceof \Illuminate\Http\Client\Response) {
-            \Log::error('Unexpected response type from HyperPay API', ['response' => $response]);
-            return response()->json(['error' => 'Unexpected response type'], 500);
+            \Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
+            return response()->json(['error' => __('messages.unexpected_response_type'),
+                'property_message' => __('messages.unexpected_response_type_property')
+            ], 500);
         }
 
         if ($response->failed()) {
-            \Log::error('Failed to retrieve payment status from HyperPay', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
 
             return response()->json(
                 [
-                    'error' => 'Failed to retrieve payment status',
+                    'error' => __('messages.failed_to_retrieve_payment_status'),
+                    'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
                     'details' => $response->body(),
                 ],
                 500,
@@ -427,8 +452,10 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error('Invalid response from HyperPay', ['response' => $responseData]);
-            return response()->json(['error' => 'Invalid response from HyperPay'], 500);
+            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());   
+            return response()->json(['error' => __('messages.invalid_hyperpay_response'),
+                'property_message' => __('messages.invalid_hyperpay_response_property')
+            ], 500);
         }
 
         $status = match ($resultCode) {

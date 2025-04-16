@@ -215,7 +215,7 @@ class OrderController extends Controller
                         );
 
                         // تسجيل للتحقق
-                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                        \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
@@ -330,10 +330,10 @@ class OrderController extends Controller
                             $extraData
                         );
 
-                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                        \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
                     }
                 } catch (\Exception $e) {
-                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                    Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
                 }
             }
 
@@ -345,7 +345,7 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error updating periodic inspection: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_periodic_inspection') . ': ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }
     }
@@ -412,7 +412,7 @@ class OrderController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error in show order: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_show_order') . ': ' . $e->getMessage());
             return response()->json([
                 'status' => 500,
                 'message' => __('messages.something_went_wrong'),
