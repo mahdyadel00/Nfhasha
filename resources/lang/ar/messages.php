@@ -210,6 +210,13 @@ return [
     'service_request_completed' => 'تم انتهاء طلب الخدمة',
     'service_request_pending' => 'قيد الإنتظار',
     'service_request_processing' => 'قيد المعالجة',
+    'order_canceled' => 'تم إلغاء الطلب',
+    'order_canceled_property' => 'تم إلغاء الطلب',
+    'order_rejected' => 'تم رفض الطلب',
+    'order_rejected_property' => 'تم رفض الطلب',
+    'order_accepted' => 'تم قبول الطلب',
+    'order_accepted_property' => 'تم قبول الطلب',
+
 
 
 
