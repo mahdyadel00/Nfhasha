@@ -75,4 +75,5 @@ return [
     'maximum_price'                  => 'الحد الأعلى للسعر',
     'date_cannot_be_before_today'    => 'لا يمكن أن يكون التاريخ قبل اليوم',
     'no_cy_periodics_found'          => 'لم يتم العثور على أي أجراءات دورية',
+    'offer_accepted_successfully'    => 'تم قبول العرض بنجاح',
 ];

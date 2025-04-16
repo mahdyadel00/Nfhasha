@@ -191,4 +191,6 @@ return
         'offer_already_processed' => 'This offer has already been processed',
         'date_cannot_be_before_today' => 'Date cannot be before today',
         'no_cy_periodics_found' => 'No cy periodics found',
+        'offer_accepted_successfully' => 'Offer accepted successfully',
+
     ];
