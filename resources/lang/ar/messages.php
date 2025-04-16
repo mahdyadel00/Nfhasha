@@ -203,4 +203,5 @@ return
         'activation_code_applied_property' => 'تم إضافة الرصيد إلى حسابك',
         'activation_codes_generated' => 'تم إنشاء أكواد التفعيل بنجاح',
         'activation_codes_generated_property' => 'تم إنشاء الأكواد المطلوبة',
+        'offer_already_processed' => 'لقد تم التعامل مع هذا العرض بالفعل',
     ];

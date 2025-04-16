@@ -188,4 +188,5 @@ return
         'activation_code_applied_property' => 'Balance has been added to your account',
         'activation_codes_generated' => 'Activation codes generated successfully',
         'activation_codes_generated_property' => 'Requested codes have been generated',
+        'offer_already_processed' => 'This offer has already been processed',
     ];
