@@ -35,7 +35,7 @@ class OrderController extends Controller
 
         return count($cyPeriodics) > 0
             ? CyPeriodicResource::collection($cyPeriodics)
-            : new ErrorResource('No cy periodics found');
+            : new ErrorResource(__('messages.no_cy_periodics_found'));
     }
 
     public function createOrder(StoreperiodicExaminationRequest $request)

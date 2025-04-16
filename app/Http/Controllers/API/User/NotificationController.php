@@ -24,7 +24,7 @@ class NotificationController extends Controller
             ->paginate(config('app.pagination'));
 
         if ($notifications->isEmpty()) {
-            return new ErrorResource('No notifications found');
+            return new ErrorResource(__('messages.no_notifications_found'));
         }
 
         $order = Order::where('user_id', auth()->id())
@@ -32,13 +32,13 @@ class NotificationController extends Controller
             ->first();
 
         if (!$order) {
-            return new ErrorResource('No orders found');
+            return new ErrorResource(__('messages.no_orders_found'));
         }
 
         $offers = OrderOffer::where('order_id', $order->id)->get();
 
         return new SuccessResource([
-            'message' => 'Notifications found successfully',
+            'message' => __('messages.notifications_found_successfully'),
             'data' => OrderOfferResource::collection($offers),
         ]);
     }
@@ -49,12 +49,12 @@ class NotificationController extends Controller
 
         if ($offers->isNotEmpty()) {
             return new SuccessResource([
-                'message' => 'Offers found successfully',
+                'message' => __('messages.offers_found_successfully'),
                 'data' => OrderOfferResource::collection($offers),
             ]);
         }
 
-        return new ErrorResource('No offers found for this order');
+        return new ErrorResource(__('messages.no_offers_found_for_this_order'));
     }
 
     public function showOffer($offer_id)
@@ -63,12 +63,12 @@ class NotificationController extends Controller
 
         if ($offer) {
             return new SuccessResource([
-                'message' => 'Notification found successfully',
+                'message' => __('messages.notification_found_successfully'),
                 'data' => new OrderOfferResource($offer),
             ]);
         }
 
-        return new ErrorResource('No notification found');
+        return new ErrorResource(__('messages.no_notification_found'));
     }
 
     public function rejectOffer(Request $request, $id)
@@ -76,7 +76,7 @@ class NotificationController extends Controller
         $offer = OrderOffer::find($id);
 
         if (!$offer) {
-            return new ErrorResource('Offer not found');
+            return new ErrorResource(__('messages.offer_not_found'));
         }
 
         $offer->update(['status' => 'rejected']);
@@ -139,7 +139,7 @@ class NotificationController extends Controller
         $offer = OrderOffer::find($id);
 
         if (!$offer) {
-            return response()->json(['message' => 'Offer not found'], 404);
+            return new ErrorResource(__('messages.offer_not_found'));
         }
 
         $order = Order::find($offer->order_id);
@@ -210,6 +210,6 @@ class NotificationController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Offer accepted successfully']);
+        return new SuccessResource(__('messages.offer_accepted_successfully'));
     }
 }

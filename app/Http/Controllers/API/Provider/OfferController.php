@@ -86,12 +86,12 @@ class OfferController extends Controller
 
             if (!$order) {
                 return new ErrorResource([
-                    'message' => 'Order not found',
+                    'message' => __('messages.order_not_found'),
                 ]);
             }
 
             if ($order->status !== 'pending') {
-                return new ErrorResource(['message' => 'Offer already accepted']);
+                return new ErrorResource(['message' => __('messages.offer_already_accepted')]);
             }
 
             if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
@@ -136,7 +136,7 @@ class OfferController extends Controller
                     'sound' => 'notify_sound', // تصحيح الصوت
                 ];
 
-                $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer accepted', 'Your offer has been accepted', $extraData);
+                $firebaseService->sendNotificationToUser($order->user->fcm_token, __('messages.offer_accepted'), __('messages.your_offer_has_been_accepted'), $extraData);
 
                 \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
             }
@@ -159,13 +159,13 @@ class OfferController extends Controller
 
             if (!$order) {
                 return new ErrorResource([
-                    'message' => 'Order not found',
+                    'message' => __('messages.order_not_found'),
                 ]);
             }
 
             if ($order->status !== 'pending') {
                 return new ErrorResource([
-                    'message' => 'You can only send offers for pending orders.',
+                    'message' => __('messages.you_can_only_send_offers_for_pending_orders'),
                 ]);
             }
 
@@ -185,7 +185,7 @@ class OfferController extends Controller
                 'provider_id' => auth()->id(),
                 'order_id' => $order->id,
                 'service_type' => $order->type,
-                'message' => 'Offer sent',
+                'message' => __('messages.offer_sent'),
                 'order_status' => $order->status, // إضافة حالة الطلب
             ]);
 
@@ -293,7 +293,7 @@ class OfferController extends Controller
                     'sound' => 'notify_sound', // تصحيح الصوت
                 ];
 
-                $firebaseService->sendNotificationToUser($order->user->fcm_token, 'Offer rejected', 'Your offer has been rejected', $extraData);
+                $firebaseService->sendNotificationToUser($order->user->fcm_token, __('messages.offer_rejected'), __('messages.your_offer_has_been_rejected'), $extraData);
 
                 \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
             }
@@ -301,7 +301,7 @@ class OfferController extends Controller
             DB::commit();
 
             return new SuccessResource([
-                'message' => 'Offer rejected successfully',
+                'message' => __('messages.offer_rejected_successfully'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
