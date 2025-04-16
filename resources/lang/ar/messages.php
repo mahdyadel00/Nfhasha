@@ -91,4 +91,10 @@ return [
     'verify_otp_error'               => 'خطأ في التحقق من OTP',
     'password_reset_successfully'    => 'تم إعادة تعيين كلمة المرور بنجاح',
     'reset_password_error'           => 'خطأ في إعادة تعيين كلمة المرور',
+    'new_order_request'              => 'طلب جديد',
+    'battery_order_request'          => 'طلب جديد للبطارية',
+    'towing_order_request'           => 'طلب جديد للتوصيل',
+    'puncture_order_request'         => 'طلب جديد للتعويض',
+    'error_in_periodic_examination'  => 'خطأ في الأجراءات الدورية',
+    'firebase_notification_failed'   => 'فشل إرسال الإشعارات عبر Firebase',
 ];

@@ -218,7 +218,7 @@ class OrderController extends Controller
                         \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
-                    Log::channel('error')->error("Firebase Notification Failed: " . $e->getMessage());
+                    Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
                 }
             }
 
@@ -230,7 +230,7 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error('Error in periodicExamination: ' . $e->getMessage());
+            Log::channel('error')->error(__('messages.error_in_periodic_examination') . ': ' . $e->getMessage());
             return new ErrorResource($e->getMessage());
         }
     }
