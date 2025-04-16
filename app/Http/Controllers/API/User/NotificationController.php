@@ -85,7 +85,7 @@ class NotificationController extends Controller
             $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
             $pusher->trigger('notifications.providers', 'sent.offer', [
-                'message' => __('notifications.offer_rejected'),
+                'message' => __('messages.offer_rejected'),
                 'user_id' => auth()->id(),
                 'order_id' => $offer->order_id,
                 'provider_id' => $offer->provider_id,
@@ -97,7 +97,7 @@ class NotificationController extends Controller
                 'provider_id' => $offer->provider_id,
                 'order_id' => $offer->order_id,
                 'service_type' => $offer->order->type,
-                'message' => __('notifications.offer_rejected'),
+                'message' => __('messages.offer_rejected'),
                 'order_status' => $offer->order->status, // إضافة حالة الطلب
             ]);
 
