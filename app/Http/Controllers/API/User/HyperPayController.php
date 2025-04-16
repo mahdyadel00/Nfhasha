@@ -272,69 +272,86 @@ class HyperPayController extends Controller
 
     public function initiatePayment(Request $request, $id)
 {
-    $order = Order::findOrFail($id);
-    $user = auth()->user();
+    try {
+        $order = Order::findOrFail($id);
+        $user = auth()->user();
 
-    $request->validate([
-        'paymentMethod' => 'required|in:visa,mastercard,mada,applepay,wallet,cash',
-    ]);
+        $request->validate([
+            'paymentMethod' => 'required|in:visa,mastercard,mada,applepay,wallet,cash',
+        ]);
 
-    if ($request->paymentMethod === 'wallet') {
-        if ($user->balance < $order->total_cost) {
-            return response()->json(['message' => __('messages.insufficient_wallet_balance'),
-                'property_message' => __('messages.insufficient_wallet_balance_property')
-            ], 400);
+        if ($request->paymentMethod === 'wallet') {
+            if ($user->balance < $order->total_cost) {
+                return response()->json([
+                    'message' => __('messages.insufficient_wallet_balance'),
+                    'property_message' => __('messages.insufficient_wallet_balance_property')
+                ], 400);
+            }
+
+            $user->balance -= $order->total_cost;
+            $user->save();
+
+            $order->status = 'completed';
+            $order->payment_method = 'wallet';
+            $order->save();
+
+            $order->offers()->delete();
+
+            return response()->json([
+                'message' => __('messages.payment_successful_via_wallet'),
+                'property_message' => __('messages.payment_successful_via_wallet_property')
+            ]);
         }
 
-        $user->balance -= $order->total_cost;
-        $user->save();
-
+        $order->payment_method = ucfirst($request->paymentMethod);
         $order->status = 'completed';
-        $order->payment_method = 'wallet';
         $order->save();
 
-        $order->offers()->delete();
+        $email = $user->email ?? 'test@example.com';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email = 'test@example.com';
+        }
 
-        return response()->json(['message' => __('messages.payment_successful_via_wallet'),
-            'property_message' => __('messages.payment_successful_via_wallet_property')
+        $customerData = [
+            'email' => $email,
+            'street' => 'NA',
+            'city' => 'NA',
+            'state' => 'NA',
+            'country' => 'NA',
+            'postcode' => 'NA',
+            'first_name' => $user->name ?? 'Unknown',
+            'last_name' => $user->name ?? 'Unknown',
+        ];
+
+        $paymentData = $this->hyperPayService->initiatePayment($order->total_cost, $request->paymentMethod, $customerData);
+
+        if (!isset($paymentData['id'])) {
+            return response()->json([
+                'message' => __('messages.failed_to_initiate_payment'),
+                'property_message' => __('messages.failed_to_initiate_payment_property')
+            ], 500);
+        }
+
+        $order->payment_transaction_id = $paymentData['id'];
+        $order->save();
+
+        return response()->json([
+            'message' => __('messages.redirect_to_payment_page'),
+            'data' => $order->payment_transaction_id,
         ]);
-    }
-
-    $order->payment_method = ucfirst($request->paymentMethod);
-    $order->status = 'completed';
-    $order->save();
-
-    $email = $user->email ?? 'test@example.com';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $email = 'test@example.com';
-    }
-
-    $customerData = [
-        'email' => $email,
-        'street' => 'NA',
-        'city' => 'NA',
-        'state' => 'NA',
-        'country' => 'NA',
-        'postcode' => 'NA',
-        'first_name' => $user->name ?? 'Unknown',
-        'last_name' => $user->name ?? 'Unknown',
-    ];
-
-    $paymentData = $this->hyperPayService->initiatePayment($order->total_cost, $request->paymentMethod, $customerData);
-
-    if (!isset($paymentData['id'])) {
-        return response()->json(['error' => __('messages.failed_to_initiate_payment'),
-            'property_message' => __('messages.failed_to_initiate_payment_property')
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'status' => 404,
+            'message' => __('messages.order_not_found'),
+            'data' => ['error' => __('messages.order_not_found_detail', ['id' => $id])]
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 500,
+            'message' => __('messages.something_went_wrong'),
+            'data' => ['error' => $e->getMessage()]
         ], 500);
     }
-
-    $order->payment_transaction_id = $paymentData['id'];
-    $order->save();
-
-    return response()->json([
-        'message' => __('messages.redirect_to_payment_page'),
-        'data' => $order->payment_transaction_id,
-    ]);
 }
     public function getPaymentStatus(Request $request, $id)
     {
