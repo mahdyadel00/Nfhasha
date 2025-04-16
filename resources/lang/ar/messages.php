@@ -152,4 +152,17 @@ return [
     'error_in_reject_offer' => 'خطأ في رفض العرض',
     'error_in_send_offer' => 'خطأ في إرسال العرض',
     'failed_to_initiate_deposit_payment' => 'فشل إنشاء الدفع',
+    'failed_to_initiate_deposit_payment_property' => 'فشل إنشاء الدفع',
+    'tracking_my_order' => 'تتبع طلبي',
+    'offer_accepted' => 'تم قبول العرض',
+    'offer_sent' => 'تم إرسال العرض',
+    'offer_completed' => 'تم انتهاء العرض',
+    'offer' => 'العرض',
+    'offers' => 'العروض',
+    'battery_order_request_accepted' => 'تم قبول طلب البطارية',
+    'towing_order_request_accepted' => 'تم قبول طلب التوصيل',
+    'puncture_order_request_accepted' => 'تم قبول طلب التعويض',
+    'new_order_request_accepted' => 'تم قبول طلب جديد',
+    'battery_order_request_rejected' => 'تم رفض طلب البطارية',
+
 ];
