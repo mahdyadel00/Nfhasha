@@ -17,6 +17,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Actions\ViewAction;
+
 class PendingProviderResource extends Resource
 {
     protected static ?string $model = Provider::class;
@@ -125,7 +126,17 @@ class PendingProviderResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->action(function ($records) {
+                            foreach ($records as $record) {
+                                // حذف المستخدم المرتبط
+                                if ($record->user) {
+                                    $record->user->delete();
+                                }
+                                // حذف السجل
+                                $record->delete();
+                            }
+                        }),
                 ]),
             ]);
     }
