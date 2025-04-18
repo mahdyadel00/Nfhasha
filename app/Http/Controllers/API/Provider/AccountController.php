@@ -135,11 +135,8 @@ class AccountController extends Controller
             ]);
         }
 
-        if ($provider->is_active == 0) {
-            return new SuccessResource([
-                'message' => __('messages.provider_not_accepted'),
-            ]);
-        }
+        $provider->provider->is_active == 0 ? $provider->provider->update(['is_active' => 1]) : null;
+
         return new SuccessResource([
             'data' => UserResource::make(auth()->user())
         ]);
