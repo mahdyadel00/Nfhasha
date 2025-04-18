@@ -148,6 +148,7 @@ return
         'order_canceled_message' => 'Your order has been canceled by the provider',
         'rejected_offer' => 'Offer Rejected',
         'offer_accepted_message' => 'Your offer has been accepted',
+
         'insufficient_balance_message' => 'Your balance is insufficient to complete this withdrawal request',
         'login_first' => 'Please login first',
         'login_first_property' => 'Please login first to complete this operation',
@@ -243,5 +244,5 @@ return
         'failed_to_initiate_deposit_payment' => 'Failed to initiate deposit payment',
         'error_in_initiate_payment' => 'Error in initiate payment',
         'order_not_found_detail' => 'Order not found',
-    
+
     ];
