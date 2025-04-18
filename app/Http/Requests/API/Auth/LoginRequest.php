@@ -26,8 +26,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'phone'         => ['required','string','regex:/^5\d{8}$/','exists:users,phone'],
-            'password'      => 'required|string|min:6',
+            'phone'         => ['required', 'string', 'regex:/^5\d{8}$/', 'exists:users,phone'],
+            'password'                          => ['required', 'numeric', 'digits:4'],
             'longitude'     => 'required|numeric',
             'latitude'      => 'required|numeric',
             // 'fcm_token'     => 'nullable|string'
@@ -57,7 +57,4 @@ class LoginRequest extends FormRequest
             $translatedErrors
         ));
     }
-
-
-
 }
