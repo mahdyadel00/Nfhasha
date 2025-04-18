@@ -244,5 +244,7 @@ return
         'failed_to_initiate_deposit_payment' => 'Failed to initiate deposit payment',
         'error_in_initiate_payment' => 'Error in initiate payment',
         'order_not_found_detail' => 'Order not found',
+        'phone_already_used_code' => 'This phone number has already used the activation code',
+        'code_already_used' => 'This code has already been used',
 
     ];

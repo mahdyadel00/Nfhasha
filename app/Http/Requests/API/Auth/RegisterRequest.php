@@ -28,8 +28,8 @@ class RegisterRequest extends FormRequest
     {
         $rules = [
             'name'                  => 'required|string|max:255',
-            'phone'                 => ['required','string','regex:/^5\d{8}$/','unique:users,phone'],
-            'password'              => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
+            'phone'                 => ['required', 'string', 'regex:/^5\d{8}$/', 'unique:users,phone'],
+            'password'              => ['required', 'numeric', 'digits:4'],
             'invitation_code'       => 'nullable|exists:users,invitation_code',
             'longitude'             => 'required|numeric',
             'latitude'              => 'required|numeric',
@@ -65,6 +65,4 @@ class RegisterRequest extends FormRequest
             $translatedErrors
         ));
     }
-
-
 }

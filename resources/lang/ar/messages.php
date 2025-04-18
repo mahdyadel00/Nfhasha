@@ -456,6 +456,9 @@ return [
 
     'order_not_found_detail_property' => 'لم يتم العثور على الطلب',
     'provider_not_accepted' => 'لم يتم الموافقة على مزود الخدمة',
+    'phone_already_used_code' => 'رقم الهاتف هذا استخدم رمز التفعيل بالفعل.',
+    'code_already_used' => 'لقد استخدمت هذا الرمز من قبل.',
+    
 
 
 

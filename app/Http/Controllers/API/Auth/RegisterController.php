@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\ProviderRegisterRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
+use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\User;
 use App\Services\FirebaseService;
@@ -20,7 +21,6 @@ class RegisterController extends Controller
     {
         $this->locale = request()->header('Accept-Language', config('app.locale'));
     }
-
     public function user(RegisterRequest $request)
     {
         $user = User::create([
@@ -37,33 +37,60 @@ class RegisterController extends Controller
             $code = ActivationCode::where('code', $request->activation_code)->first();
 
             if ($code) {
-                if (!$code->users()->where('user_id', $user->id)->exists()) {
+                // التحقق مما إذا كان رقم الهاتف قد استخدم رمز تفعيل من قبل
+                $phoneUsedCode = ActivationCode::whereHas('user', function ($query) use ($user) {
+                    $query->where('phone', $user->phone);
+                })->exists();
+
+                if ($phoneUsedCode) {
+                    // إذا كان رقم الهاتف قد استخدم رمز تفعيل، أعد رسالة خطأ
+                    return new ErrorResource([
+                        'message' => __('messages.phone_already_used_code'),
+                    ]);
+                }
+
+                // التحقق مما إذا كان الرمز مستخدم من قبل (is_used أو user_id)
+                if (!$code->is_used && !$code->user_id) {
                     $user->balance += $code->amount;
                     $user->save();
 
-                    $code->users()->attach($user->id, [
-                        'used_at' => now()
+                    // ربط الرمز بالمستخدم وتحديث الحالة
+                    $code->update([
+                        'user_id'  => $user->id,
+                        'is_used'  => true,
+                        'used_at'  => now(),
+                    ]);
+                } else {
+                    // إذا كان الرمز مستخدم بالفعل
+                    return new ErrorResource([
+                        'message' => __('messages.code_already_used'),
                     ]);
                 }
+            } else {
+                // إذا كان الرمز غير صالح
+                return new ErrorResource([
+                    'message' => __('messages.invalid_activation_code'),
+                ]);
             }
         }
 
         if ($request->has('invitation_code')) {
             $inviter = User::where('invitation_code', $request->invitation_code)->first();
-            $inviter->invitations()->create(['invited_user_id' => $user->id]);
+            if ($inviter) {
+                $inviter->invitations()->create(['invited_user_id' => $user->id]);
+            }
         }
 
         $token = $user->createToken('auth_token', ['role' => 'user'])->plainTextToken;
 
         return new SuccessResource([
-            'message'     => __('messages.registered_successfully'),
-            'data'        => [
-                'otp'         => str($user->otp),
-                'token'       => $token,
+            'message' => __('messages.registered_successfully'),
+            'data'    => [
+                'otp'   => str($user->otp),
+                'token' => $token,
             ]
         ]);
     }
-
     public function provider(ProviderRegisterRequest $request)
     {
 
