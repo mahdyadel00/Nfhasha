@@ -127,6 +127,19 @@ class AccountController extends Controller
 
     public function profile()
     {
+        $provider = auth()->user();
+        // check if provider
+        if (!$provider->provider) {
+            return new SuccessResource([
+                'message' => __('messages.provider_not_found'),
+            ]);
+        }
+
+        if ($provider->is_active == 0) {
+            return new SuccessResource([
+                'message' => __('messages.provider_not_accepted'),
+            ]);
+        }
         return new SuccessResource([
             'data' => UserResource::make(auth()->user())
         ]);
