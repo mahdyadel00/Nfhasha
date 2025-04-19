@@ -458,7 +458,16 @@ return [
     'provider_not_accepted' => 'لم يتم الموافقة على مزود الخدمة',
     'phone_already_used_code' => 'رقم الهاتف هذا استخدم رمز التفعيل بالفعل.',
     'code_already_used' => 'لقد استخدمت هذا الرمز من قبل.',
-    
+    'nearby_providers_retrieved' => 'تم استرجاع مزودي الخدمة القريبين بنجاح.',
+    'latitude_required' => 'خط العرض مطلوب.',
+    'latitude_numeric' => 'يجب أن يكون خط العرض رقمًا.',
+    'latitude_between' => 'يجب أن يكون خط العرض بين -90 و90.',
+    'longitude_required' => 'خط الطول مطلوب.',
+    'longitude_numeric' => 'يجب أن يكون خط الطول رقمًا.',
+    'longitude_between' => 'يجب أن يكون خط الطول بين -180 و180.',
+    'distance_numeric' => 'يجب أن تكون المسافة رقمًا.',
+    'distance_min' => 'يجب أن تكون المسافة على الأقل 1 كيلومتر.',
+    'distance_max' => 'يجب ألا تتجاوز المسافة 1000 كيلومتر.',
 
 
 

@@ -246,5 +246,11 @@ return
         'order_not_found_detail' => 'Order not found',
         'phone_already_used_code' => 'This phone number has already used the activation code',
         'code_already_used' => 'This code has already been used',
+        'nearby_providers_retrieved' => 'Nearby providers retrieved successfully',
+        'latitude_required' => 'Latitude is required',
+        'latitude_numeric' => 'Latitude must be a number',
+        'latitude_between' => 'Latitude must be between -90 and 90',
+        'longitude_required' => 'Longitude is required',
+        'longitude_numeric' => 'Longitude must be a number',
 
     ];
