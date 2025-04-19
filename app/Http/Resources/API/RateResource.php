@@ -15,15 +15,14 @@ class RateResource extends JsonResource
     public function toArray(Request $request): array
     {
 
+
         return
         [
             'id'                            => $this->id,
             'rate'                          => $this->rate,
             'comment'                       => $this->comment,
-            'created_at'                    => $this->created_at->format('Y-m-d H:i:s'),
-            'created_at_humanly'            => $this->created_at->diffForHumans(),
-            'updated_at'                    => $this->updated_at->format('Y-m-d H:i:s'),
-            'updated_at_humanly'            => $this->updated_at->diffForHumans(),
+            'created_at'                    => $this->created_at,
+            'updated_at'                    => $this->updated_at,
         ];
     }
 }
