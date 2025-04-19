@@ -106,21 +106,21 @@ class ExpressServiceController extends Controller
             //create notification
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
-                    'provider_id' => $providerId,
-                    'user_id' => auth()->id(),
-                    'order_id' => $order->id,
-                    'message' => __($message),
-                    'service_type' => $order->type,
-                    'order_status' => $order->status, // إضافة حالة الطلب
+                    'provider_id'   => $providerId,
+                    'user_id'       => auth()->id(),
+                    'order_id'      => $order->id,
+                    'message'       => __($message),
+                    'service_type'  => $order->type,
+                    'order_status'  => $order->status,
                 ]);
             }
 
             foreach ($users as $user) {
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                    'message' => $message,
-                    'order' => $order,
-                    'order_status' => $order->status, // إضافة حالة الطلب
-                    'Provider_ids' => $providerIds,
+                    'message'       => $message,
+                    'order'         => $order,
+                    'order_status'  => $order->status,
+                    'Provider_ids'  => $providerIds,
                 ]);
             } //end foreach
 
@@ -132,20 +132,20 @@ class ExpressServiceController extends Controller
                         $firebaseService = new FirebaseService();
 
                         $extraData = [
-                            'order_id' => (string) $order->id, // تحويل order_id إلى string لتجنب مشاكل Flutter
-                            'type' => __('messages.express_service'),
-                            'order_status' => $order->status, // إضافة حالة الطلب
-                            'sound' => 'notify_sound', // إزالة الامتداد .mp3 للتوافق مع Flutter
+                            'order_id'      => (string) $order->id,
+                            'type'          => __('messages.express_service'),
+                            'order_status'  => $order->status,
+                            'sound'         => 'notify_sound',
                         ];
 
                         // إرسال الإشعار مع الصوت
                         $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
 
                         // تسجيل للتحقق من إرسال الصوت
-                        \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                        Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
-                    \Log::channel('error')->error('Firebase Notification Failed: ' . $e->getMessage());
+                    Log::channel('error')->error('Firebase Notification Failed: ' . $e->getMessage());
                 }
             }
 
@@ -157,7 +157,7 @@ class ExpressServiceController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::channel('error')->error($e->getMessage());
+            Log::channel('error')->error($e->getMessage());
             return new ErrorResource($e->getMessage());
         }
     }

@@ -96,9 +96,9 @@ class OfferController extends Controller
 
             if ($order->type == 'periodic_inspections' && $order->status == 'pending') {
                 OrderProvider::create([
-                    'provider_id' => auth()->id(),
-                    'order_id' => $order->id,
-                    'status' => 'assigned',
+                    'provider_id'   => auth()->id(),
+                    'order_id'      => $order->id,
+                    'status'        => 'assigned',
                 ]);
             }
 
@@ -109,36 +109,36 @@ class OfferController extends Controller
 
             // Create notification
             ProviderNotification::create([
-                'user_id' => $order->user_id,
-                'provider_id' => auth()->id(),
-                'order_id' => $order->id,
-                'service_type' => $order->type,
-                'message' => __('messages.offer_accepted'),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'user_id'       => $order->user_id,
+                'provider_id'   => auth()->id(),
+                'order_id'      => $order->id,
+                'service_type'  => $order->type,
+                'message'       => __('messages.offer_accepted'),
+                'order_status'  => $order->status,
             ]);
 
             $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => __('messages.offer_accepted'),
-                'order' => $order,
-                'provider' => auth()->user(),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'message'       => __('messages.offer_accepted'),
+                'order'         => $order,
+                'provider'      => auth()->user(),
+                'order_status'  => $order->status,
             ]);
 
             if (!empty($order->user->fcm_token)) {
                 $firebaseService = new FirebaseService();
 
                 $extraData = [
-                    'order_id' => (string) $order->id, // تحويل إلى string
-                    'type' => 'order',
-                    'order_status' => $order->status, // إضافة حالة الطلب
-                    'sound' => 'notify_sound', // تصحيح الصوت
+                    'order_id'      => (string) $order->id,
+                    'type'          => 'order',
+                    'order_status'  => $order->status,
+                    'sound'         => 'notify_sound',
                 ];
 
                 $firebaseService->sendNotificationToUser($order->user->fcm_token, __('messages.offer_accepted'), __('messages.your_offer_has_been_accepted'), $extraData);
 
-                \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
             }
 
             DB::commit();
@@ -147,7 +147,7 @@ class OfferController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::channel('error')->error(__('messages.error_in_accept_offer') . ': ' . $e->getMessage());
-            return new ErrorResource(['message' => __('messages.some_error')]);
+            return new ErrorResource(['message' => $e->getMessage()]);
         }
     }
 
@@ -174,44 +174,44 @@ class OfferController extends Controller
             ]);
 
             $order->offers()->create([
-                'amount' => $request->amount ?? $order->total_cost,
-                'provider_id' => auth()->id(),
-                'status' => 'sent',
+                'amount'        => $request->amount ?? $order->total_cost,
+                'provider_id'   => auth()->id(),
+                'status'        => 'sent',
             ]);
 
             // Create notification
             ProviderNotification::create([
-                'user_id' => $order->user_id,
-                'provider_id' => auth()->id(),
-                'order_id' => $order->id,
-                'service_type' => $order->type,
-                'message' => __('messages.offer_sent'),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'user_id'           => $order->user_id,
+                'provider_id'       => auth()->id(),
+                'order_id'          => $order->id,
+                'service_type'      => $order->type,
+                'message'           => __('messages.offer_sent'),
+                'order_status'      => $order->status,
             ]);
 
             // Send notification to user via Pusher
             $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => __('messages.offer_sent'),
-                'offer' => $order->offers()->latest()->first(),
-                'provider' => auth()->user(),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'message'       => __('messages.offer_sent'),
+                'offer'         => $order->offers()->latest()->first(),
+                'provider'      => auth()->user(),
+                'order_status'  => $order->status,
             ]);
 
             if (!empty($order->user->fcm_token)) {
                 $firebaseService = new FirebaseService();
 
                 $extraData = [
-                    'order_id' => (string) $order->id, // تحويل إلى string
-                    'type' => 'order',
-                    'order_status' => $order->status, // إضافة حالة الطلب
-                    'sound' => 'notify_sound', // تصحيح الصوت
+                    'order_id'      => (string) $order->id,
+                    'type'          => 'order',
+                    'order_status'  => $order->status,
+                    'sound'         => 'notify_sound',
                 ];
 
                 $firebaseService->sendNotificationToUser($order->user->fcm_token, __('messages.offer_sent'), __('messages.you_have_received_offer'), $extraData);
 
-                \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                Log::info(__('messages.offer_sent_successfully'));
             }
 
             DB::commit();
@@ -241,11 +241,11 @@ class OfferController extends Controller
                 return new ErrorResource(['message' => __('messages.order_not_found')]);
             }
 
-            $order_offer = OrderOffer::updateOrCreate([
-                'order_id' => $order->id,
-                'provider_id' => auth()->id(),
-                'status' => 'rejected',
-                'amount' => $order->total_cost,
+            $order_offer        = OrderOffer::updateOrCreate([
+                'order_id'      => $order->id,
+                'provider_id'   => auth()->id(),
+                'status'        => 'rejected',
+                'amount'        => $order->total_cost,
             ]);
 
             if (!$order_offer) {
@@ -259,43 +259,43 @@ class OfferController extends Controller
             }
 
             $order->update([
-                'status' => 'pending',
-                'provider_id' => null,
-                'reason' => $request->reason,
+                'status'        => 'pending',
+                'provider_id'   => null,
+                'reason'        => $request->reason,
             ]);
 
             // Create notification
             ProviderNotification::create([
-                'user_id' => $order->user_id,
-                'provider_id' => auth()->id(),
-                'order_id' => $order->id,
-                'service_type' => $order->type,
-                'message' => __('messages.offer_rejected'),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'user_id'       => $order->user_id,
+                'provider_id'   => auth()->id(),
+                'order_id'      => $order->id,
+                'service_type'  => $order->type,
+                'message'       => __('messages.offer_rejected'),
+                'order_status'  => $order->status,
             ]);
 
             $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
 
             $pusher->trigger('notifications.providers.' . $order->user_id, 'sent.offer', [
-                'message' => __('messages.offer_rejected'),
-                'order' => $order,
-                'provider' => auth()->user(),
-                'order_status' => $order->status, // إضافة حالة الطلب
+                'message'       => __('messages.offer_rejected'),
+                'order'         => $order,
+                'provider'      => auth()->user(),
+                'order_status'  => $order->status,
             ]);
 
             if (!empty($order->user->fcm_token)) {
                 $firebaseService = new FirebaseService();
 
                 $extraData = [
-                    'order_id' => (string) $order->id, // تحويل إلى string
-                    'type' => 'order',
-                    'order_status' => $order->status, // إضافة حالة الطلب
-                    'sound' => 'notify_sound', // تصحيح الصوت
+                    'order_id'      => (string) $order->id,
+                    'type'          => 'order',
+                    'order_status'  => $order->status,
+                    'sound'         => 'notify_sound',
                 ];
 
                 $firebaseService->sendNotificationToUser($order->user->fcm_token, __('messages.offer_rejected'), __('messages.your_offer_has_been_rejected'), $extraData);
 
-                \Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
+                Log::info(__('messages.offer_rejected_successfully'));
             }
 
             DB::commit();

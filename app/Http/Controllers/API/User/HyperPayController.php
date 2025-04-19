@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\ErrorResource;
-use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
 use App\Models\WalletDeposit;
 use Illuminate\Http\Request;
