@@ -273,5 +273,12 @@ return [
     'offer_sent_successfully_property'  => 'Offer has been sent successfully',
     'offer_not_found'                   => 'Offer not found',
     'offer_not_found_property'          => 'Offer not found',
+    'notifications_found_successfully'  => 'Notifications found successfully',
+    'notifications_found_successfully_property' => 'Notifications have been found successfully',
+    'no_notifications_found'            => 'No notifications found',
+    'no_notifications_found_property'   => 'No notifications found',
+    'notification_found_successfully'   => 'Notification found successfully',
+    'notification_found_successfully_property' => 'Notification has been found successfully',
+    'notification_not_found'            => 'Notification not found',
 ];
 ?>

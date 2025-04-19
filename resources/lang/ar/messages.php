@@ -250,5 +250,9 @@ return [
     'offer_sent_successfully_property'  => 'تم إرسال العرض بنجاح',
     'offer_not_found'                   => 'لم يتم العثور على العرض',
     'offer_not_found_property'          => 'لم يتم العثور على العرض',
+    'notification_found_successfully'   => 'تم إسترجاع الإشعار بنجاح',
+    'notification_found_successfully_property' => 'تم إسترجاع الإشعار بنجاح',
+    'notification_not_found'            => 'لم يتم العثور على الإشعار',
+    'notification_not_found_property'   => 'لم يتم العثور على الإشعار',
 ];
 ?>

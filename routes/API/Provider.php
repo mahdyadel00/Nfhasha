@@ -1,9 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\Provider\AccountController;
-use App\Http\Controllers\API\Provider\OfferController;
-use App\Http\Controllers\API\Provider\OrderController;
-use App\Http\Controllers\API\Provider\WalletController;
+use App\Http\Controllers\API\Provider\{AccountController, OfferController, OrderController, WalletController , NotificationController};
 use App\Http\Controllers\API\User\{AppController, ContactUsController};
 use Illuminate\Support\Facades\Route;
 
@@ -65,4 +62,10 @@ Route::group(['prefix' => 'wallet', 'controller' => WalletController::class], fu
     Route::post('deposit/{checkoutId}/confirm', 'confirmDeposit')->where('checkoutId', '.*');
     Route::get('withdrawals', 'getWithdrawals');
     Route::get('deposits', 'getDeposits');
+
+});
+//get all notifications
+Route::group(['prefix' => 'notifications', 'controller' => NotificationController::class], function () {
+    Route::get('', 'index');
+    Route::get('{id}', 'show');
 });
