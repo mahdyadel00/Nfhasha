@@ -149,7 +149,7 @@ class OrderController extends Controller
 
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->nearby($request->latitude, $request->longitude, 50)
+                ->nearby($request->from_lat, $request->from_long, 50)
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
