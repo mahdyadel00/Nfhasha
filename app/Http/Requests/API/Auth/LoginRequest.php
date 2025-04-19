@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'phone'         => ['required', 'string', 'regex:/^5\d{8}$/', 'exists:users,phone'],
-            'password'                          => ['required', 'numeric', 'digits:4'],
+            'password'      => ['required'],
             'longitude'     => 'required|numeric',
             'latitude'      => 'required|numeric',
             // 'fcm_token'     => 'nullable|string'

@@ -23,7 +23,7 @@ class ResetPassword extends FormRequest
     {
         return [
             'phone'         => 'required|regex:/^5\d{8}$/|exists:users,phone',
-            'password'      => 'required|min:8|confirmed',
+            'password'     => ['required'],
             'otp'           => 'required|numeric',
         ];
     }
@@ -39,8 +39,7 @@ class ResetPassword extends FormRequest
         return [
             'phone.exists'          => __('messages.user_not_found' , ['attribute' => 'phone']),
             'phone.regex'           => __('messages.invalid_phone' , ['attribute' => 'phone']),
-            'password.min'          => __('messages.password_min' , ['attribute' => 'password']),
-            'password.confirmed'    => __('messages.password_confirmed' , ['attribute' => 'password']),
+            'password.required'     => __('messages.password_required' , ['attribute' => 'password']),
             'otp.required'          => __('messages.otp_required'),
             'otp.numeric'           => __('messages.otp_numeric'),
         ];
