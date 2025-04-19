@@ -178,10 +178,14 @@ class OrderController extends Controller
             );
 
             $message = match ($order->type) {
-                'battery'  => __('messages.battery_order_request'),
-                'towing'   => __('messages.towing_order_request'),
-                'puncture' => __('messages.puncture_order_request'),
-                default    => __('messages.new_order_request'),
+                'battery'                       => __('messages.battery_service_request'),
+                'towing'                        => __('messages.tow_truck_service_request'),
+                'puncture'                      => __('messages.puncture_service_request'),
+                'maintenance'                   => __('messages.maintenance_service_request'),
+                'comprehensive_inspections'     => __('messages.comprehensive_inspection_service_request'),
+                'periodic_inspections'          => __('messages.periodic_inspection_service_request'),
+                'car_reservations'              => __('messages.car_reservations_service_request'),
+                default                         => __('messages.new_order_request'),
             };
 
             foreach ($users as $user) {
