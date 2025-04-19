@@ -273,7 +273,14 @@ class HyperPayController extends Controller
     public function initiatePayment(Request $request, $id)
 {
     try {
-        $order = Order::findOrFail($id);
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json([
+                'message' => __('messages.order_not_found'),
+                'property_message' => __('messages.order_not_found_property')
+            ], 404);
+        }
+
         $user = auth()->user();
 
         $request->validate([

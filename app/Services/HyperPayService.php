@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Log;
 class HyperPayService
 {
     private $baseUrl;
@@ -24,7 +24,7 @@ class HyperPayService
             'applepay'   => config('hyperpay.entity_id_apple_pay'),
         ];
 
-        \Log::info('HyperPayService initialized', [
+        Log::info('HyperPayService initialized', [
             'base_url' => $this->baseUrl,
             'access_token' => $this->accessToken,
             'currency' => $this->currency,
@@ -38,34 +38,34 @@ class HyperPayService
 
 
         if (!isset($this->entities[$paymentMethod])) {
-            \Log::error('Unsupported payment method in HyperPayService', [
+            Log::error(__('messages.unsupported_payment_method'), [
                 'paymentMethod' => $paymentMethod,
                 'available_methods' => array_keys($this->entities),
             ]);
-            return ['error' => 'Unsupported payment method'];
+            return ['error' => __('messages.unsupported_payment_method')];
         }
 
         $entityId = $this->entities[$paymentMethod];
 
-        \Log::info('Entity ID for payment method', [
+        Log::info(__('messages.entity_id_for_payment_method'), [
             'paymentMethod' => $paymentMethod,
             'entityId' => $entityId,
         ]);
 
         if (empty($entityId)) {
-            \Log::error('Entity ID is missing for payment method', [
+            Log::error(__('messages.entity_id_missing_for_payment_method'), [
                 'paymentMethod' => $paymentMethod,
                 'entityId' => $entityId,
                 'config' => config('hyperpay'),
             ]);
-            return ['error' => 'Entity ID is missing for the selected payment method'];
+            return ['error' => __('messages.entity_id_missing_for_payment_method')];
         }
 
         $url = "{$this->baseUrl}v1/checkouts";
 
         $email = $customerData['email'] ?? 'test@example.com';
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            \Log::warning(__('messages.invalid_customer_email'));
+            Log::warning(__('messages.invalid_customer_email'));
             $email = 'test@example.com';
         }
 
@@ -92,7 +92,7 @@ class HyperPayService
             $postData['shopperResultUrl'] = route('payment.applepay.callback');
         }
 
-        \Log::info('Initiating HyperPay payment', [
+        Log::info(__('messages.initiating_hyperpay_payment'), [
             'url' => $url,
             'postData' => $postData,
             'headers' => [
@@ -107,7 +107,7 @@ class HyperPayService
         ])->timeout(30)->asForm()->post($url, $postData);
 
         $responseBody = $response->json();
-        \Log::info('HyperPay payment response', [
+        Log::info(__('messages.hyperpay_payment_response'), [
             'status' => $response->status(),
             'body' => $responseBody,
         ]);
@@ -118,7 +118,7 @@ class HyperPayService
             $parameterErrors = $errorDetails['parameterErrors'] ?? [];
             $errorMessage = $errorDetails['description'] ?? 'Unknown error';
 
-            \Log::error('HyperPay payment failed', [
+            Log::error(__('messages.hyperpay_payment_failed'), [
                 'error' => $errorMessage,
                 'parameterErrors' => $parameterErrors,
             ]);
@@ -142,7 +142,7 @@ class HyperPayService
 
             $entityId = $this->entities[$paymentMethod];
             if (empty($entityId)) {
-                \Log::error('Entity ID is missing for payment method in getPaymentStatus', [
+                Log::error(__('messages.entity_id_missing_for_payment_method'), [
                     'paymentMethod' => $paymentMethod,
                     'entityId' => $entityId,
                 ]);
@@ -158,7 +158,7 @@ class HyperPayService
             return $response;
 
         } catch (\Exception $e) {
-            \Log::error('HyperPay API Exception', ['error' => $e->getMessage()]);
+            Log::error(__('messages.hyperpay_api_exception'), ['error' => $e->getMessage()]);
             return Http::response(['error' => __('messages.unexpected_error_occurred'), 'exception' => $e->getMessage()], 500);
         }
     }
