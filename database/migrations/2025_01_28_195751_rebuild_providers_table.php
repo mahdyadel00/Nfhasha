@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('general_license')->nullable();
             $table->string('municipal_license')->nullable();
             $table->boolean('is_active')->default(false);
+            $table->enum('status', ['online', 'offline'])->default('offline');
             $table->timestamps();
         });
     }
@@ -53,6 +54,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('providers');
     }
 };

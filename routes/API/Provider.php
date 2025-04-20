@@ -31,6 +31,8 @@ Route::get('profile', [AccountController::class, 'profile']);
 Route::post('update-geos' , [AccountController::class , 'updateGeos']);
 //fcm_token
 Route::post('fcm-token' , [AccountController::class , 'fcmToken']);
+//update status
+Route::post('update-status' , [AccountController::class , 'updateStatus']);
 
 
 

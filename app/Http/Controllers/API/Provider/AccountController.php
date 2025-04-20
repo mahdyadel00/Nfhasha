@@ -163,4 +163,14 @@ class AccountController extends Controller
 
         return new SuccessResource(__('messages.fcm_token_updated_successfully'));
     }
+
+    public function updateStatus(Request $request)
+    {
+        $user = auth()->user();
+        $user->provider()->update(['status' => $request->status]);
+
+        return new SuccessResource([
+            'message' => __('messages.status_updated_successfully'),
+        ]);
+    }
 }

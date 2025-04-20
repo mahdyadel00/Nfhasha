@@ -280,5 +280,8 @@ return [
     'notification_found_successfully'   => 'Notification found successfully',
     'notification_found_successfully_property' => 'Notification has been found successfully',
     'notification_not_found'            => 'Notification not found',
+    'notification_not_found_property'   => 'Notification not found',
+    'status_updated_successfully'       => 'Status updated successfully',
+    'status_update_failed'              => 'Status update failed',
 ];
 ?>

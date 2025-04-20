@@ -46,6 +46,7 @@ class ProviderResource extends JsonResource
             'general_license'       => $this->general_license ? asset('storage/' . $this->general_license) : null,
             'municipal_license'     => $this->municipal_license ? asset('storage/' . $this->municipal_license) : null,
             'is_active'             => $this->is_active,
+            'status'                => $this->status,
             'wallet_balance'        => $this->wallet_balance ?? 0, // من جدول users
             'rating_rate'           => $this->ratings()->avg('rate') ?? 0, // من جدول ratings المرتبط بـ users
             'created_at'            => $this->created_at,
