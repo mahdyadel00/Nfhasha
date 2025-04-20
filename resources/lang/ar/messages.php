@@ -258,5 +258,9 @@ return [
     'status_update_failed' => 'فشل في تحديث الحالة',
     'no_orders_found' => 'لم يتم العثور على أي طلبات',
     'no_orders_found_property' => 'لم يتم العثور على أي طلبات',
+    'otp_verified_successfully' => 'تم التحقق من الكود بنجاح',
+    'otp_verification_failed' => 'فشل التحقق من الكود',
+    'otp_verification_failed_property' => 'فشل التحقق من الكود',
+    
 ];
 ?>
