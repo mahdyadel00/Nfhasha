@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API\Provider;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Withdrawal;
 use App\Models\WalletDeposit;
 use Illuminate\Http\Request;

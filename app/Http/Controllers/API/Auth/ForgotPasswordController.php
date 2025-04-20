@@ -83,6 +83,8 @@ class ForgotPasswordController extends Controller
             }
             $user->update([
                 'password' => Hash::make($request->password),
+                'otp'      => null,
+                'email_verified_at' => now(),
             ]);
             return new SuccessResource([
                 'message' => __('messages.password_reset_successfully'),

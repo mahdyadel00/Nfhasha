@@ -9,7 +9,7 @@ use App\Models\WalletDeposit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Services\HyperPayService;
-
+use Illuminate\Support\Facades\Log;
 class HyperPayController extends Controller
 {
     private $hyperPayService;
@@ -133,7 +133,7 @@ class HyperPayController extends Controller
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $deposit->payment_method);
 
         if (!$response instanceof \Illuminate\Http\Client\Response) {
-            \Log::error('نوع الرد غير متوقع من HyperPay API', ['response' => $response]);
+            Log::error('نوع الرد غير متوقع من HyperPay API', ['response' => $response]);
             return response()->json([
                 'error' => __('messages.unexpected_response_type'),
                 'property_message' => __('messages.unexpected_response_type_property')
@@ -141,7 +141,7 @@ class HyperPayController extends Controller
         }
 
         if ($response->failed()) {
-            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
+            Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
             return response()->json([
                 'error' => __('messages.failed_to_retrieve_payment_status'),
                 'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
@@ -153,7 +153,7 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
+            Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
             return response()->json([
                 'error' => __('messages.invalid_hyperpay_response'),
                 'property_message' => __('messages.invalid_hyperpay_response_property')
@@ -219,14 +219,14 @@ class HyperPayController extends Controller
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $deposit->payment_method);
 
         if (!$response instanceof \Illuminate\Http\Client\Response) {
-            \Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
+            Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
             return response()->json(['error' => __('messages.unexpected_response_type'),
                 'property_message' => __('messages.unexpected_response_type_property')
             ], 500);
         }
 
         if ($response->failed()) {
-            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
+            Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
             return response()->json(
                 [
                     'error' => __('messages.failed_to_retrieve_payment_status'),
@@ -241,7 +241,7 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
+            Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
             return response()->json(['error' => __('messages.invalid_hyperpay_response'),
                 'property_message' => __('messages.invalid_hyperpay_response_property')
             ], 500);
@@ -451,14 +451,14 @@ class HyperPayController extends Controller
         $response = $this->hyperPayService->getPaymentStatus($checkoutId, $order->payment_method);
 
         if (!$response instanceof \Illuminate\Http\Client\Response) {
-            \Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
+            Log::error(__('messages.unexpected_response_type') . ': ' . $response->body());
             return response()->json(['error' => __('messages.unexpected_response_type'),
                 'property_message' => __('messages.unexpected_response_type_property')
             ], 500);
         }
 
         if ($response->failed()) {
-            \Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
+            Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
 
             return response()->json(
                 [
@@ -474,7 +474,7 @@ class HyperPayController extends Controller
         $resultCode = $responseData['result']['code'] ?? null;
 
         if (!$resultCode) {
-            \Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
+            Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
             return response()->json(['error' => __('messages.invalid_hyperpay_response'),
                 'property_message' => __('messages.invalid_hyperpay_response_property')
             ], 500);
