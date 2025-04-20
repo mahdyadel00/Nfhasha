@@ -153,7 +153,7 @@ class OrderController extends Controller
                 ->where('role', 'provider')
                 ->whereHas('provider', function ($query) use ($serviceType) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true);
+                        ->where('is_active', true)->where('status', 'online');
                 })
                 ->get();
             $providerIds = $users->pluck('id')->toArray();
@@ -247,7 +247,8 @@ class OrderController extends Controller
             $order = Order::where('id', $orderId)
                 ->where('type', 'periodic_inspections')
                 ->whereHas('tracking', function ($query) {
-                    $query->where('status', 'rejected');
+                    $query->where('status', 'rejected')
+                        ->orWhere('status', 'canceled');
                 })
                 ->first();
 
