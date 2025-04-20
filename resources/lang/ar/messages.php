@@ -256,5 +256,7 @@ return [
     'notification_not_found_property'   => 'لم يتم العثور على الإشعار',
     'status_updated_successfully' => 'تم تحديث الحالة بنجاح',
     'status_update_failed' => 'فشل في تحديث الحالة',
+    'no_orders_found' => 'لم يتم العثور على أي طلبات',
+    'no_orders_found_property' => 'لم يتم العثور على أي طلبات',
 ];
 ?>

@@ -7,11 +7,14 @@ use App\Models\ProviderNotification;
 use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\SuccessResource;
 use App\Models\Order;
+use App\Http\Resources\NotificationResource;
+
 class NotificationController extends Controller
 {
     public function index()
     {
         $notifications = ProviderNotification::where('provider_id', auth()->id())->latest()->paginate(config('app.pagination'));
+
 
         if ($notifications->isEmpty()) {
             return new ErrorResource(__('messages.no_notifications_found'));
@@ -26,7 +29,7 @@ class NotificationController extends Controller
 
         return new SuccessResource([
             'message' => __('messages.notifications_found_successfully'),
-            'data' => $notifications,
+            'data'    => NotificationResource::collection($notifications),
         ]);
     }
 
@@ -40,7 +43,7 @@ class NotificationController extends Controller
 
         return new SuccessResource([
             'message' => __('messages.notification_found_successfully'),
-            'data' => $notification,
+            'data'    => NotificationResource::make($notification),
         ]);
     }
 

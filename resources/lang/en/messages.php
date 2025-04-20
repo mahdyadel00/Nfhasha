@@ -283,5 +283,7 @@ return [
     'notification_not_found_property'   => 'Notification not found',
     'status_updated_successfully'       => 'Status updated successfully',
     'status_update_failed'              => 'Status update failed',
+    'no_orders_found'                   => 'No orders found',
+    'no_orders_found_property'          => 'No orders found',
 ];
 ?>

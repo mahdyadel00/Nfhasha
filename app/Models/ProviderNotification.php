@@ -20,16 +20,16 @@ class ProviderNotification extends Model
 
     public function provider()
     {
-        return $this->belongsTo(Provider::class);
+        return $this->belongsTo(User::class, 'provider_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function order()
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 }
