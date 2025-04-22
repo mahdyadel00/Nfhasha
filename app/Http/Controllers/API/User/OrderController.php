@@ -155,7 +155,7 @@ class OrderController extends Controller
                     $query->where($serviceType, true)
                         ->where('is_active', true)
                         ->where('status', 'online')
-                        ->where('pickup', $request->pickup_truck_id);
+                        ->where('pick_up_truck_id', $request->pickup_truck_id);
                 })
                 ->get();
 
@@ -282,7 +282,7 @@ class OrderController extends Controller
                 ->whereHas('provider', function ($query) use ($serviceType, $request) {
                     $query->where($serviceType, true)
                         ->where('is_active', true)
-                        ->where('pickup', $request->pickup_truck_id);
+                        ->where('pick_up_truck_id', $request->pickup_truck_id);
                 })
                 ->get();
 
