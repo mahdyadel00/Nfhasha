@@ -51,12 +51,16 @@ class OrderController extends Controller
                 return new ErrorResource(__('messages.date_cannot_be_before_today'));
             }
 
+            // تحديد ما إذا كانت الخدمة تتطلب pick_up_truck_id
+            $requiresPickUpTruck = in_array($expressService->type, ['maintenance', 'comprehensive_inspections', 'periodic_inspections']);
+            $pickUpTruckId = $requiresPickUpTruck ? $request->pick_up_truck_id : null;
 
+            // إنشاء الطلب
             $order = Order::create([
                 'user_id'               => auth()->id(),
                 'express_service_id'    => $request->service_id,
                 'user_vehicle_id'       => $request->vehicle_id,
-                'pick_up_truck_id'      => $request->pick_up_truck_id,
+                'pick_up_truck_id'      => $pickUpTruckId, // استخدام القيمة المحددة بناءً على الشرط
                 'city_id'               => $request->city_id ?? null,
                 'status'                => 'pending',
                 'from_lat'              => $request->latitude ?? auth()->user()->latitude,
@@ -69,6 +73,7 @@ class OrderController extends Controller
                 'note'                  => $request->note ?? null,
             ]);
 
+            // معالجة الخدمات المختلفة
             if ($expressService->type == 'car_reservations') {
                 $inspection_side_array = is_array($request->inspection_side)
                     ? $request->inspection_side
@@ -102,7 +107,7 @@ class OrderController extends Controller
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
-                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'pick_up_truck_id'      => $pickUpTruckId, // استخدام القيمة المحددة
                     'maintenance_type'      => $request->maintenance_type,
                     'maintenance_description' => $request->maintenance_description,
                     'address'               => $request->address,
@@ -120,7 +125,7 @@ class OrderController extends Controller
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
-                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'pick_up_truck_id'      => $pickUpTruckId, // استخدام القيمة المحددة
                     'city_id'               => $request->city_id,
                     'date'                  => $request->date,
                     'address'               => $request->address,
@@ -135,7 +140,7 @@ class OrderController extends Controller
                     'user_id'               => auth()->id(),
                     'express_service_id'    => $request->service_id,
                     'user_vehicle_id'       => $request->vehicle_id,
-                    'pick_up_truck_id'      => $request->pick_up_truck_id,
+                    'pick_up_truck_id'      => $pickUpTruckId, // استخدام القيمة المحددة
                     'city_id'               => $request->city_id,
                     'inspection_type_id'    => $request->inspection_type_id,
                     'address'               => $request->address,
@@ -145,23 +150,26 @@ class OrderController extends Controller
                 ]);
             }
 
-
+            // البحث عن مزودي الخدمة
             $serviceType = $order->type;
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->nearby($request->latitude ?? auth()->user()->latitude, $request->longitude ?? auth()->user()->longitude, 50)
                 ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType, $request) {
+                ->whereHas('provider', function ($query) use ($serviceType, $requiresPickUpTruck, $pickUpTruckId) {
                     $query->where($serviceType, true)
                         ->where('is_active', true)
-                        ->where('status', 'online')
-                        ->where('pick_up_truck_id', $request->pickup_truck_id);
+                        ->where('status', 'online');
+                    // إضافة شرط pick_up_truck_id فقط إذا كانت الخدمة تتطلب ذلك
+                    if ($requiresPickUpTruck) {
+                        $query->where('pick_up_truck_id', $pickUpTruckId);
+                    }
                 })
                 ->get();
 
             $providerIds = $users->pluck('id')->toArray();
 
-            //create notification
+            // إنشاء الإشعارات
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
                     'provider_id'   => $providerId,
@@ -169,10 +177,11 @@ class OrderController extends Controller
                     'order_id'      => $order->id,
                     'message'       => __('messages.new_order'),
                     'service_type'  => $order->type,
-                    'order_status'  => $order->status, // إضافة حالة الطلب
+                    'order_status'  => $order->status,
                 ]);
             }
 
+            // إعداد Pusher
             $pusher = new Pusher(
                 env('PUSHER_APP_KEY'),
                 env('PUSHER_APP_SECRET'),
@@ -195,11 +204,12 @@ class OrderController extends Controller
                 $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
                     'message'       => $message,
                     'order'         => $order,
-                    'order_status'  => $order->status, // إضافة حالة الطلب
+                    'order_status'  => $order->status,
                     'Provider_ids'  => $providerIds,
                 ]);
             }
 
+            // إرسال إشعارات Firebase
             if ($users->isNotEmpty()) {
                 try {
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
@@ -208,10 +218,10 @@ class OrderController extends Controller
                         $firebaseService = new FirebaseService();
 
                         $extraData = [
-                            'order_id'     => (string) $order->id, // تحويل إلى string للتوافق مع Flutter
+                            'order_id'     => (string) $order->id,
                             'type'         => __('messages.new_order'),
-                            'order_status' => $order->status, // إضافة حالة الطلب
-                            'sound'        => 'notify_sound', // تصحيح الصوت للتوافق مع Flutter
+                            'order_status' => $order->status,
+                            'sound'        => 'notify_sound',
                         ];
 
                         $firebaseService->sendNotificationToMultipleUsers(
@@ -221,8 +231,7 @@ class OrderController extends Controller
                             $extraData
                         );
 
-                        // تسجيل للتحقق
-                        \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
+                        \Log::info(__('messages.notification_sent_with_sound') . ': ' . json_encode($extraData));
                     }
                 } catch (\Exception $e) {
                     Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
@@ -243,121 +252,136 @@ class OrderController extends Controller
     }
 
     public function updatePeriodicInspection(Request $request, $orderId)
-    {
-        try {
-            DB::beginTransaction();
+{
+    try {
+        DB::beginTransaction();
 
-            $order = Order::where('id', $orderId)
-                ->where('type', 'periodic_inspections')
-                ->whereHas('tracking', function ($query) {
-                    $query->where('status', 'rejected')
-                        ->orWhere('status', 'canceled');
-                })
-                ->first();
+        $order = Order::where('id', $orderId)
+            ->where('type', 'periodic_inspections')
+            ->whereHas('tracking', function ($query) {
+                $query->where('status', 'rejected')
+                    ->orWhere('status', 'canceled');
+            })
+            ->first();
 
-            if (!$order) {
-                return new ErrorResource(__('messages.order_not_found'));
-            }
-
-            if ($order->status == 'paid' || $order->status == 'completed' || $order->status == 'canceled') {
-                return new ErrorResource(__('messages.order_already_paid'));
-            }
-
-            $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
-
-            $periodicInspection->update([
-                'status' => 'pending',
-            ]);
-
-            $order->update([
-                'status' => 'pending',
-            ]);
-
-            $serviceType = $order->type;
-
-            $users = User::whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->nearby($request->latitude ?? auth()->user()->latitude, $request->longitude ?? auth()->user()->longitude, 50)
-                ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType, $request) {
-                    $query->where($serviceType, true)
-                        ->where('is_active', true)
-                        ->where('pick_up_truck_id', $request->pickup_truck_id);
-                })
-                ->get();
-
-            $providerIds = $users->pluck('id')->toArray();
-
-            foreach ($providerIds as $providerId) {
-                ProviderNotification::create([
-                    'provider_id'   => $providerId,
-                    'user_id'       => auth()->id(),
-                    'order_id'      => $order->id,
-                    'message'       => '🚀 New order request',
-                    'service_type'  => $order->type,
-                    'order_status'  => $order->status, // إضافة حالة الطلب
-                ]);
-            }
-
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
-            );
-
-            $message = __('messages.periodic_inspection_updated_successfully');
-
-            foreach ($users as $user) {
-                $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
-                    'message'       => $message,
-                    'order'         => $order,
-                    'order_status'  => $order->status, // إضافة حالة الطلب
-                    'Provider_ids'  => $providerIds,
-                ]);
-            }
-
-            // إشعارات FCM
-            if ($users->isNotEmpty()) {
-                try {
-                    $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
-
-                    if (!empty($tokens)) {
-                        $firebaseService = new FirebaseService();
-
-                        $extraData = [
-                            'order_id'     => (string) $order->id, // تحويل إلى string
-                            'type'         => __('messages.periodic_inspection'),
-                            'order_status' => $order->status, // إضافة حالة الطلب
-                            'sound'        => 'notify_sound', // تصحيح الصوت
-                        ];
-
-                        $firebaseService->sendNotificationToMultipleUsers(
-                            $tokens,
-                            __('messages.periodic_inspection'),
-                            $message,
-                            $extraData
-                        );
-
-                        \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
-                    }
-                } catch (\Exception $e) {
-                    Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
-                }
-            }
-
-            DB::commit();
-
-            return new SuccessResource([
-                'message' => __('messages.periodic_inspection_updated_successfully'),
-                'data' => $order->id
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::channel('error')->error(__('messages.error_in_periodic_inspection') . ': ' . $e->getMessage());
-            return new ErrorResource($e->getMessage());
+        if (!$order) {
+            return new ErrorResource(__('messages.order_not_found'));
         }
+
+        if ($order->status == 'paid' || $order->status == 'completed' || $order->status == 'canceled') {
+            return new ErrorResource(__('messages.order_already_paid'));
+        }
+
+        $periodicInspection = PeriodicInspections::where('order_id', $order->id)->firstOrFail();
+
+        // تحديد ما إذا كانت الخدمة تتطلب pick_up_truck_id
+        $requiresPickUpTruck = in_array($order->type, ['periodic_inspections']); // يمكن إضافة أنواع أخرى إذا لزم الأمر
+        $pickUpTruckId = $requiresPickUpTruck ? $request->pick_up_truck_id : null;
+
+        // تحديث السجل في PeriodicInspections
+        $periodicInspection->update([
+            'status' => 'pending',
+            'pick_up_truck_id' => $pickUpTruckId, // تحديث pick_up_truck_id بناءً على الشرط
+        ]);
+
+        // تحديث الطلب
+        $order->update([
+            'status' => 'pending',
+            'pick_up_truck_id' => $pickUpTruckId, // تحديث pick_up_truck_id في الطلب
+        ]);
+
+        $serviceType = $order->type;
+
+        // البحث عن مزودي الخدمة
+        $users = User::whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->nearby($request->latitude ?? auth()->user()->latitude, $request->longitude ?? auth()->user()->longitude, 50)
+            ->where('role', 'provider')
+            ->whereHas('provider', function ($query) use ($serviceType, $requiresPickUpTruck, $pickUpTruckId) {
+                $query->where($serviceType, true)
+                    ->where('is_active', true)
+                    ->where('status', 'online');
+                // إضافة شرط pick_up_truck_id فقط إذا كانت الخدمة تتطلب ذلك
+                if ($requiresPickUpTruck) {
+                    $query->where('pick_up_truck_id', $pickUpTruckId);
+                }
+            })
+            ->get();
+
+        $providerIds = $users->pluck('id')->toArray();
+
+        // إنشاء الإشعارات
+        foreach ($providerIds as $providerId) {
+            ProviderNotification::create([
+                'provider_id'   => $providerId,
+                'user_id'       => auth()->id(),
+                'order_id'      => $order->id,
+                'message'       => '🚀 New order request',
+                'service_type'  => $order->type,
+                'order_status'  => $order->status,
+            ]);
+        }
+
+        // إعداد Pusher
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+        );
+
+        $message = __('messages.periodic_inspection_updated_successfully');
+
+        foreach ($users as $user) {
+            $pusher->trigger('notifications.providers.' . $user->id, 'sent.offer', [
+                'message'       => $message,
+                'order'         => $order,
+                'order_status'  => $order->status,
+                'Provider_ids'  => $providerIds,
+            ]);
+        }
+
+        // إشعارات FCM
+        if ($users->isNotEmpty()) {
+            try {
+                $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
+
+                if (!empty($tokens)) {
+                    $firebaseService = new FirebaseService();
+
+                    $extraData = [
+                        'order_id'     => (string) $order->id,
+                        'type'         => __('messages.periodic_inspection'),
+                        'order_status' => $order->status,
+                        'sound'        => 'notify_sound',
+                    ];
+
+                    $firebaseService->sendNotificationToMultipleUsers(
+                        $tokens,
+                        __('messages.periodic_inspection'),
+                        $message,
+                        $extraData
+                    );
+
+                    \Log::info(__('messages.notification_sent_with_sound') . ': ' . json_encode($extraData));
+                }
+            } catch (\Exception $e) {
+                Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
+            }
+        }
+
+        DB::commit();
+
+        return new SuccessResource([
+            'message' => __('messages.periodic_inspection_updated_successfully'),
+            'data' => $order->id
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::channel('error')->error(__('messages.error_in_periodic_inspection') . ': ' . $e->getMessage());
+        return new ErrorResource($e->getMessage());
     }
+}
 
     public function payment($order)
     {

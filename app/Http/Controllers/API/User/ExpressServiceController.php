@@ -34,25 +34,36 @@ class ExpressServiceController extends Controller
             DB::beginTransaction();
 
             $express_services = ExpressService::find($request->express_service_id);
-
             $serviceType = $express_services->type;
 
+            // تحديد ما إذا كانت الخدمة تتطلب pick_up_truck_id
+            $requiresPickUpTruck = in_array($serviceType, ['maintenance', 'comprehensive_inspections', 'periodic_inspections']);
+            $pickUpTruckId = $requiresPickUpTruck ? $request->pick_up_truck_id : null;
+
+            // البحث عن مزودي الخدمة
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->nearby($request->from_latitude, $request->from_longitude, 50)
                 ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType, $request) {
-                    $query->where($serviceType, true)->where('is_active', true)->where('status', 'online')->where('pick_up_truck_id', $request->pick_up_truck_id);
+                ->whereHas('provider', function ($query) use ($serviceType, $requiresPickUpTruck, $pickUpTruckId) {
+                    $query->where($serviceType, true)
+                        ->where('is_active', true)
+                        ->where('status', 'online');
+                    // إضافة شرط pick_up_truck_id فقط إذا كانت الخدمة تتطلب ذلك
+                    if ($requiresPickUpTruck) {
+                        $query->where('pick_up_truck_id', $pickUpTruckId);
+                    }
                 })
                 ->get();
 
             $providerIds = $users->pluck('id')->toArray();
 
+            // إنشاء سجل PunctureService
             $puncture_service = PunctureService::create([
                 'express_service_id' => $request->express_service_id,
                 'user_id' => auth()->id(),
                 'user_vehicle_id' => $request->user_vehicle_id ?? null,
-                'pick_up_truck_id' => $request->pick_up_truck_id ?? null,
+                'pick_up_truck_id' => $pickUpTruckId, // استخدام القيمة المحددة بناءً على الشرط
                 'address' => $request->address,
                 'distanition' => $request->distanition ?? null,
                 'from_latitude' => $request->from_latitude,
@@ -66,12 +77,12 @@ class ExpressServiceController extends Controller
                 'status' => 'pending',
             ]);
 
-            //create order
+            // إنشاء الطلب
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'express_service_id' => $request->express_service_id,
                 'user_vehicle_id' => $request->user_vehicle_id ?? null,
-                'pick_up_truck_id' => $request->pick_up_truck_id ?? null,
+                'pick_up_truck_id' => $pickUpTruckId, // استخدام القيمة المحددة بناءً على الشرط
                 'status' => 'pending',
                 'from_lat' => $request->from_latitude,
                 'from_long' => $request->from_longitude,
@@ -85,12 +96,15 @@ class ExpressServiceController extends Controller
                 'note' => $request->notes ?? null,
             ]);
 
-            //send notification to provider
-            $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]);
+            // إعداد Pusher
+            $pusher = new Pusher(
+                env('PUSHER_APP_KEY'),
+                env('PUSHER_APP_SECRET'),
+                env('PUSHER_APP_ID'),
+                ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+            );
 
-            $service_type = $express_services->type;
-
-            $message = match ($service_type) {
+            $message = match ($serviceType) {
                 'battery'                       => __('messages.battery_service_request'),
                 'puncture'                      => __('messages.puncture_service_request'),
                 'fuel'                          => __('messages.fuel_service_request'),
@@ -103,7 +117,7 @@ class ExpressServiceController extends Controller
                 default                         => __('messages.express_service_request'),
             };
 
-            //create notification
+            // إنشاء الإشعارات
             foreach ($providerIds as $providerId) {
                 ProviderNotification::create([
                     'provider_id'   => $providerId,
@@ -122,8 +136,9 @@ class ExpressServiceController extends Controller
                     'order_status'  => $order->status,
                     'Provider_ids'  => $providerIds,
                 ]);
-            } //end foreach
+            }
 
+            // إرسال إشعارات FCM
             if ($users->isNotEmpty()) {
                 try {
                     $tokens = $users->pluck('fcm_token')->filter()->unique()->toArray();
@@ -138,10 +153,13 @@ class ExpressServiceController extends Controller
                             'sound'         => 'notify_sound',
                         ];
 
-                        // إرسال الإشعار مع الصوت
-                        $firebaseService->sendNotificationToMultipleUsers($tokens, __('messages.new_order'), $message, $extraData);
+                        $firebaseService->sendNotificationToMultipleUsers(
+                            $tokens,
+                            __('messages.new_order'),
+                            $message,
+                            $extraData
+                        );
 
-                        // تسجيل للتحقق من إرسال الصوت
                         Log::info('Notification sent with sound: notify_sound', ['extraData' => $extraData]);
                     }
                 } catch (\Exception $e) {
@@ -161,7 +179,6 @@ class ExpressServiceController extends Controller
             return new ErrorResource($e->getMessage());
         }
     }
-
     public function myExpressServices(Request $request)
     {
         $puncture_services = PunctureService::where('user_id', auth()->id())
