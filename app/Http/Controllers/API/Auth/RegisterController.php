@@ -124,7 +124,7 @@ class RegisterController extends Controller
                 'open_locks'                => $request->open_locks,
                 'periodic_inspections'      => $request->periodic_inspections,
                 'comprehensive_inspections' => $request->comprehensive_inspections,
-                'maintenance'               => $request->maintenance,
+                'maintenance'               => 1,
                 'car_reservations'          => $request->car_reservations,
                 'pick_up_truck_id'          => $request->wenchId,
                 'available_from'            => $request->truck_barriers_from,

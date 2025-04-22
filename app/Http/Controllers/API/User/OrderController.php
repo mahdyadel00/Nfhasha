@@ -94,7 +94,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            if ($expressService->type == 'maintenance') {
+            if ($expressService->type == 'maintenance' || $expressService->type == 'mechanical' || $expressService->type == 'plumber' || $expressService->type == 'electrical') {
                 $image = [];
                 if ($request->hasFile('image')) {
                     foreach ($request->file('image') as $file) {
