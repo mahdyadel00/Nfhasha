@@ -40,8 +40,8 @@ Route::group(['prefix' => 'vehicles', 'controller' => VehiclesController::class]
 });
 
 Route::post('change-password', [UserController::class, 'changePassword']);
-Route::get('notifications', [UserController::class, 'notifications']);
-Route::get('notifications/{notification}', [UserController::class, 'notification']);
+// Route::get('notifications', [UserController::class, 'notifications']);
+// Route::get('notifications/{notification}', [UserController::class, 'notification']);
 Route::get('logout', [UserController::class, 'logout']);
 Route::delete('delete-account', [UserController::class, 'deleteAccount']);
 Route::post('update-profile', [UserController::class, 'updateProfile']);

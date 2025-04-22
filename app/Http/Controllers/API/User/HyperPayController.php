@@ -130,70 +130,22 @@ class HyperPayController extends Controller
             ], 400);
         }
 
-        $response = $this->hyperPayService->getPaymentStatus($checkoutId, $deposit->payment_method);
+        $deposit->update([
+            'status'            => $request->status,
+            'payment_method'    => $request->payment_method,
+        ]);
 
-        if (!$response instanceof \Illuminate\Http\Client\Response) {
-            Log::error('نوع الرد غير متوقع من HyperPay API', ['response' => $response]);
-            return response()->json([
-                'error' => __('messages.unexpected_response_type'),
-                'property_message' => __('messages.unexpected_response_type_property')
-            ], 500);
-        }
-
-        if ($response->failed()) {
-            Log::error(__('messages.failed_to_retrieve_payment_status') . ': ' . $response->body());
-            return response()->json([
-                'error' => __('messages.failed_to_retrieve_payment_status'),
-                'property_message' => __('messages.failed_to_retrieve_payment_status_property'),
-                'details' => $response->body()
-            ], 500);
-        }
-
-        $responseData = $response->json();
-        $resultCode = $responseData['result']['code'] ?? null;
-
-        if (!$resultCode) {
-            Log::error(__('messages.invalid_hyperpay_response') . ': ' . $response->body());
-            return response()->json([
-                'error' => __('messages.invalid_hyperpay_response'),
-                'property_message' => __('messages.invalid_hyperpay_response_property')
-            ], 500);
-        }
-
-        $status = match ($resultCode) {
-            '000.100.110' => 'completed',
-            '000.200.000' => 'pending',
-            default => 'failed',
-        };
-
-        $deposit->update(['status' => $status]);
-
-        if ($status === 'completed') {
-            $user = $deposit->user;
+        if ($request->status === 'completed') {
+            $user = auth()->user();
             $user->balance += $deposit->amount;
             $user->save();
-
-            return response()->json([
-                'message' => __('messages.deposit_confirmed_successfully'),
-                'property_message' => __('messages.deposit_confirmed_successfully_property'),
-                'deposit_status' => $deposit->status,
-                'hyperpay_result_code' => $resultCode,
-            ]);
-        } elseif ($status === 'pending') {
-            return response()->json([
-                'message' => __('messages.deposit_processing'),
-                'property_message' => __('messages.deposit_processing_property'),
-                'deposit_status' => $deposit->status,
-                'hyperpay_result_code' => $resultCode,
-            ]);
-        } else {
-            return response()->json([
-                'error' => __('messages.deposit_failed'),
-                'property_message' => __('messages.deposit_failed_property'),
-                'deposit_status' => $deposit->status,
-                'hyperpay_result_code' => $resultCode,
-            ], 400);
         }
+
+        return response()->json([
+            'message'           => __('messages.deposit_status_updated_successfully'),
+            'property_message'  => __('messages.deposit_status_updated_successfully_property'),
+            'deposit_status'    => $deposit->status,
+        ]);
     }
 
     // باقي الدوال زي ما هي
@@ -256,7 +208,7 @@ class HyperPayController extends Controller
         $deposit->update(['status' => $status]);
 
         if ($status === 'completed') {
-            $user = $deposit->user;
+            $user = auth()->user();
             $user->balance += $deposit->amount;
             $user->save();
         }

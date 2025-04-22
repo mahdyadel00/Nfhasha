@@ -10,9 +10,12 @@ class WalletController extends Controller
 {
     public function index()
     {
-        $balance = auth()->user()->balance;
+        $user = auth()->user();
+        $balance = $user->balance;
 
-        $transactions = auth()->user()->walletTransactions()->latest()->get();
+        $transactions = $user->walletTransactions()
+            ->latest()
+            ->get();
 
         return apiResponse(200, __('messages.data_returned_successfully', ['attr' => __('messages.wallet')]), [
             'balance'       => $balance,

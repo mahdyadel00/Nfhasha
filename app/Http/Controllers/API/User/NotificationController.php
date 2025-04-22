@@ -20,7 +20,7 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = ProviderNotification::where('user_id', auth()->id())
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->paginate(config('app.pagination'));
 
         if ($notifications->isEmpty()) {
@@ -28,14 +28,16 @@ class NotificationController extends Controller
         }
 
         $order = Order::where('user_id', auth()->id())
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->first();
 
         if (!$order) {
             return new ErrorResource(__('messages.no_orders_found'));
         }
 
-        $offers = OrderOffer::where('order_id', $order->id)->get();
+        $offers = OrderOffer::where('order_id', $order->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return new SuccessResource([
             'message' => __('messages.notifications_found_successfully'),
