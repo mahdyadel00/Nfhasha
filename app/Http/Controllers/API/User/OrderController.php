@@ -59,8 +59,8 @@ class OrderController extends Controller
                 'pick_up_truck_id'      => $request->pick_up_truck_id,
                 'city_id'               => $request->city_id ?? null,
                 'status'                => 'pending',
-                'from_lat'              => $request->from_lat ?? $request->latitude,
-                'from_long'             => $request->from_long ?? $request->longitude,
+                'from_lat'              => $request->latitude ?? auth()->user()->latitude,
+                'from_long'             => $request->longitude ?? auth()->user()->longitude,
                 'type'                  => $expressService->type,
                 'payment_method'        => $request->payment_method ?? 'cash',
                 'total_cost'            => $expressService->price,
@@ -106,8 +106,8 @@ class OrderController extends Controller
                     'maintenance_type'      => $request->maintenance_type,
                     'maintenance_description' => $request->maintenance_description,
                     'address'               => $request->address,
-                    'latitude'              => $request->latitude,
-                    'longitude'             => $request->longitude,
+                    'latitude'              => $request->latitude ?? auth()->user()->latitude,
+                    'longitude'             => $request->longitude ?? auth()->user()->longitude,
                     'is_working'            => filter_var($request->is_working, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                     'image'                 => json_encode($image),
                     'note'                  => $request->note,
@@ -124,8 +124,8 @@ class OrderController extends Controller
                     'city_id'               => $request->city_id,
                     'date'                  => $request->date,
                     'address'               => $request->address,
-                    'latitude'              => $request->latitude,
-                    'longitude'             => $request->longitude,
+                    'latitude'              => $request->latitude ?? auth()->user()->latitude,
+                    'longitude'             => $request->longitude ?? auth()->user()->longitude,
                 ]);
             }
 
@@ -139,8 +139,8 @@ class OrderController extends Controller
                     'city_id'               => $request->city_id,
                     'inspection_type_id'    => $request->inspection_type_id,
                     'address'               => $request->address,
-                    'latitude'              => $request->latitude,
-                    'longitude'             => $request->longitude,
+                    'latitude'              => $request->latitude ?? auth()->user()->latitude,
+                    'longitude'             => $request->longitude ?? auth()->user()->longitude,
                     'status'                => 'pending',
                 ]);
             }
