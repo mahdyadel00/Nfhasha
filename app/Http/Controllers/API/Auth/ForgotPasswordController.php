@@ -15,10 +15,18 @@ use Illuminate\Support\Facades\Log;
 
 class ForgotPasswordController extends Controller
 {
+    /**
+     * Handle forgot password request and send OTP.
+     *
+     * @param ForgetPassword $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function forgot(ForgetPassword $request)
     {
         try {
             DB::beginTransaction();
+
+            // Find user by phone number
             $user = User::where('phone', $request->phone)->first();
 
             if (!$user) {
@@ -26,23 +34,35 @@ class ForgotPasswordController extends Controller
                     'message' => __('messages.user_not_found'),
                 ]);
             }
+
+            // Generate a 6-digit OTP (between 100000 and 999999)
+            $otp = mt_rand(100000, 999999);
+
+            // Update user with new OTP and reset email verification
             $user->update([
-                'otp'               => str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT),
-                // 'otp_expires_at'    => now()->addMinutes(10),
+                'otp'               => (string) $otp, // Ensure OTP is stored as string
+                // 'otp_expires_at' => now()->addMinutes(10),
                 'email_verified_at' => null,
             ]);
 
-
             DB::commit();
-            return new SuccessResource([
-                'message'   => __('messages.otp_sent_successfully'),
-                'otp'       => $user->otp,
-            ]);
 
+            return new SuccessResource([
+                'message' => __('messages.otp_sent_successfully'),
+                'otp'     => $user->otp,
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::channel('error')->error(__('messages.forgot_password_error') . ': ' . $e->getMessage());
-            return new ErrorResource(['message' => $e->getMessage(),]);
+
+            // Log the error with context
+            Log::channel('error')->error(
+                __('messages.forgot_password_error') . ': ' . $e->getMessage(),
+                ['phone' => $request->phone]
+            );
+
+            return new ErrorResource([
+                'message' => __('messages.forgot_password_error'),
+            ]);
         }
     }
 
