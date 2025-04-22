@@ -145,16 +145,20 @@ class OrderController extends Controller
                 ]);
             }
 
+
             $serviceType = $order->type;
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->nearby($request->latitude ?? auth()->user()->latitude, $request->longitude ?? auth()->user()->longitude, 50)
                 ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType) {
+                ->whereHas('provider', function ($query) use ($serviceType, $request) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true)->where('status', 'online');
+                        ->where('is_active', true)
+                        ->where('status', 'online')
+                        ->where('pickup', $request->pickup_truck_id);
                 })
                 ->get();
+
             $providerIds = $users->pluck('id')->toArray();
 
             //create notification
@@ -273,11 +277,12 @@ class OrderController extends Controller
 
             $users = User::whereNotNull('latitude')
                 ->whereNotNull('longitude')
-                ->nearby($request->latitude, $request->longitude, 50)
+                ->nearby($request->latitude ?? auth()->user()->latitude, $request->longitude ?? auth()->user()->longitude, 50)
                 ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType) {
+                ->whereHas('provider', function ($query) use ($serviceType, $request) {
                     $query->where($serviceType, true)
-                        ->where('is_active', true);
+                        ->where('is_active', true)
+                        ->where('pickup', $request->pickup_truck_id);
                 })
                 ->get();
 

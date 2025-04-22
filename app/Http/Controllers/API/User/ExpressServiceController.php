@@ -41,8 +41,8 @@ class ExpressServiceController extends Controller
                 ->whereNotNull('longitude')
                 ->nearby($request->from_latitude, $request->from_longitude, 50)
                 ->where('role', 'provider')
-                ->whereHas('provider', function ($query) use ($serviceType) {
-                    $query->where($serviceType, true)->where('is_active', true)->where('status', 'online');
+                ->whereHas('provider', function ($query) use ($serviceType, $request) {
+                    $query->where($serviceType, true)->where('is_active', true)->where('status', 'online')->where('pickup', $request->pick_up_truck_id);
                 })
                 ->get();
 
