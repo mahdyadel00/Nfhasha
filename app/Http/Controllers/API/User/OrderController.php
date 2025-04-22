@@ -52,7 +52,7 @@ class OrderController extends Controller
             }
 
             // تحديد ما إذا كانت الخدمة تتطلب pick_up_truck_id
-            $requiresPickUpTruck = in_array($expressService->type, ['maintenance', 'comprehensive_inspections', 'periodic_inspections']);
+            $requiresPickUpTruck = in_array($expressService->type, ['maintenance', 'comprehensive_inspections', 'periodic_inspections', 'mechanical', 'plumber', 'electrical']);
             $pickUpTruckId = $requiresPickUpTruck ? $request->pick_up_truck_id : null;
 
             // إنشاء الطلب
