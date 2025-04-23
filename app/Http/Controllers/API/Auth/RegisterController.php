@@ -23,7 +23,7 @@ class RegisterController extends Controller
     }
     public function user(RegisterRequest $request)
     {
-        $user = User::where('phone', $request->phone)->first();
+        $user = User::where('phone', $request->phone)->where('role', 'user')->first();
         if ($user) {
             return new ErrorResource([
                 'message' => __('messages.phone_already_used'),
@@ -99,7 +99,7 @@ class RegisterController extends Controller
     }
     public function provider(ProviderRegisterRequest $request)
     {
-        $user = User::where('phone', $request->phone)->first();
+        $user = User::where('phone', $request->phone)->where('role', 'provider')->first();
         if ($user) {
             return new ErrorResource([
                 'message' => __('messages.phone_already_used'),
