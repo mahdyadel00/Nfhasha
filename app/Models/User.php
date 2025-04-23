@@ -193,4 +193,9 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(OrderOffer::class, 'provider_id');
     }
+
+    public function deposits()
+    {
+        return $this->hasMany(WalletDeposit::class);
+    }
 }

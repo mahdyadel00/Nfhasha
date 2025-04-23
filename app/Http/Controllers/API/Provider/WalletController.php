@@ -8,7 +8,7 @@ use App\Models\WalletDeposit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\HyperPayService;
-
+use App\Http\Resources\API\TransactionsRequest;
 class WalletController extends Controller
 {
     private $hyperPayService;
@@ -20,12 +20,16 @@ class WalletController extends Controller
 
     public function index()
     {
-        $user = Auth::user();
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'balance' => $user->balance
-            ]
+        $user = auth()->user();
+        $balance = $user->balance;
+
+        $transactions = $user->deposits()
+            ->latest()
+            ->get();
+
+        return apiResponse(200, __('messages.data_returned_successfully', ['attr' => __('messages.wallet')]), [
+            'balance'       => $balance,
+            'transactions'  => TransactionsRequest::collection($transactions)
         ]);
     }
 

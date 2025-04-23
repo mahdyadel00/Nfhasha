@@ -5,15 +5,17 @@ namespace App\Http\Controllers\API\User;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\TransactionsRequest;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class WalletController extends Controller
 {
     public function index()
     {
+        /** @var User $user */
         $user = auth()->user();
         $balance = $user->balance;
 
-        $transactions = $user->walletTransactions()
+        $transactions = $user->walletDeposits()
             ->latest()
             ->get();
 
