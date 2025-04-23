@@ -12,10 +12,10 @@ class ChangePasswordRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-     public function authorize(): bool
-     {
-         return auth('sanctum')->check();
-     }
+    public function authorize(): bool
+    {
+        return auth('sanctum')->check();
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -26,7 +26,7 @@ class ChangePasswordRequest extends FormRequest
     {
         return [
             'old_password' => ['required', 'string'],
-            'new_password' => ['required' ,'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
+            'new_password' => ['required', 'confirmed', Password::min(4)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
         ];
     }
 
