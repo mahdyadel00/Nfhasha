@@ -26,7 +26,7 @@ class ProviderRegisterRequest extends FormRequest
     {
         return [
             'name'                              => 'required|string|max:255',
-            'phone'                             => ['required','string','regex:/^5\d{8}$/','unique:users,phone'],
+            'phone'                             => ['required','string','regex:/^5\d{8}$/'],
             'email'                             => 'required|email|unique:users,email',
             'password'                          => ['required'],
             'city_id'                           => 'required|exists:cities,id',

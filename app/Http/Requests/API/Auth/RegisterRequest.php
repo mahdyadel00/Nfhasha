@@ -27,7 +27,7 @@ class RegisterRequest extends FormRequest
     {
         $rules = [
             'name'                  => 'required|string|max:255',
-            'phone'                 => ['required', 'string', 'regex:/^5\d{8}$/', 'unique:users,phone'],
+            'phone'                 => ['required', 'string', 'regex:/^5\d{8}$/'],
             'password'              => ['required'],
             'invitation_code'       => 'nullable|exists:users,invitation_code',
             'longitude'             => 'required|numeric',
