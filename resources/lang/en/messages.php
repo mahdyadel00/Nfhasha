@@ -357,6 +357,8 @@ return [
     'otp_verified_successfully'         => 'OTP verified successfully',
     'otp_verification_failed'           => 'OTP verification failed',
     'otp_verification_failed_property'  => 'OTP verification failed',
+    'phone_already_used'                => 'You have already registered with this phone number',
+    'phone_already_used_property'       => 'You have already registered with this phone number',
 
 ];
 ?>

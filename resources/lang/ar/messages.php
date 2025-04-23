@@ -357,6 +357,8 @@ return [
     'otp_verified_successfully'         => 'تم التحقق من الكود بنجاح',
     'otp_verification_failed'           => 'فشل التحقق من الكود',
     'otp_verification_failed_property'  => 'فشل التحقق من الكود',
+    'phone_already_used'                => 'لقد قمت بالفعل بالتسجيل بهذا الرقم الموبايلي',
+    'phone_already_used_property'       => 'لقد قمت بالفعل بالتسجيل بهذا الرقم الموبايلي',
 
 ];
 ?>
