@@ -41,8 +41,6 @@ class OrderResource extends Resource
         return app()->getLocale() === 'en' ? 'Order Management' : 'إدارة الطلبات';
     }
 
-
-
     public static function getPluralLabel(): string
     {
         return __('Orders');
@@ -164,8 +162,6 @@ class OrderResource extends Resource
             ]);
     }
 
-
-
     public static function getRelations(): array
     {
         return [
@@ -176,9 +172,11 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit'   => Pages\EditOrder::route('/{record}/edit'),
+            'index'     => Pages\ListOrders::route('/'),
+            'current'   => Pages\ListCurrentOrders::route('/current'),
+            'completed' => Pages\ListCompletedOrders::route('/completed'),
+            'create'    => Pages\CreateOrder::route('/create'),
+            'edit'      => Pages\EditOrder::route('/{record}/edit'),
         ];
     }
 }
