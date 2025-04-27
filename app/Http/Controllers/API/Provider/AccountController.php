@@ -7,9 +7,17 @@ use App\Http\Requests\API\User\ChangePasswordRequest;
 use App\Http\Requests\API\User\UpdateGeosRequest;
 use App\Http\Requests\API\Provider\UpdateProfileRequest;
 use App\Http\Resources\API\SuccessResource;
+use App\Http\Resources\API\ErrorResource;
 use App\Http\Resources\API\User\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use App\Services\FirebaseService;
+use Pusher\Pusher;
+use App\Models\ProviderNotification;
+use App\Models\User;
+use App\Models\Order;
 
 
 class AccountController extends Controller
@@ -164,15 +172,15 @@ class AccountController extends Controller
         return new SuccessResource(__('messages.fcm_token_updated_successfully'));
     }
 
-    public function updateStatus(Request $request)
-    {
-        $user = auth()->user();
-        $user->provider()->update(['status' => $request->status]);
+    // public function updateStatus(Request $request)
+    // {
+    //     $user = auth()->user();
+    //     $user->provider()->update(['status' => $request->status]);
 
-        return new SuccessResource([
-            'message' => __('messages.status_updated_successfully'),
-        ]);
-    }
+    //     return new SuccessResource([
+    //         'message' => __('messages.status_updated_successfully'),
+    //     ]);
+    // }
 
 
     // public function updateStatus(Request $request)
@@ -312,4 +320,151 @@ class AccountController extends Controller
     //         ]))->response();
     //     }
     // }
+
+    public function updateStatus(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $provider = auth()->user();
+            $status = $request->input('status'); // 'online' or 'offline'
+
+            // Update provider status
+            $provider->provider()->update(['status' => $status]);
+
+            // If provider is online, send pending orders in batches
+            if ($status === 'online') {
+                $service_type = [
+                    'battery',
+                    'towing',
+                    'puncture',
+                    'maintenance',
+                    'comprehensive_inspections',
+                    'periodic_inspections',
+                    'car_reservations',
+                ];
+
+                // Fetch pending orders matching provider's service type
+                $pendingOrders = Order::where('status', 'pending')
+                    ->whereNull('provider_id')
+                    ->whereIn(' gìtype', $service_type)
+                    ->whereNotNull('from_lat')
+                    ->whereNotNull('from_long')
+                    ->get();
+
+                // Batch settings
+                $batchSize = 5; // عدد الطلبات في كل مجموعة
+                $delayBetweenBatches = 1; // التأخير بالثواني بين كل مجموعة
+
+                // تقسيم الطلبات إلى مجموعات باستخدام chunk
+                $batchedOrders = $pendingOrders->chunk($batchSize);
+
+                foreach ($batchedOrders as $batch) {
+                    foreach ($batch as $order) {
+                        // Check if provider was already notified for this order
+                        $alreadyNotified = ProviderNotification::where('order_id', $order->id)
+                            ->where('provider_id', $provider->id)
+                            ->exists();
+
+                        if ($alreadyNotified) {
+                            continue; // Skip if provider was already notified
+                        }
+
+                        // Check if provider is within 50km of order location
+                        $isNearby = User::where('id', $provider->id)
+                            ->whereNotNull('latitude')
+                            ->whereNotNull('longitude')
+                            ->nearby($order->from_lat, $order->from_long, 50)
+                            ->exists();
+
+                        if (!$isNearby) {
+                            continue; // Skip if provider is not nearby
+                        }
+
+                        // Create notification record
+                        ProviderNotification::create([
+                            'user_id'       => $order->user_id,
+                            'provider_id'   => $provider->id,
+                            'order_id'      => $order->id,
+                            'service_type'  => $order->type,
+                            'message'       => __('messages.new_order'),
+                            'order_status'  => $order->status,
+                        ]);
+
+                        // Define message based on service type
+                        $message = match ($order->type) {
+                            'battery'                   => __('messages.battery_service_request'),
+                            'towing'                    => __('messages.tow_truck_service_request'),
+                            'puncture'                  => __('messages.puncture_service_request'),
+                            'maintenance'               => __('messages.maintenance_service_request'),
+                            'comprehensive_inspections' => __('messages.comprehensive_inspection_service_request'),
+                            'periodic_inspections'      => __('messages.periodic_inspection_service_request'),
+                            'car_reservations'          => __('messages.car_reservations_service_request'),
+                            default                     => __('messages.new_order_request'),
+                        };
+
+                        // Send Pusher notification
+                        $pusher = new Pusher(
+                            env('PUSHER_APP_KEY'),
+                            env('PUSHER_APP_SECRET'),
+                            env('PUSHER_APP_ID'),
+                            ['cluster' => env('PUSHER_APP_CLUSTER'), 'useTLS' => true]
+                        );
+
+                        $pusher->trigger('notifications.providers.' . $provider->id, 'sent.offer', [
+                            'message'       => $message,
+                            'order'         => $order,
+                            'order_status'  => $order->status,
+                            'provider_id'   => $provider->id,
+                        ]);
+
+                        // Send Firebase notification if provider has FCM token
+                        if (!empty($provider->fcm_token)) {
+                            $firebaseService = new FirebaseService();
+
+                            $extraData = [
+                                'order_id'      => (string) $order->id,
+                                'type'          => __('messages.new_order'),
+                                'order_status'  => $order->status,
+                                'sound'         => 'notify_sound',
+                            ];
+
+                            $firebaseService->sendNotificationToUser(
+                                $provider->fcm_token,
+                                __('messages.new_order'),
+                                $message,
+                                $extraData
+                            );
+
+                            Log::info('Pending order notification sent to provider', [
+                                'order_id'    => $order->id,
+                                'provider_id' => $provider->id,
+                                'message'     => $message,
+                            ]);
+                        }
+                    }
+
+                    sleep($delayBetweenBatches);
+                }
+            }
+
+            DB::commit();
+
+            return (new SuccessResource([
+                'message' => __('messages.status_updated_successfully'),
+            ]))->response();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::channel('error')->error('Error updating provider status: ' . $e->getMessage(), [
+                'provider_id' => auth()->id(),
+                'status'      => $request->status,
+            ]);
+
+            return (new ErrorResource([
+                'message' => __('messages.error_occurred'),
+            ]))->response();
+        }
+    }
 }
