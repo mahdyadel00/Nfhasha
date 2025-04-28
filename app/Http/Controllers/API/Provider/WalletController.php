@@ -40,7 +40,7 @@ class WalletController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:1|max:' . $user->balance,
             'bank_name' => 'required|string',
-            'account_number' => 'required|string',
+            'account_holder' => 'required|string',
             'account_name' => 'required|string'
         ]);
 
@@ -56,7 +56,7 @@ class WalletController extends Controller
             'user_id' => $user->id,
             'amount' => $request->amount,
             'bank_name' => $request->bank_name,
-            'account_number' => $request->account_number,
+            'account_holder' => $request->account_holder,
             'account_name' => $request->account_name,
             'status' => 'pending'
         ]);
