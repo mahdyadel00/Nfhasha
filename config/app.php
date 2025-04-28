@@ -93,7 +93,7 @@ return [
     |
     */
 
-    'locale' => 'ar',
+    'locale' => 'ar', // أو 'en' حسب اللغة الافتراضية
 
     'locales' => [
         'en' => 'English',

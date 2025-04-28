@@ -30,20 +30,35 @@ class OrderController extends Controller
     }
 
     public function show($id)
-    {
-        $order = Order::where('provider_id', auth('sanctum')->id())->find($id);
+{
+    try {
+        $order = Order::query()
+            ->where('provider_id', auth('sanctum')->id())
+            ->where('id', $id)
+            ->first();
 
         if (!$order) {
-            return new SuccessResource([
+            return response()->json([
+                'status' => 404,
                 'message' => __('messages.order_not_found'),
-            ]);
+                'data' => null
+            ], 404);
         }
 
         return new SuccessResource([
             'message' => __('messages.data_returned_successfully', ['attr' => __('messages.order')]),
             'data' => new OrderResource($order),
         ]);
+
+    } catch (\Exception $e) {
+        Log::channel('error')->error(__('messages.error_in_show_order') . ': ' . $e->getMessage());
+        return response()->json([
+            'status' => 500,
+            'message' => __('messages.something_went_wrong'),
+            'data' => ['error' => $e->getMessage()],
+        ], 500);
     }
+}
 
     public function ordersByStatus(Request $request)
     {
@@ -102,7 +117,7 @@ class OrderController extends Controller
                     \Log::info(__('messages.notification_sent_with_sound') . ': ' . $extraData);
                 }
             } catch (\Exception $e) {
-                Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());    
+                Log::channel('error')->error(__('messages.firebase_notification_failed') . ': ' . $e->getMessage());
             }
         }
 

@@ -100,14 +100,6 @@ class DistrictResource extends Resource
                     ->searchable(),
 
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('is_active')
-                    ->label('الحالة')
-                    ->options([
-                        true => 'مفعّلة',
-                        false => 'غير مفعّلة',
-                    ]),
-            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()

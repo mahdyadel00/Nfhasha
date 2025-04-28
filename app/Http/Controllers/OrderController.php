@@ -9,31 +9,11 @@ class PeriodicInspections extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'order_id',
-        'user_id',
-        'user_vehicle_id',
-        'city_id',
-        'express_service_id',
-        'pick_up_truck_id',
-        'provider_id',
-        'inspection_type_id',
-        'address',
-        'latitude',
-        'longitude',
-        'status',
-        'inspection_reject_image',
-        'inspection_reject_reason',
-    ];
+    protected $fillable = ['order_id', 'user_id', 'user_vehicle_id', 'city_id', 'express_service_id', 'pick_up_truck_id', 'provider_id', 'inspection_type_id', 'address', 'latitude', 'longitude', 'status', 'inspection_reject_image', 'inspection_reject_reason'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function provider()
-    {
-        return $this->belongsTo(User::class, 'provider_id');
     }
 
     public function userVehicle()
@@ -54,6 +34,11 @@ class PeriodicInspections extends Model
     public function pickUpTruck()
     {
         return $this->belongsTo(PickUpTruck::class);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function inspectionType()

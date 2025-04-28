@@ -10,41 +10,29 @@ class CarReservations extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
+        'provider_id',
+        'express_service_id',
         'order_id',
         'city_id',
-        'user_id',
-        'express_service_id',
         'user_vehicle_id',
         'inspection_side',
         'date',
         'time',
     ];
 
-
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-
-
-    public function userVehicle()
-    {
-        return $this->belongsTo(UserVehicle::class , 'user_vehicle_id');
-    }
-
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(User::class, 'provider_id'); 
     }
 
     public function expressService()
     {
-        return $this->belongsTo(ExpressService::class);
+        return $this->belongsTo(ExpressService::class, 'express_service_id');
     }
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
-
 }

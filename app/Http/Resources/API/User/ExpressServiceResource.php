@@ -16,24 +16,25 @@ class ExpressServiceResource extends JsonResource
 
     public function toArray($request)
     {
-        // إذا كان المورد null، نرجع مصفوفة فارغة أو بيانات افتراضية
         if (!$this->resource) {
             return [];
         }
 
-        // تحميل العلاقات إذا لزم الأمر
         $this->loadMissing('carReservations', 'punctureServices');
 
         $latestPunctureService = $this->punctureServices()->latest('created_at')->first();
 
+
         $getUserReservation = function ($relation) use ($request) {
-            // التأكد من أن المستخدم موجود وأن orderId ليس null
-            if (!$request->user() || !$this->id || !$this->orderId) {
+            $userOrProvider = $request->user();
+            if (!$userOrProvider || !$this->id || !$this->orderId) {
                 return null;
             }
 
+            $field = $userOrProvider->role === 'provider' ? 'provider_id' : 'user_id';
+
             return $this->$relation()
-                ->where('user_id', $request->user()->id)
+                ->where($field, $userOrProvider->id)
                 ->where('express_service_id', $this->id)
                 ->where('order_id', $this->orderId)
                 ->first();
@@ -44,6 +45,10 @@ class ExpressServiceResource extends JsonResource
             'is_active'                 => (bool) $this->is_active,
             'type'                      => $this->type,
             'price'                     => $this->price,
+            'provider'                  => $this->provider ? [
+                'id'                    => $this->provider->id ?? null,
+                'name'                  => $this->provider->name ?? null,
+            ] : null,
             'vat'                       => $this->vat,
             'created_at'                => $this->created_at,
             'updated_at'                => $this->updated_at,

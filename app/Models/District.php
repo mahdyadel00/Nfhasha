@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 
-class District extends Model implements \Astrotomic\Translatable\Contracts\Translatable
+class District extends Model
 {
-    use HasFactory , Translatable;
-    public $translatedAttributes = ['name'];
+    use HasFactory, Translatable;
 
-    protected $fillable = ['city_id', 'is_active'];
+    public $translatedAttributes = ['name']; // Specify translatable attributes
+
+    protected $fillable = ['city_id', 'is_active']; // Add other fillable attributes as needed
 
     public function city()
     {

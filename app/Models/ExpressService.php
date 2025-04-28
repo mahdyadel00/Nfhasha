@@ -5,14 +5,17 @@ namespace App\Models;
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CarReservation;
 
 class ExpressService extends Model implements \Astrotomic\Translatable\Contracts\Translatable
 {
-    use HasFactory , Translatable;
+    use HasFactory, Translatable;
 
-    public $translatedAttributes = ['name' , 'terms_condition'];
+    public $translatedAttributes = ['name', 'terms_condition'];
 
-    protected $fillable = ['is_active' , 'type' ,'price' , 'vat'];
+    protected $fillable = ['is_active', 'type', 'price', 'vat'];
+
+    protected $with = ['periodicInspections']; // تحميل العلاقة افتراضيًا
 
     public function punctureServices()
     {
@@ -24,9 +27,9 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
         return $this->hasMany(Order::class);
     }
 
-    public function carReservations()
+     public function carReservations()
     {
-        return $this->hasOne(CarReservations::class);
+        return $this->hasMany(CarReservation::class);
     }
 
     public function comprehensiveInspections()
@@ -41,7 +44,7 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
 
     public function periodicInspections()
     {
-        return $this->hasOne(PeriodicInspections::class);
+        return $this->hasMany(PeriodicInspections::class, 'express_service_id', 'id');
     }
 
     public function ordersCount()
@@ -54,10 +57,8 @@ class ExpressService extends Model implements \Astrotomic\Translatable\Contracts
         return $this->hasMany(ServiceOffer::class);
     }
 
-
     public function typePeriodicInspections()
     {
         return $this->hasMany(TypePeriodicInspections::class);
     }
-
 }

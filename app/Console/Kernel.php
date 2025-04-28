@@ -10,9 +10,10 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+    protected function schedule(Schedule $schedule)
     {
-        $schedule->command('orders:delete-old')->daily(); // 👈 ده السطر المطلوب
+        // جدولة الوظيفة لتعمل كل دقيقة
+        $schedule->job(new \App\Jobs\DeleteUnprocessedOrders())->everyMinute();
     }
 
     /**
@@ -20,12 +21,10 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
 
-    protected $commands = [
-        Commands\ListActivationCodes::class,
-    ];
+    protected $commands = [Commands\ListActivationCodes::class];
 }

@@ -2,50 +2,20 @@
 
 namespace App\Models;
 
-use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 
-class City extends Model implements \Astrotomic\Translatable\Contracts\Translatable
+class City extends Model
 {
     use HasFactory, Translatable;
-    public $translatedAttributes = ['name'];
 
-    protected $guarded = [];
+    public $translatedAttributes = ['name']; // Specify translatable attributes
 
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', 1);
-    }
-
+    protected $fillable = ['is_active']; // Add other fillable attributes as needed
 
     public function districts()
     {
         return $this->hasMany(District::class);
-    }
-
-    public function cyPeriodics()
-    {
-        return $this->hasMany(CyPeriodic::class);
-    }
-
-    public function carReservations()
-    {
-        return $this->hasMany(CarReservations::class);
-    }
-
-    public function comprehensiveInspections()
-    {
-        return $this->hasMany(ComprehensiveInspections::class);
-    }
-
-    public function periodicInspections()
-    {
-        return $this->hasMany(PeriodicInspections::class);
-    }
-
-    public function providers()
-    {
-        return $this->hasMany(Provider::class);
     }
 }
