@@ -16,7 +16,7 @@ class InfoController extends Controller
 {
     public function cities(Request $request)
     {
-        $cities = City::active()->get();
+        $cities = City::get();
 
         return ApiResponse(200,
         __('messages.data_returned_successfully', ['attr' => __('messages.cities')]) ,

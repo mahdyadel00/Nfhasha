@@ -10,9 +10,9 @@ class City extends Model
 {
     use HasFactory, Translatable;
 
-    public $translatedAttributes = ['name']; // Specify translatable attributes
+    public $translatedAttributes = ['name'];
 
-    protected $fillable = ['is_active']; // Add other fillable attributes as needed
+    protected $fillable = ['is_active']; 
 
     public function districts()
     {

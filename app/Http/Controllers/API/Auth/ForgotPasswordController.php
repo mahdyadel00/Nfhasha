@@ -40,7 +40,7 @@ class ForgotPasswordController extends Controller
 
             // Update user with new OTP and reset email verification
             $user->update([
-                'otp'               => (string) $otp, // Ensure OTP is stored as string
+                'otp'               => (string) $otp,
                 // 'otp_expires_at' => now()->addMinutes(10),
                 'email_verified_at' => null,
             ]);
