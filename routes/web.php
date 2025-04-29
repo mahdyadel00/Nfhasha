@@ -20,16 +20,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 //Auth Routes Start
 Route::view('auth/login', 'auth.login')->name('login')->middleware('guest');
 Route::post('auth/login', LoginController::class);
 //Auth Routes End
 
-
 //Change Locale Start
 Route::get('switch-lang/{lang}', ChangeLocaleController::class)->name('changeLocale');
-
 
 //Send a notification test for all users
 Route::get('send-notification', function () {
@@ -41,3 +38,7 @@ Route::get('send-notification', function () {
 });
 
 Route::view('test-channel', 'test-channel');
+
+Route::middleware(['auth'])->group(function () {
+    // حذف Route الخاص بـ VehicleBrand
+});

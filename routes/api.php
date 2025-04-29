@@ -9,6 +9,7 @@ use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\SplashScreensController;
 use App\Http\Controllers\API\User\ServiceOfferController;
 use App\Http\Controllers\API\Auth\ForgotPasswordController;
+use App\Http\Controllers\API\Auth\ProviderForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,15 +21,14 @@ use App\Http\Controllers\API\Auth\ForgotPasswordController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('splash-screens' , [SplashScreensController::class, 'index']);
+Route::get('splash-screens', [SplashScreensController::class, 'index']);
 //get service_offers
-Route::get('service-offers' , [ServiceOfferController::class , 'index']);
-Route::get('service-offer/{id}' , [ServiceOfferController::class , 'show']);
+Route::get('service-offers', [ServiceOfferController::class, 'index']);
+Route::get('service-offer/{id}', [ServiceOfferController::class, 'show']);
 //get copun
-Route::post('coupon/{id}' , [ServiceOfferController::class , 'coupon']);
-Route::get('home-sliders' , HomeSlidersController::class);
-Route::get('services' , ServicesController::class);
-
+Route::post('coupon/{id}', [ServiceOfferController::class, 'coupon']);
+Route::get('home-sliders', HomeSlidersController::class);
+Route::get('services', ServicesController::class);
 
 Route::group(['prefix' => 'auth'], function () {
     Route::group(['prefix' => 'login'], function () {
@@ -45,8 +45,6 @@ Route::group(['prefix' => 'auth'], function () {
         Route::get('terms-and-conditions', [RegisterController::class, 'terms']);
 
         Route::get('/get-firebase-token', [RegisterController::class, 'getFirebaseToken']);
-
-
     });
 });
 
@@ -59,10 +57,15 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+// Routes for provider forgot password functionality
+Route::prefix('provider')->group(function () {
+    Route::post('forgot-password', [ProviderForgotPasswordController::class, 'forgot']);
+    Route::post('verify-otp', [ProviderForgotPasswordController::class, 'verifyOtp']);
+    Route::post('reset-password', [ProviderForgotPasswordController::class, 'reset']);
+});
 
-
-Route::get('cities' , [InfoController::class, 'cities']);
-Route::get('districts/{city}' , [InfoController::class, 'districts']);
-Route::get('pickup-trucks' , [InfoController::class, 'pickupTrucks']);
+Route::get('cities', [InfoController::class, 'cities']);
+Route::get('districts/{city}', [InfoController::class, 'districts']);
+Route::get('pickup-trucks', [InfoController::class, 'pickupTrucks']);
 //get type TypePeriodicInspections
-Route::get('type-periodic-inspections' , [InfoController::class , 'typePeriodicInspections']);
+Route::get('type-periodic-inspections', [InfoController::class, 'typePeriodicInspections']);

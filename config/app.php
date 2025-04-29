@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
     /*
    |--------------------------------------------------------------------------
    | Pagination
@@ -93,26 +92,13 @@ return [
     |
     */
 
-    'locale' => 'ar', // أو 'en' حسب اللغة الافتراضية
+    'locale' => 'ar', // اللغة الافتراضية
+    'fallback_locale' => 'en', // اللغة الاحتياطية
 
     'locales' => [
         'en' => 'English',
         'ar' => 'Arabic',
     ],
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Application Fallback Locale
-    |--------------------------------------------------------------------------
-    |
-    | The fallback locale determines the locale to use when the current one
-    | is not available. You may change the value to correspond to any of
-    | the language folders that are provided through your application.
-    |
-    */
-
-    'fallback_locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -171,23 +157,24 @@ return [
     |
     */
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
+    'providers' => ServiceProvider::defaultProviders()
+        ->merge([
+            /*
+             * Package Service Providers...
+             */
 
-        /*
-         * Application Service Providers...
-         */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\Filament\ManagePanelProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        Kreait\Laravel\Firebase\ServiceProvider::class,
-
-    ])->toArray(),
+            /*
+             * Application Service Providers...
+             */
+            App\Providers\AppServiceProvider::class,
+            App\Providers\AuthServiceProvider::class,
+            // App\Providers\BroadcastServiceProvider::class,
+            App\Providers\EventServiceProvider::class,
+            App\Providers\Filament\ManagePanelProvider::class,
+            App\Providers\RouteServiceProvider::class,
+            Kreait\Laravel\Firebase\ServiceProvider::class,
+        ])
+        ->toArray(),
 
     /*
     |--------------------------------------------------------------------------
@@ -200,8 +187,9 @@ return [
     |
     */
 
-    'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
-    ])->toArray(),
-
+    'aliases' => Facade::defaultAliases()
+        ->merge([
+            // 'Example' => App\Facades\Example::class,
+        ])
+        ->toArray(),
 ];

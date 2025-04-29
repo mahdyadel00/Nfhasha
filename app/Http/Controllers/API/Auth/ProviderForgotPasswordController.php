@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class ForgotPasswordController extends Controller
+class ProviderForgotPasswordController extends Controller
 {
     /**
-     * Handle forgot password request and send OTP.
+     * Handle forgot password request and send OTP for providers.
      *
      * @param ForgetPassword $request
      * @return \Illuminate\Http\JsonResponse
@@ -26,38 +26,29 @@ class ForgotPasswordController extends Controller
         try {
             DB::beginTransaction();
 
-            // Find user by phone number
-            $user = User::where('phone', $request->phone)->first();
+            // Find provider by phone number
+            $provider = User::where('phone', $request->phone)->where('role', 'provider')->first();
 
-            if (!$user) {
+            if (!$provider) {
                 return new ErrorResource([
-                    'message' => __('messages.user_not_found'),
-                ]);
-            }
-
-            // Check if the user is a provider
-            if ($user->role !== 'user') {
-                // Assuming 'role' differentiates user and provider
-                return new ErrorResource([
-                    'message' => __('messages.not_allowed_for_providers'),
+                    'message' => __('messages.provider_not_found'),
                 ]);
             }
 
             // Generate a 6-digit OTP (between 100000 and 999999)
             $otp = mt_rand(100000, 999999);
 
-            // Update user with new OTP and reset email verification
-            $user->update([
+            // Update provider with new OTP
+            $provider->update([
                 'otp' => (string) $otp,
                 // 'otp_expires_at' => now()->addMinutes(10),
-                'email_verified_at' => null,
             ]);
 
             DB::commit();
 
             return new SuccessResource([
                 'message' => __('messages.otp_sent_successfully'),
-                'otp' => $user->otp,
+                'otp' => $provider->otp,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -74,25 +65,19 @@ class ForgotPasswordController extends Controller
     public function verifyOtp(Request $request)
     {
         try {
-            $user = User::where([
+            $provider = User::where([
                 'phone' => $request->phone,
                 'otp' => $request->otp,
+                'role' => 'provider',
             ])->first();
 
-            if (!$user) {
+            if (!$provider) {
                 return new ErrorResource([
-                    'message' => __('messages.user_not_found'),
+                    'message' => __('messages.provider_not_found'),
                 ]);
             }
 
-            // Check if the user is a provider
-            if ($user->role !== 'user') {
-                return new ErrorResource([
-                    'message' => __('messages.not_allowed_for_providers'),
-                ]);
-            }
-
-            if ($user->otp == $request->otp) {
+            if ($provider->otp == $request->otp) {
                 return new SuccessResource([
                     'message' => __('messages.otp_verified_successfully'),
                 ]);
@@ -109,25 +94,17 @@ class ForgotPasswordController extends Controller
     public function reset(ResetPassword $request)
     {
         try {
-            $user = User::where('phone', $request->phone)->first();
+            $provider = User::where('phone', $request->phone)->where('role', 'provider')->first();
 
-            if (!$user) {
+            if (!$provider) {
                 return new ErrorResource([
-                    'message' => __('messages.user_not_found'),
+                    'message' => __('messages.provider_not_found'),
                 ]);
             }
 
-            // Check if the user is a provider
-            if ($user->role !== 'user') {
-                return new ErrorResource([
-                    'message' => __('messages.not_allowed_for_providers'),
-                ]);
-            }
-
-            $user->update([
+            $provider->update([
                 'password' => Hash::make($request->password),
                 'otp' => null,
-                'email_verified_at' => now(),
             ]);
             return new SuccessResource([
                 'message' => __('messages.password_reset_successfully'),
